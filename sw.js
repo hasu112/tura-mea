@@ -1,6 +1,6 @@
 // Service worker: face aplicația să meargă și fără internet.
 // Când schimbi ceva în aplicație, mărește numărul versiunii de mai jos.
-const CACHE = 'tura-mea-v6';
+const CACHE = 'tura-mea-v8';
 const FISIERE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

@@ -19,7 +19,7 @@
   --accent:#C42B1C; --ok:#1E7A46;
   --tura:#1E7A46; --tura-bg:#D8F0E1; --iesire:#A86A12; --iesire-bg:#F9EDD6;
   --co:#2A5FB0; --co-bg:#DCE7F8; --cm:#B42318; --cm-bg:#FBE1DD; --lib:#6A5896; --lib-bg:#EAE4F5;
-  --rs:#A3306C; --rs-bg:#F7E0EC;
+  --rs:#A3306C; --rs-bg:#F7E0EC; --curs:#0B7285; --curs-bg:#D5F0F4;
   --on-accent:#FFFFFF;
   --f-disp:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -29,14 +29,14 @@
   --accent:#FF6A58; --ok:#5DC894;
   --tura:#5DC894; --tura-bg:#12301F; --iesire:#E7A84A; --iesire-bg:#352711;
   --co:#7BA9EA; --co-bg:#15253A; --cm:#FF7A6B; --cm-bg:#3B1A16; --lib:#B3A1E4; --lib-bg:#251E37;
-  --rs:#F08BC0; --rs-bg:#3A1A2B;
+  --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A;
   --on-accent:#0B1A12; color-scheme:dark } }
 :root[data-theme="dark"] {
   --bg:#0E1317; --surface:#172027; --ink:#E7ECF0; --muted:#94A1AD; --line:#29343D; --soft:#1C262E;
   --accent:#FF6A58; --ok:#5DC894;
   --tura:#5DC894; --tura-bg:#12301F; --iesire:#E7A84A; --iesire-bg:#352711;
   --co:#7BA9EA; --co-bg:#15253A; --cm:#FF7A6B; --cm-bg:#3B1A16; --lib:#B3A1E4; --lib-bg:#251E37;
-  --rs:#F08BC0; --rs-bg:#3A1A2B;
+  --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A;
   --on-accent:#0B1A12; color-scheme:dark }
 
 * { box-sizing:border-box }
@@ -77,7 +77,7 @@ h3 { font-size:17px; color:var(--muted) }
 .status .det { color:var(--ink); font-size:15px }
 .status .urm { margin-top:6px; padding-top:10px; border-top:1px dashed var(--line); font-size:15px }
 .status .urm b { font-weight:600 }
-.status.tura { --c:var(--tura) } .status.iesire { --c:var(--iesire) } .status.co { --c:var(--co) } .status.cm { --c:var(--cm) } .status.l { --c:var(--lib) } .status.rs { --c:var(--rs) } .status.liber { --c:var(--ink) }
+.status.tura { --c:var(--tura) } .status.iesire { --c:var(--iesire) } .status.co { --c:var(--co) } .status.cm { --c:var(--cm) } .status.l { --c:var(--lib) } .status.rs { --c:var(--rs) } .status.curs { --c:var(--curs) } .status.liber { --c:var(--ink) }
 
 /* Calendar */
 .cal-head { display:flex; align-items:center; gap:6px }
@@ -105,6 +105,7 @@ h3 { font-size:17px; color:var(--muted) }
 .zi.cm { --c:var(--cm); --cb:var(--cm-bg); border-color:transparent }
 .zi.l { --c:var(--lib); --cb:var(--lib-bg); border-color:transparent }
 .zi.rs { --c:var(--rs); --cb:var(--rs-bg); border-color:transparent }
+.zi.curs { --c:var(--curs); --cb:var(--curs-bg); border-color:transparent }
 .zi.sch-luat { --c:var(--tura); --cb:var(--tura-bg); border:2px solid var(--tura) }
 .zi.sch-luat .d { color:var(--tura) }
 .zi.sch-dat { --c:var(--tura); border:2px dashed var(--tura) }
@@ -163,6 +164,7 @@ tr.viit td { color:var(--muted) }
 .echipa td.c.cm { --c:var(--on-accent); background:var(--cm) }
 .echipa td.c.l { --c:var(--on-accent); background:var(--lib) }
 .echipa td.c.rs { --c:var(--on-accent); background:var(--rs) }
+.echipa td.c.curs { --c:var(--on-accent); background:var(--curs); font-size:10px }
 .echipa td.c.sch-dat { --c:var(--tura); background:none; box-shadow:inset 0 0 0 1.5px var(--tura) }
 .ech-zi { display:grid; gap:8px }
 .ech-gr { --c:var(--muted); display:grid; gap:2px; padding:8px 12px; background:var(--soft); border-left:4px solid var(--c); border-radius:0 8px 8px 0 }
@@ -227,6 +229,7 @@ tr.viit td { color:var(--muted) }
         <span style="--c:var(--cm)"><i></i>CM · medical</span>
         <span style="--c:var(--lib)"><i></i>L · liber cerut</span>
         <span style="--c:var(--rs)"><i></i>RS · recuperare ore</span>
+        <span style="--c:var(--curs)"><i></i>CURS</span>
         <span style="--c:transparent"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>SCH · schimb de tură</span>
         <span>Data subliniată = sărbătoare legală</span>
       </div>
@@ -287,6 +290,7 @@ tr.viit td { color:var(--muted) }
         <span style="--c:var(--cm)"><i></i>CM</span>
         <span style="--c:var(--lib)"><i></i>L · liber cerut</span>
         <span style="--c:var(--rs)"><i></i>RS</span>
+        <span style="--c:var(--curs)"><i></i>Curs</span>
         <span style="--c:transparent"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>SCH · schimb</span>
       </div>
       <p class="hint">Un coleg apare aici după ce își salvează datele în GitHub cu numele lui. Apasă „Reîncarcă” ca să vezi ultimele schimbări. Tabelul se derulează spre dreapta.</p>
@@ -318,7 +322,7 @@ tr.viit td { color:var(--muted) }
         <div class="camp"><label for="pDe">De la</label><input type="date" id="pDe"></div>
         <div class="camp"><label for="pPana">Până la</label><input type="date" id="pPana"></div>
         <div class="camp"><label for="pTip">Ce pui</label>
-          <select id="pTip"><option value="CO">Concediu de odihnă (CO)</option><option value="CM">Concediu medical (CM)</option><option value="L">Liber cerut</option><option value="RS">Recuperare ore suplimentare (RS)</option><option value="sterge">Șterge ce era pus</option></select></div>
+          <select id="pTip"><option value="CO">Concediu de odihnă (CO)</option><option value="CM">Concediu medical (CM)</option><option value="L">Liber cerut</option><option value="RS">Recuperare ore suplimentare (RS)</option><option value="CURS">Curs</option><option value="sterge">Șterge ce era pus</option></select></div>
       </div>
       <label class="chk"><input type="checkbox" id="pDoarTura" checked> Doar în zilele de tură</label>
       <div class="rand"><button class="btn" id="pAplica">Aplică perioada</button></div>
@@ -364,6 +368,7 @@ tr.viit td { color:var(--muted) }
       <label style="--c:var(--cm)"><input type="radio" name="tip" value="CM"> Medical (CM)</label>
       <label style="--c:var(--lib)"><input type="radio" name="tip" value="L"> Liber cerut</label>
       <label style="--c:var(--rs)"><input type="radio" name="tip" value="RS"> RS (recuperare ore)</label>
+      <label style="--c:var(--curs)"><input type="radio" name="tip" value="CURS"> Curs</label>
       <label style="--c:var(--tura)"><input type="radio" name="tip" value="SCH"> Schimb de tură</label>
       <label style="--c:var(--tura)"><input type="radio" name="tip" value="extra"> Tură în plus</label>
     </div>
@@ -444,7 +449,7 @@ function infoZiPt(d, n) {
   let lucreaza = baza === 'tura';
   if (ex && ex.tip === 'extra') lucreaza = true;
   if (ex && ex.tip === 'SCH') lucreaza = baza !== 'tura';
-  if (ex && ['CO', 'CM', 'L', 'RS'].includes(ex.tip)) lucreaza = false;
+  if (ex && ['CO', 'CM', 'L', 'RS', 'CURS'].includes(ex.tip)) lucreaza = false;
   return { baza, ex, lucreaza };
 }
 const infoZi = n => infoZiPt(st, n);
@@ -455,22 +460,23 @@ function clasaZiPt(d, n) {
   if (z.ex && z.ex.tip === 'CM') return ['cm', 'CM'];
   if (z.ex && z.ex.tip === 'L') return ['l', 'L'];
   if (z.ex && z.ex.tip === 'RS') return ['rs', 'RS'];
+  if (z.ex && z.ex.tip === 'CURS') return ['curs', 'CURS'];
   if (z.ex && z.ex.tip === 'SCH') return z.lucreaza ? ['sch-luat', 'SCH'] : ['sch-dat', 'SCH'];
   if (z.lucreaza) return ['tura', 'T'];
   if (infoZiPt(d, n - 1).lucreaza) return ['iesire', 'Ieș'];
   return ['liber', ''];
 }
 const clasaZi = n => clasaZiPt(st, n);
-const DESC = { tura: 'tură', extra: 'tură în plus', 'sch-luat': 'tură la schimb', 'sch-dat': 'tură dată la schimb', iesire: 'iese din tură', co: 'CO', cm: 'CM', l: 'liber cerut', rs: 'RS, recuperare ore', liber: 'liber' };
+const DESC = { tura: 'tură', extra: 'tură în plus', 'sch-luat': 'tură la schimb', 'sch-dat': 'tură dată la schimb', iesire: 'iese din tură', co: 'CO', cm: 'CM', l: 'liber cerut', rs: 'RS, recuperare ore', curs: 'curs', liber: 'liber' };
 function urmatoareaTura(dupa) { for (let n = dupa + 1; n < dupa + 800; n++) if (infoZi(n).lucreaza) return n; return null; }
 function inCate(n) { const d = n - azi(); return d === 0 ? 'azi' : d === 1 ? 'mâine' : d === 2 ? 'poimâine' : d > 0 ? `peste ${d} zile` : `acum ${-d} zile`; }
 
 function stat(a, b) {
-  const r = { plan: 0, lucrate: 0, co: 0, cm: 0, l: 0, rs: 0, schDat: 0, schLuat: 0, extra: 0, weekend: 0, sarb: 0, norma: 0 };
+  const r = { plan: 0, lucrate: 0, curs: 0, co: 0, cm: 0, l: 0, rs: 0, schDat: 0, schLuat: 0, extra: 0, weekend: 0, sarb: 0, norma: 0 };
   for (let n = a; n <= b; n++) {
     const z = infoZi(n), o = deLa(n), sb = sarb(n);
     if (z.baza === 'tura') r.plan++;
-    if (z.ex) { if (z.ex.tip === 'CO') r.co++; else if (z.ex.tip === 'CM') r.cm++; else if (z.ex.tip === 'L') r.l++; else if (z.ex.tip === 'extra') r.extra++; else if (z.ex.tip === 'RS') r.rs++; else if (z.ex.tip === 'SCH') { if (z.lucreaza) r.schLuat++; else r.schDat++; } }
+    if (z.ex) { if (z.ex.tip === 'CO') r.co++; else if (z.ex.tip === 'CM') r.cm++; else if (z.ex.tip === 'L') r.l++; else if (z.ex.tip === 'extra') r.extra++; else if (z.ex.tip === 'RS') r.rs++; else if (z.ex.tip === 'CURS') r.curs++; else if (z.ex.tip === 'SCH') { if (z.lucreaza) r.schLuat++; else r.schDat++; } }
     if (z.lucreaza) { r.lucrate++; if (o.w === 0 || o.w === 6) r.weekend++; if (sb) r.sarb++; }
     if (o.w >= 1 && o.w <= 5 && !sb) r.norma += 8;
   }
@@ -487,7 +493,7 @@ let anStat = deLa(azi()).y;
 
 function randeazaStatus() {
   const t = azi(), z = infoZi(t), [cls] = clasaZi(t), ora = st.setari.oraStart;
-  const titluri = { tura: 'În tură', extra: 'Tură în plus', iesire: 'Ieși din tură', co: 'Concediu', cm: 'Medical', l: 'Liber cerut', rs: 'Recuperare (RS)', 'sch-luat': 'Tură la schimb', 'sch-dat': 'Liber (schimb)', liber: 'Liber' };
+  const titluri = { tura: 'În tură', extra: 'Tură în plus', iesire: 'Ieși din tură', co: 'Concediu', cm: 'Medical', l: 'Liber cerut', rs: 'Recuperare (RS)', curs: 'Curs', 'sch-luat': 'Tură la schimb', 'sch-dat': 'Liber (schimb)', liber: 'Liber' };
   let det = '';
   if (z.lucreaza) det = `Intri la ${ora}, ieși mâine la ${ora}.`;
   else if (cls === 'iesire') det = `Ieși la ${ora}, după tura de ieri.`;
@@ -495,6 +501,7 @@ function randeazaStatus() {
   else if (cls === 'cm') det = 'Zi de concediu medical.';
   else if (cls === 'l') det = 'Zi liberă cerută în locul turei.';
   else if (cls === 'rs') det = 'Zi de recuperare a orelor suplimentare.';
+  else if (cls === 'curs') det = 'Zi de curs.';
   else if (cls === 'sch-dat') det = 'Ți-ai dat tura la schimb.';
   else det = 'Nu ai tură azi.';
   if (z.ex && z.ex.cu) det += ` Schimb cu ${z.ex.cu}.`;
@@ -530,7 +537,7 @@ function randeazaCalendar() {
 function randeazaVerif() {
   const v = $('verif').value; if (!v) { $('verifRez').textContent = ''; return; }
   const n = dinIso(v), [cls] = clasaZi(n), z = infoZi(n), sb = sarb(n);
-  const txt = { tura: 'ești în tură', extra: 'ai tură în plus', 'sch-luat': 'lucrezi la schimb', 'sch-dat': 'ești liber, ți-ai dat tura la schimb', rs: 'ai zi de recuperare ore suplimentare (RS)', iesire: 'ieși din tură', co: 'ești în concediu de odihnă', cm: 'ești în concediu medical', l: 'ai liber cerut', liber: 'ești liber' }[cls];
+  const txt = { tura: 'ești în tură', extra: 'ai tură în plus', 'sch-luat': 'lucrezi la schimb', 'sch-dat': 'ești liber, ți-ai dat tura la schimb', curs: 'ai curs', rs: 'ai zi de recuperare ore suplimentare (RS)', iesire: 'ieși din tură', co: 'ești în concediu de odihnă', cm: 'ești în concediu medical', l: 'ai liber cerut', liber: 'ești liber' }[cls];
   let r = `<b>${esc(cap(scrie(n)))}</b>: ${txt}.`;
   if (sb) r += ` E sărbătoare legală (${esc(sb)}).`;
   if (!z.lucreaza) { const u = urmatoareaTura(n); if (u) r += ` Următoarea tură: ${esc(scrieScurt(u))}.`; }
@@ -552,7 +559,7 @@ function randeazaStat() {
   const tiles = [
     [an.lucrate, 'ture lucrate și planificate'], [an.ore, 'ore lucrate'],
     [semn(an.dif), 'ore față de normă (' + an.norma + ')'], [`${an.co}/${st.setari.zileCO}`, `zile CO, rămân ${coRam}`],
-    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.rs, `zile RS, ${an.rs * (Number(st.setari.oreTura) || 24)} ore recuperate`], [`${an.schDat} / ${an.schLuat}`, 'schimburi: ture date / luate'], [an.weekend, 'ture în weekend'], [an.sarb, 'ture de sărbători']];
+    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.rs, `zile RS, ${an.rs * (Number(st.setari.oreTura) || 24)} ore recuperate`], [`${an.schDat} / ${an.schLuat}`, 'schimburi: ture date / luate'], [an.curs, 'zile de curs'], [an.weekend, 'ture în weekend'], [an.sarb, 'ture de sărbători']];
   $('tiles').innerHTML = tiles.map(([v, k]) => `<div class="tile"><span class="v">${esc(v)}</span><span class="k">${esc(k)}</span></div>`).join('');
 
   const luni = []; for (let m = 0; m < 12; m++) { const a = dn(y, m, 1), b = dn(y, m + 1, 1) - 1; luni.push(Object.assign(stat(a, b), { viit: a > t })); }
@@ -570,9 +577,9 @@ function randeazaStat() {
   });
   $('grafic').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ore lucrate pe lună în ${y}">${g}</svg>`;
   // tabel
-  let tb = '<table><thead><tr><th>Luna</th><th>Ture</th><th>Ore</th><th>Normă</th><th>Dif.</th><th>CO</th><th>CM</th><th>L</th><th>RS</th><th>Sch.</th><th>Weekend</th><th>Sărb.</th></tr></thead><tbody>';
-  luni.forEach((l, i) => { tb += `<tr class="${l.viit ? 'viit' : ''}"><td>${cap(LUNI[i])}</td><td>${l.lucrate}</td><td>${l.ore}</td><td>${l.norma}</td><td class="${l.dif >= 0 ? 'plus' : 'minus'}">${semn(l.dif)}</td><td>${l.co}</td><td>${l.cm}</td><td>${l.l}</td><td>${l.rs}</td><td>${l.schDat + l.schLuat}</td><td>${l.weekend}</td><td>${l.sarb}</td></tr>`; });
-  tb += `</tbody><tfoot><tr><th>Total</th><th>${an.lucrate}</th><th>${an.ore}</th><th>${an.norma}</th><th>${semn(an.dif)}</th><th>${an.co}</th><th>${an.cm}</th><th>${an.l}</th><th>${an.rs}</th><th>${an.schDat + an.schLuat}</th><th>${an.weekend}</th><th>${an.sarb}</th></tr></tfoot></table>`;
+  let tb = '<table><thead><tr><th>Luna</th><th>Ture</th><th>Ore</th><th>Normă</th><th>Dif.</th><th>CO</th><th>CM</th><th>L</th><th>RS</th><th>Curs</th><th>Sch.</th><th>Weekend</th><th>Sărb.</th></tr></thead><tbody>';
+  luni.forEach((l, i) => { tb += `<tr class="${l.viit ? 'viit' : ''}"><td>${cap(LUNI[i])}</td><td>${l.lucrate}</td><td>${l.ore}</td><td>${l.norma}</td><td class="${l.dif >= 0 ? 'plus' : 'minus'}">${semn(l.dif)}</td><td>${l.co}</td><td>${l.cm}</td><td>${l.l}</td><td>${l.rs}</td><td>${l.curs}</td><td>${l.schDat + l.schLuat}</td><td>${l.weekend}</td><td>${l.sarb}</td></tr>`; });
+  tb += `</tbody><tfoot><tr><th>Total</th><th>${an.lucrate}</th><th>${an.ore}</th><th>${an.norma}</th><th>${semn(an.dif)}</th><th>${an.co}</th><th>${an.cm}</th><th>${an.l}</th><th>${an.rs}</th><th>${an.curs}</th><th>${an.schDat + an.schLuat}</th><th>${an.weekend}</th><th>${an.sarb}</th></tr></tfoot></table>`;
   $('tabel').innerHTML = tb;
 }
 
@@ -801,12 +808,12 @@ function randeazaEchZi() {
     else if (cls === 'sch-luat') g.tura.push(nm + ' (schimb' + cu + ')');
     else if (cls === 'sch-dat') g.liber.push(nm + ' (a dat tura' + cu + ')');
     else if (cls === 'iesire') g.iesire.push(nm); else if (cls === 'liber') g.liber.push(nm);
-    else g.co.push(nm + ' · ' + { co: 'CO', cm: 'CM', l: 'liber cerut', rs: 'RS' }[cls]);
+    else g.co.push(nm + ' · ' + { co: 'CO', cm: 'CM', l: 'liber cerut', rs: 'RS', curs: 'curs' }[cls]);
   });
   const bloc = (t, c, l) => `<div class="ech-gr ${c}"><span class="eti">${t} · ${l.length}</span><span>${l.length ? l.map(esc).join(', ') : 'nimeni'}</span></div>`;
   $('echZiRez').innerHTML = `<p class="rez"><b>${esc(cap(scrie(n)))}</b>${sarb(n) ? ' · ' + esc(sarb(n)) : ''}</p>`
     + bloc('În tură', 'tura', g.tura) + bloc('Liberi, pot face schimb', 'liber', g.liber)
-    + bloc('Ies din tură', 'iesire', g.iesire) + bloc('În concediu sau liber cerut', 'co', g.co);
+    + bloc('Ies din tură', 'iesire', g.iesire) + bloc('Absenți: concediu, curs, liber cerut', 'co', g.co);
 }
 $('echPrev').onclick = () => { echVedere.m--; if (echVedere.m < 0) { echVedere.m = 11; echVedere.y--; } randeazaEchipa(); };
 $('echNext').onclick = () => { echVedere.m++; if (echVedere.m > 11) { echVedere.m = 0; echVedere.y++; } randeazaEchipa(); };
