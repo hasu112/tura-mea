@@ -17,24 +17,24 @@
 :root {
   --bg:#EDF0F3; --surface:#FFFFFF; --ink:#141B22; --muted:#5A6570; --line:#D3D9DF; --soft:#F5F7F9;
   --accent:#C42B1C; --ok:#1E7A46;
-  --tura:#1E7A46; --tura-bg:#D8F0E1; --iesire:#A86A12; --iesire-bg:#F9EDD6;
+  --tura:#13693A; --tura-bg:#B5E6C7; --iesire:#A86A12; --iesire-bg:#F9EDD6;
   --co:#2A5FB0; --co-bg:#DCE7F8; --cm:#B42318; --cm-bg:#FBE1DD; --lib:#6A5896; --lib-bg:#EAE4F5;
   --rs:#A3306C; --rs-bg:#F7E0EC; --curs:#0B7285; --curs-bg:#D5F0F4;
   --on-accent:#FFFFFF;
-  --f-disp:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-disp:"Barlow Condensed","Avenir Next Condensed","Roboto Condensed","sans-serif-condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg:#0E1317; --surface:#172027; --ink:#E7ECF0; --muted:#94A1AD; --line:#29343D; --soft:#1C262E;
   --accent:#FF6A58; --ok:#5DC894;
-  --tura:#5DC894; --tura-bg:#12301F; --iesire:#E7A84A; --iesire-bg:#352711;
+  --tura:#6FDBA4; --tura-bg:#1B4A31; --iesire:#E7A84A; --iesire-bg:#352711;
   --co:#7BA9EA; --co-bg:#15253A; --cm:#FF7A6B; --cm-bg:#3B1A16; --lib:#B3A1E4; --lib-bg:#251E37;
   --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A;
   --on-accent:#0B1A12; color-scheme:dark } }
 :root[data-theme="dark"] {
   --bg:#0E1317; --surface:#172027; --ink:#E7ECF0; --muted:#94A1AD; --line:#29343D; --soft:#1C262E;
   --accent:#FF6A58; --ok:#5DC894;
-  --tura:#5DC894; --tura-bg:#12301F; --iesire:#E7A84A; --iesire-bg:#352711;
+  --tura:#6FDBA4; --tura-bg:#1B4A31; --iesire:#E7A84A; --iesire-bg:#352711;
   --co:#7BA9EA; --co-bg:#15253A; --cm:#FF7A6B; --cm-bg:#3B1A16; --lib:#B3A1E4; --lib-bg:#251E37;
   --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A;
   --on-accent:#0B1A12; color-scheme:dark }
@@ -91,7 +91,7 @@ h3 { font-size:17px; color:var(--muted) }
 .dow span { text-align:center; font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--muted); text-transform:uppercase }
 .zi { --c:var(--muted); --cb:transparent; position:relative; aspect-ratio:1/1.05; min-width:0; border:1px solid var(--line); border-radius:8px; background:var(--cb); padding:4px 5px; display:flex; flex-direction:column; justify-content:space-between; text-align:left }
 .zi .d { font-weight:600; font-size:15px }
-.zi .t { align-self:flex-end; font-family:var(--f-disp); font-weight:700; font-size:13px; letter-spacing:.04em; color:var(--c); text-transform:uppercase }
+.zi .t { align-self:flex-end; font-family:var(--f-disp); font-weight:700; font-size:13px; letter-spacing:.02em; line-height:1; color:var(--c); text-transform:uppercase }
 .zi.gol { border:0; background:none; pointer-events:none }
 .zi.sarb .d { text-decoration:underline; text-decoration-color:var(--accent); text-underline-offset:3px }
 .zi.weekend .d { color:var(--muted) }
@@ -156,15 +156,24 @@ tr.viit td { color:var(--muted) }
 #scosBanner h3 { color:var(--accent) }
 .adm li.sep { background:none; padding:10px 0 0 }
 
+/* Post / etichetă pe zi */
+.zi .et { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--f-disp); font-size:11px; line-height:1.2; font-weight:600; letter-spacing:.01em; color:var(--ink); background:var(--surface); border-radius:3px; padding:0 2px; align-self:flex-start }
+.zi.weekend.tura .et, .zi.weekend.sch-luat .et, .zi.weekend.extra .et { background:rgba(255,255,255,.88); color:#0B3D22 }
+.zi .et .lung { display:none }
+@media (min-width:600px) { .zi .et .lung { display:inline } .zi .et .scurt { display:none } }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px }
+.chip { border:1px solid var(--line); background:var(--soft); border-radius:999px; padding:3px 11px; font-size:14px }
+.chip:hover { border-color:var(--tura) }
+
 /* Echipa */
 .echipa table { border-collapse:separate; border-spacing:2px; width:auto }
 .echipa th, .echipa td { padding:0; border:0; text-align:center; white-space:nowrap }
 .echipa .nume { position:sticky; left:0; z-index:1; background:var(--surface); text-align:left; padding-right:8px; font-weight:600; font-size:14px; max-width:120px; overflow:hidden; text-overflow:ellipsis }
 .echipa tr.eu .nume { color:var(--accent) }
-.echipa .zh { width:28px; min-width:28px; font-size:11px; line-height:1.15; letter-spacing:0; text-transform:none; padding-bottom:4px }
+.echipa .zh { width:30px; min-width:30px; font-size:11px; line-height:1.15; letter-spacing:0; text-transform:none; padding-bottom:4px }
 .echipa .zh.we { color:var(--accent) }
 .echipa .zh.azi { color:var(--ink); font-weight:700; text-decoration:underline }
-.echipa td.c { --c:var(--muted); width:28px; min-width:28px; height:30px; border-radius:5px; background:var(--soft); color:var(--c); font-family:var(--f-disp); font-weight:700; font-size:12px }
+.echipa td.c { --c:var(--muted); width:30px; min-width:30px; height:30px; border-radius:5px; background:var(--soft); color:var(--c); font-family:var(--f-disp); font-weight:700; font-size:10px; letter-spacing:0 }
 .echipa td.c.azi { outline:2px solid var(--ink); outline-offset:-1px }
 .echipa td.c.tura, .echipa td.c.extra, .echipa td.c.sch-luat { --c:var(--tura); background:var(--tura-bg) }
 .echipa td.c.tura.we, .echipa td.c.extra.we, .echipa td.c.sch-luat.we { --c:var(--on-accent); background:var(--tura) }
@@ -174,7 +183,7 @@ tr.viit td { color:var(--muted) }
 .echipa td.c.cm { --c:var(--on-accent); background:var(--cm) }
 .echipa td.c.l { --c:var(--on-accent); background:var(--lib) }
 .echipa td.c.rs { --c:var(--on-accent); background:var(--rs) }
-.echipa td.c.curs { --c:var(--on-accent); background:var(--curs); font-size:10px }
+.echipa td.c.curs { --c:var(--on-accent); background:var(--curs) }
 .echipa td.c.sch-dat { --c:var(--tura); background:none; box-shadow:inset 0 0 0 1.5px var(--tura) }
 .ech-zi { display:grid; gap:8px }
 .ech-gr { --c:var(--muted); display:grid; gap:2px; padding:8px 12px; background:var(--soft); border-left:4px solid var(--c); border-radius:0 8px 8px 0 }
@@ -236,8 +245,8 @@ tr.viit td { color:var(--muted) }
       <div class="dow"><span>L</span><span>Ma</span><span>Mi</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
       <div class="grid" id="grid"></div>
       <div class="legend">
-        <span style="--c:var(--tura-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>T · tură</span>
-        <span style="--c:var(--tura)"><i></i>T · tură în weekend</span>
+        <span style="--c:var(--tura-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>TURA</span>
+        <span style="--c:var(--tura)"><i></i>TURA în weekend</span>
         <span style="--c:var(--iesire)"><i></i>Ieș · ieșire din tură</span>
         <span style="--c:var(--co)"><i></i>CO · concediu</span>
         <span style="--c:var(--cm)"><i></i>CM · medical</span>
@@ -297,7 +306,7 @@ tr.viit td { color:var(--muted) }
       <p class="gh-st" id="echSt"></p>
       <div class="tabel echipa" id="echTabel"></div>
       <div class="legend">
-        <span style="--c:var(--tura-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>T · tură</span>
+        <span style="--c:var(--tura-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>TURA</span>
         <span style="--c:var(--tura)"><i></i>tură în weekend</span>
         <span style="--c:var(--iesire-bg)"><i></i>ieșire din tură</span>
         <span style="--c:var(--co)"><i></i>CO</span>
@@ -341,8 +350,9 @@ tr.viit td { color:var(--muted) }
       <div class="campuri">
         <div class="camp"><label for="pDe">De la</label><input type="date" id="pDe"></div>
         <div class="camp"><label for="pPana">Până la</label><input type="date" id="pPana"></div>
+        <div class="camp" id="pEtCamp" hidden><label for="pEt">Post / etichetă</label><input type="text" id="pEt" maxlength="24" autocomplete="off" placeholder="ex. Ambulanță"></div>
         <div class="camp"><label for="pTip">Ce pui</label>
-          <select id="pTip"><option value="CO">Concediu de odihnă (CO)</option><option value="CM">Concediu medical (CM)</option><option value="L">Liber cerut</option><option value="RS">Recuperare ore suplimentare (RS)</option><option value="CURS">Curs</option><option value="sterge">Șterge ce era pus</option></select></div>
+          <select id="pTip"><option value="CO">Concediu de odihnă (CO)</option><option value="CM">Concediu medical (CM)</option><option value="L">Liber cerut</option><option value="RS">Recuperare ore suplimentare (RS)</option><option value="CURS">Curs</option><option value="ET">Doar post / etichetă (ex. Ambulanță)</option><option value="sterge">Șterge ce era pus</option></select></div>
       </div>
       <label class="chk"><input type="checkbox" id="pDoarTura" checked> Doar în zilele de tură</label>
       <div class="rand"><button class="btn" id="pAplica">Aplică perioada</button></div>
@@ -402,6 +412,8 @@ tr.viit td { color:var(--muted) }
     </div>
     <div class="camp" id="shCuCamp" hidden><label for="shCu">Schimb cu</label><input type="text" id="shCu" autocomplete="off" placeholder="ex. Andrei">
       <p class="hint">Într-o zi de tură înseamnă că îți dai tura colegului. Într-o zi liberă înseamnă că lucrezi tu în locul lui.</p></div>
+    <div class="camp"><label for="shEt">Post / etichetă (apare în calendar)</label><input type="text" id="shEt" maxlength="24" autocomplete="off" placeholder="ex. Ambulanță">
+      <div class="chips" id="shChips"></div></div>
     <div class="camp"><label for="shNota">Notă</label><textarea id="shNota" placeholder="ex. ședință la 10"></textarea></div>
     <div class="rand"><button class="btn" id="shSalv">Salvează</button><button class="ghost" id="shAnul">Anulează</button></div>
   </div>
@@ -490,7 +502,7 @@ function clasaZiPt(d, n) {
   if (z.ex && z.ex.tip === 'RS') return ['rs', 'RS'];
   if (z.ex && z.ex.tip === 'CURS') return ['curs', 'CURS'];
   if (z.ex && z.ex.tip === 'SCH') return z.lucreaza ? ['sch-luat', 'SCH'] : ['sch-dat', 'SCH'];
-  if (z.lucreaza) return ['tura', 'T'];
+  if (z.lucreaza) return ['tura', 'TURA'];
   if (infoZiPt(d, n - 1).lucreaza) return ['iesire', 'Ieș'];
   return ['liber', ''];
 }
@@ -533,6 +545,7 @@ function randeazaStatus() {
   else if (cls === 'sch-dat') det = 'Ți-ai dat tura la schimb.';
   else det = 'Nu ai tură azi.';
   if (z.ex && z.ex.cu) det += ` Schimb cu ${z.ex.cu}.`;
+  if (z.ex && z.ex.eticheta) det += ` Post: ${z.ex.eticheta}.`;
   if (z.ex && z.ex.nota) det += ` Notă: ${z.ex.nota}`;
   const u = urmatoareaTura(t);
   const el = $('status');
@@ -553,8 +566,8 @@ function randeazaCalendar() {
   for (let n = prima; n <= ultima; n++) {
     const [cls, tag] = clasaZi(n), o = deLa(n), z = infoZi(n), sb = sarb(n);
     const c = [cls, n === t ? 'azi' : '', sb ? 'sarb' : '', (o.w === 0 || o.w === 6) ? 'weekend' : '', z.ex && z.ex.nota ? 'nota' : ''].join(' ');
-    const et = `${scrie(n)}${tag ? ', ' + tag : ''}${sb ? ', ' + sb : ''}`;
-    h += `<button class="zi ${c}" data-n="${n}" aria-label="${esc(et)}"${sb ? ` title="${esc(sb)}"` : ''}><span class="d num">${o.d}</span><span class="t">${tag}</span></button>`;
+    const et = `${scrie(n)}${tag ? ', ' + tag : ''}${z.ex && z.ex.eticheta ? ', ' + z.ex.eticheta : ''}${sb ? ', ' + sb : ''}`;
+    h += `<button class="zi ${c}" data-n="${n}" aria-label="${esc(et)}"${sb ? ` title="${esc(sb)}"` : ''}><span class="d num">${o.d}</span>${z.ex && z.ex.eticheta ? `<span class="et"><span class="lung">${esc(z.ex.eticheta)}</span><span class="scurt">${esc(scurtEt(z.ex.eticheta))}</span></span>` : ''}<span class="t">${tag}</span></button>`;
   }
   $('grid').innerHTML = h;
   const s = stat(prima, ultima);
@@ -567,6 +580,8 @@ function randeazaVerif() {
   const n = dinIso(v), [cls] = clasaZi(n), z = infoZi(n), sb = sarb(n);
   const txt = { tura: 'ești în tură', extra: 'ai tură în plus', 'sch-luat': 'lucrezi la schimb', 'sch-dat': 'ești liber, ți-ai dat tura la schimb', curs: 'ai curs', rs: 'ai zi de recuperare ore suplimentare (RS)', iesire: 'ieși din tură', co: 'ești în concediu de odihnă', cm: 'ești în concediu medical', l: 'ai liber cerut', liber: 'ești liber' }[cls];
   let r = `<b>${esc(cap(scrie(n)))}</b>: ${txt}.`;
+  if (z.ex && z.ex.eticheta) r += ` Post: ${esc(z.ex.eticheta)}.`;
+  if (z.ex && z.ex.nota) r += ` Notă: ${esc(z.ex.nota)}`;
   if (sb) r += ` E sărbătoare legală (${esc(sb)}).`;
   if (!z.lucreaza) { const u = urmatoareaTura(n); if (u) r += ` Următoarea tură: ${esc(scrieScurt(u))}.`; }
   $('verifRez').innerHTML = r;
@@ -575,7 +590,8 @@ function randeazaVerif() {
 function randeazaUrm() {
   let n = azi() - 1, h = '';
   for (let i = 0; i < 6; i++) { n = urmatoareaTura(n); if (n == null) break; const sb = sarb(n), o = deLa(n);
-    h += `<li><span>${esc(cap(scrieScurt(n)))}${sb ? ' · ' + esc(sb) : (o.w === 0 || o.w === 6) ? ' · weekend' : ''}</span><span>${inCate(n)}</span></li>`; }
+    const ex = st.exceptii[iso(n)];
+    h += `<li><span>${esc(cap(scrieScurt(n)))}${ex && ex.eticheta ? ' · <b>' + esc(ex.eticheta) + '</b>' : ''}${sb ? ' · ' + esc(sb) : (o.w === 0 || o.w === 6) ? ' · weekend' : ''}</span><span>${inCate(n)}</span></li>`; }
   $('urm').innerHTML = h;
 }
 
@@ -647,9 +663,17 @@ function deschideZi(n) {
   document.querySelectorAll('#shOpt input').forEach(i => (i.checked = i.value === tip));
   $('shCu').value = z.ex && z.ex.cu ? z.ex.cu : ''; $('shCuCamp').hidden = tip !== 'SCH';
   $('shNota').value = z.ex && z.ex.nota ? z.ex.nota : '';
+  $('shEt').value = z.ex && z.ex.eticheta ? z.ex.eticheta : '';
+  $('shChips').innerHTML = etichete().map(x => `<button type="button" class="chip">${esc(x)}</button>`).join('');
   $('sheetBg').hidden = false;
   $('shSalv').focus();
 }
+const scurtEt = s => s.length <= 6 ? s : s.slice(0, 4) + '.';
+function etichete() {
+  const v = Object.values(st.exceptii).map(x => x && x.eticheta).filter(Boolean);
+  return [...new Set([...v.reverse(), 'Ambulanță', 'SMURD', 'Descarcerare', 'Autospecială', 'Dispecerat'])].slice(0, 8);
+}
+$('shChips').addEventListener('click', e => { const c = e.target.closest('.chip'); if (c) $('shEt').value = $('shEt').value === c.textContent ? '' : c.textContent; });
 function inchideZi() { $('sheetBg').hidden = true; ziDeschisa = null; }
 $('shAnul').onclick = inchideZi;
 $('shOpt').addEventListener('change', () => { $('shCuCamp').hidden = (document.querySelector('#shOpt input:checked') || {}).value !== 'SCH'; });
@@ -658,7 +682,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheetB
 $('shSalv').onclick = () => {
   const tip = (document.querySelector('#shOpt input:checked') || {}).value || '', nota = $('shNota').value.trim(), k = iso(ziDeschisa);
   const cu = tip === 'SCH' ? $('shCu').value.trim() : '';
-  if (!tip && !nota) delete st.exceptii[k]; else st.exceptii[k] = cu ? { tip, nota, cu } : { tip, nota };
+  const eticheta = $('shEt').value.trim();
+  if (!tip && !nota && !eticheta) delete st.exceptii[k];
+  else { const o = { tip, nota }; if (cu) o.cu = cu; if (eticheta) o.eticheta = eticheta; st.exceptii[k] = o; }
   inchideZi(); salveaza(); toast('Ziua a fost salvată');
 };
 
@@ -672,9 +698,11 @@ function actualizeazaSetari() {
 ['sTip', 'sRef', 'sOra', 'sCO'].forEach(id => $(id).addEventListener('change', actualizeazaSetari));
 
 // perioadă
+$('pTip').addEventListener('change', () => { $('pEtCamp').hidden = $('pTip').value !== 'ET'; });
 $('pAplica').onclick = () => {
   const a = $('pDe').value, b = $('pPana').value, tip = $('pTip').value, doarTura = $('pDoarTura').checked;
   if (!a || !b) return toast('Alege data de început și de sfârșit');
+  const pEt = $('pEt').value.trim(); if (tip === 'ET' && !pEt) return toast('Scrie postul, de exemplu Ambulanță');
   let x = dinIso(a), y = dinIso(b); if (y < x) [x, y] = [y, x];
   if (y - x > 400) return toast('Perioada e prea lungă (maxim 400 de zile)');
   let nr = 0;
@@ -682,7 +710,9 @@ $('pAplica').onclick = () => {
     const k = iso(n);
     if (tip === 'sterge') { if (st.exceptii[k]) { delete st.exceptii[k]; nr++; } continue; }
     if (doarTura && infoZi(n).baza !== 'tura') continue;
-    st.exceptii[k] = { tip, nota: (st.exceptii[k] && st.exceptii[k].nota) || '' }; nr++;
+    const v = Object.assign({ tip: '', nota: '' }, st.exceptii[k] || {});
+    if (tip === 'ET') v.eticheta = pEt; else v.tip = tip;
+    st.exceptii[k] = v; nr++;
   }
   salveaza(); toast(tip === 'sterge' ? `Am șters ${nr} zile` : `Am marcat ${nr} zile`);
 };
@@ -832,7 +862,7 @@ function randeazaEchipa() {
     for (let n = prima; n <= ultima; n++) {
       const [cls, tag] = clasaZiPt(mb.date, n), o = deLa(n), we = o.w === 0 || o.w === 6;
       const desc = DESC[cls];
-      h += `<td class="c ${cls}${we ? ' we' : ''}${n === t ? ' azi' : ''}" title="${esc(`${mb.nume}, ${scrieScurt(n)}: ${desc}`)}">${tag === 'Ieș' ? '' : tag}</td>`;
+      h += `<td class="c ${cls}${we ? ' we' : ''}${n === t ? ' azi' : ''}" title="${esc(`${mb.nume}, ${scrieScurt(n)}: ${desc}${mb.date.exceptii[iso(n)] && mb.date.exceptii[iso(n)].eticheta ? ' · ' + mb.date.exceptii[iso(n)].eticheta : ''}`)}">${tag === 'Ieș' ? '' : tag}</td>`;
     }
     h += '</tr>';
   });
@@ -846,9 +876,9 @@ function randeazaEchZi() {
   const n = dinIso(v), g = { tura: [], liber: [], iesire: [], co: [] };
   membri().forEach(mb => {
     const [cls] = clasaZiPt(mb.date, n), nm = mb.nume + (mb.eu ? ' (tu)' : '');
-    const exz = mb.date.exceptii[iso(n)], cu = exz && exz.cu ? ' cu ' + exz.cu : '';
-    if (cls === 'tura') g.tura.push(nm); else if (cls === 'extra') g.tura.push(nm + ' (în plus)');
-    else if (cls === 'sch-luat') g.tura.push(nm + ' (schimb' + cu + ')');
+    const exz = mb.date.exceptii[iso(n)], cu = exz && exz.cu ? ' cu ' + exz.cu : '', post = exz && exz.eticheta ? ' · ' + exz.eticheta : '';
+    if (cls === 'tura') g.tura.push(nm + post); else if (cls === 'extra') g.tura.push(nm + ' (în plus)' + post);
+    else if (cls === 'sch-luat') g.tura.push(nm + ' (schimb' + cu + ')' + post);
     else if (cls === 'sch-dat') g.liber.push(nm + ' (a dat tura' + cu + ')');
     else if (cls === 'iesire') g.iesire.push(nm); else if (cls === 'liber') g.liber.push(nm);
     else g.co.push(nm + ' · ' + { co: 'CO', cm: 'CM', l: 'liber cerut', rs: 'RS', curs: 'curs' }[cls]);
