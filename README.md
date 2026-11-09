@@ -86,8 +86,18 @@ Fiecare coleg are fișierul lui în același repository: `data/ture-alexandru.js
 
 Cum dai acces colegilor (alege una):
 
-- **Fiecare cu tokenul lui (recomandat).** În `tura-mea-date` → **Settings** → **Collaborators** → **Add people** și îl inviți pe coleg. El își face un token fine-grained pentru `tura-mea-date` cu **Contents: Read and write**. Dacă pleacă din echipă, îl scoți din Collaborators și nu mai are acces.
+- **Fiecare cu contul și tokenul lui (recomandat).** Colegul își face cont GitHub. Tu îl inviți: `tura-mea-date` → **Settings** → **Collaborators** → **Add people**. El acceptă invitația (din e-mail sau github.com/notifications), apoi își face un **token clasic**: **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)** → **Generate new token (classic)**, bifează **repo**, alege expirarea și apasă **Generate token**. Tokenurile fine-grained nu merg pe un repository care aparține altcuiva. Tokenul tău nu-l dai nimănui. Dacă pleacă din echipă, îl scoți din Collaborators sau din aplicație.
 - **Un singur token comun.** Faci tu un token doar pentru `tura-mea-date` și îl dai colegilor. E mai simplu (ei nu au nevoie de cont GitHub), dar nu poți tăia accesul unui singur om: trebuie să faci token nou pentru toți.
+
+### Scoaterea unui coleg din echipă (doar administratorul)
+
+1. Fă un token separat pentru echipă (Pasul 5, numit de ex. `tura-mea-echipa`, doar pentru `tura-mea-date`, cu **Contents: Read and write**) și dă-l colegilor. Pe al tău nu-l da.
+2. În aplicație: **Setări** → **Administrator** → scrie un cod de minim 6 caractere → **Activează**. Codul se salvează criptat în `data/admin.json`. Fă asta înaintea colegilor: prima persoană care apasă „Activează” stabilește codul.
+3. Pe alt telefon sau pe Mac introduci același cod.
+4. În fila **Echipa**, jos, apare **Administrează echipa**. **Scoate** (apeși de două ori) șterge fișierul colegului.
+
+Panoul apare doar unde s-a introdus codul. Colegii nu-l văd, dar tokenul comun le dă tehnic voie să scrie în repository. Ca să tai complet accesul cuiva, fă un token nou de echipă și dă-l doar celor rămași.
+Ca să schimbi codul: șterge pe GitHub fișierul `data/admin.json` și activează din nou cu codul nou.
 
 > Oricine are acces la `tura-mea-date` poate vedea și modifica fișierele tuturor colegilor. GitHub nu poate da acces doar la un fișier. Dă acces doar oamenilor de încredere și nu scrie în note lucruri personale.
 

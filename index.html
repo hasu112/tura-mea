@@ -129,6 +129,11 @@ textarea { width:100%; min-height:64px; resize:vertical }
 ol.urm { list-style:none; margin:0; padding:0; display:grid; gap:6px }
 ol.urm li { display:flex; justify-content:space-between; gap:12px; padding:8px 10px; border-radius:8px; background:var(--soft) }
 ol.urm li span:last-child { color:var(--muted); font-size:14px; white-space:nowrap }
+ol.urm li { align-items:center }
+.mic { padding:4px 12px; font-size:14px }
+.pericol { color:var(--accent); border-color:var(--accent) }
+.adm li > span:first-child { min-width:0; overflow-wrap:anywhere }
+.adm .login { color:var(--muted); font-size:14px }
 
 /* Statistici */
 .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px }
@@ -300,6 +305,12 @@ tr.viit td { color:var(--muted) }
       <div class="rand"><input type="date" id="echZi" aria-label="Ziua"></div>
       <div class="ech-zi" id="echZiRez"></div>
     </div>
+    <div class="card" id="admCard" hidden>
+      <h3>Administrează echipa</h3>
+      <p class="hint">Panoul apare doar pe dispozitivele unde ai introdus codul de administrator (Setări → Administrator). „Scoate” îi șterge colegului fișierul cu ture din baza de date.</p>
+      <ol class="urm adm" id="admLista"></ol>
+      <p class="gh-st" id="admSt"></p>
+    </div>
   </section>
 
   <!-- SETĂRI -->
@@ -344,6 +355,14 @@ tr.viit td { color:var(--muted) }
         <button class="ghost" id="gInc">Încarcă din GitHub</button>
       </div>
       <p class="gh-st" id="gSt">Nu e conectat la GitHub.</p>
+    </div>
+
+    <div class="card">
+      <h3>Administrator</h3>
+      <p class="hint" id="admInfo"></p>
+      <div class="campuri"><div class="camp"><label for="admCod">Cod administrator</label><input type="password" id="admCod" autocomplete="off" placeholder="minim 6 caractere"></div></div>
+      <div class="rand"><button class="btn" id="admActiv">Activează</button><button class="ghost" id="admDez" hidden>Dezactivează pe acest dispozitiv</button></div>
+      <p class="gh-st" id="admCodSt"></p>
     </div>
 
     <div class="card">
@@ -427,7 +446,7 @@ const ghCale = () => `data/ture-${slug(gh.nume) || 'eu'}.json`;
 function normalizeaza(d) {
   if (!d || typeof d !== 'object' || !d.setari || typeof d.exceptii !== 'object') throw new Error('Fișierul nu are formatul aplicației.');
   const b = implicit();
-  return { versiune: 1, nume: typeof d.nume === 'string' ? d.nume : '', setari: Object.assign(b.setari, d.setari), exceptii: d.exceptii || {} };
+  return { versiune: 1, nume: typeof d.nume === 'string' ? d.nume : '', github: typeof d.github === 'string' ? d.github : '', setari: Object.assign(b.setari, d.setari), exceptii: d.exceptii || {} };
 }
 function citesteLocal() { try { const r = localStorage.getItem(CHEIE); return r ? normalizeaza(JSON.parse(r)) : null; } catch (e) { return null; } }
 function scrieLocal() { try { localStorage.setItem(CHEIE, JSON.stringify(st)); } catch (e) {} }
@@ -589,7 +608,7 @@ function randeazaSetari() {
   $('cicluEt').textContent = Number(s.ciclu) === 4 ? '24/72' : '24/48';
   $('gNume').value = gh.nume; $('gOwner').value = gh.owner; $('gRepo').value = gh.repo; $('gBranch').value = gh.branch; $('gToken').value = gh.token; $('gAuto').checked = gh.auto;
 }
-function randeazaTot() { randeazaEchipa(); randeazaStatus(); randeazaCalendar(); randeazaVerif(); randeazaUrm(); randeazaStat(); randeazaSetari(); }
+function randeazaTot() { randeazaAdmSet(); randeazaEchipa(); randeazaStatus(); randeazaCalendar(); randeazaVerif(); randeazaUrm(); randeazaStat(); randeazaSetari(); }
 
 /* ---------- Interacțiuni ---------- */
 function toast(m) { const t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
@@ -697,6 +716,7 @@ async function ghSalveaza(automat) {
   try {
     const { sha } = await ghCiteste();
     st.nume = gh.nume;
+    try { st.github = await ghLogin(); } catch (e) {}
     const corp = { message: `Ture actualizate ${iso(azi())}`, content: b64enc(JSON.stringify(st, null, 2) + '\n'), branch: gh.branch };
     if (sha) corp.sha = sha;
     const r = await fetch(ghUrl(), { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify(corp) });
@@ -765,10 +785,11 @@ async function incarcaEchipa() {
         const x = await fetch(ghFisierUrl(f.path), { headers: ghHead(), cache: 'no-store' });
         if (!x.ok) return null;
         const j = await x.json();
-        return { cheie: f.name.slice(5, -5), date: normalizeaza(JSON.parse(b64dec(j.content))) };
+        return { cheie: f.name.slice(5, -5), path: f.path, sha: j.sha, date: normalizeaza(JSON.parse(b64dec(j.content))) };
       } catch (e) { return null; }
     }));
     echipa = rez.filter(Boolean);
+    try { await ghLogin(); } catch (e) {}
     try { localStorage.setItem(CHEIE_ECH, JSON.stringify(echipa)); } catch (e) {}
     const ora = new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
     echStare(`${membri().length} în echipă · actualizat la ${ora}.`, 'ok');
@@ -779,7 +800,7 @@ async function incarcaEchipa() {
 function membri() {
   const eu = slug(gh.nume) || 'eu';
   const lista = echipa.filter(m => m.cheie !== eu)
-    .map(m => ({ nume: m.date.nume || cap(m.cheie.replace(/-/g, ' ')), date: m.date, eu: false }))
+    .map(m => ({ cheie: m.cheie, nume: m.date.nume || cap(m.cheie.replace(/-/g, ' ')), date: m.date, eu: false }))
     .sort((a, b) => a.nume.localeCompare(b.nume, 'ro'));
   lista.unshift({ nume: gh.nume || 'Eu', date: st, eu: true });
   return lista;
@@ -805,6 +826,7 @@ function randeazaEchipa() {
   $('echTabel').innerHTML = h + '</tbody></table>';
   const ca = $('echTabel').querySelector('th.azi'); if (ca) $('echTabel').scrollLeft = Math.max(0, ca.offsetLeft - 150);
   randeazaEchZi();
+  randeazaAdmin();
 }
 function randeazaEchZi() {
   const v = $('echZi').value; if (!v) { $('echZiRez').innerHTML = ''; return; }
@@ -828,10 +850,111 @@ $('echNext').onclick = () => { echVedere.m++; if (echVedere.m > 11) { echVedere.
 $('echRef').onclick = incarcaEchipa;
 $('echZi').addEventListener('change', randeazaEchZi);
 
+/* ---------- Administrare echipă (doar proprietarul) ---------- */
+async function ghLogin() {
+  if (gh.login && gh.loginPt === gh.token.slice(-6)) return gh.login;
+  const r = await fetch('https://api.github.com/user', { headers: ghHead() });
+  if (!r.ok) return gh.login || '';
+  gh.login = (await r.json()).login || ''; gh.loginPt = gh.token.slice(-6); scrieGh();
+  return gh.login;
+}
+const repoId = () => `${gh.owner}/${gh.repo}`.toLowerCase();
+const esteAdmin = () => gh.admin === true && gh.adminRepo === repoId() && !!gh.owner && !!gh.repo;
+const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+async function derivaCod(cod, saltHex, iter) {
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(cod), 'PBKDF2', false, ['deriveBits']);
+  const salt = Uint8Array.from(saltHex.match(/../g).map(h => parseInt(h, 16)));
+  return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter }, k, 256));
+}
+function admCodStare(m, cls) { const e = $('admCodSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+function randeazaAdmSet() {
+  const a = esteAdmin();
+  $('admInfo').textContent = a
+    ? 'Ești administrator pe acest dispozitiv. Panoul pentru scoaterea colegilor e în fila Echipa, jos.'
+    : 'Doar cine știe codul vede panoul de scoatere a colegilor. Prima persoană care apasă „Activează” stabilește codul, așa că setează-l tu cât mai repede.';
+  $('admActiv').hidden = a; $('admDez').hidden = !a;
+}
+$('admActiv').onclick = async () => {
+  const lipsa = lipsaGh(); if (lipsa) return admCodStare('Leagă întâi aplicația de GitHub (mai sus). ' + lipsa, 'err');
+  const cod = $('admCod').value;
+  if (cod.length < 6) return admCodStare('Codul trebuie să aibă cel puțin 6 caractere.', 'err');
+  if (!(window.crypto && crypto.subtle)) return admCodStare('Browserul nu permite verificarea codului. Deschide aplicația de la adresa https.', 'err');
+  $('admActiv').disabled = true; admCodStare('Se verifică…');
+  try {
+    const r = await fetch(ghFisierUrl('data/admin.json'), { headers: ghHead(), cache: 'no-store' });
+    if (r.status === 404) {
+      const salt = hex(crypto.getRandomValues(new Uint8Array(16))), iter = 150000;
+      const corp = { message: 'Cod administrator setat', branch: gh.branch,
+        content: b64enc(JSON.stringify({ salt, iter, hash: await derivaCod(cod, salt, iter) }, null, 2) + '\n') };
+      const p = await fetch(`${repoApi()}/contents/data/admin.json`, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify(corp) });
+      if (!p.ok) throw new Error(ghEroare(p));
+      admCodStare('Codul a fost setat. Ești administrator pe acest dispozitiv. Pe alt telefon introduci același cod.', 'ok');
+    } else {
+      if (!r.ok) throw new Error(ghEroare(r));
+      const a = JSON.parse(b64dec((await r.json()).content));
+      if (await derivaCod(cod, a.salt, a.iter) !== a.hash) throw new Error('Cod greșit.');
+      admCodStare('Cod corect. Ești administrator pe acest dispozitiv.', 'ok');
+    }
+    gh.admin = true; gh.adminRepo = repoId(); scrieGh(); $('admCod').value = '';
+    randeazaAdmSet(); randeazaEchipa();
+  } catch (e) { admCodStare(e.message === 'Failed to fetch' ? 'Nu am internet.' : e.message, 'err'); }
+  $('admActiv').disabled = false;
+};
+$('admDez').onclick = () => { gh.admin = false; scrieGh(); admCodStare('Modul administrator a fost oprit pe acest dispozitiv.', ''); randeazaAdmSet(); randeazaEchipa(); };
+const repoApi = () => `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}`;
+function admStare(m, cls) { const e = $('admSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+function randeazaAdmin() {
+  const card = $('admCard'); card.hidden = !esteAdmin(); if (card.hidden) return;
+  const altii = membri().filter(m => !m.eu);
+  $('admLista').innerHTML = altii.length
+    ? altii.map(m => `<li><span>${esc(m.nume)}${m.date.github ? ` <span class="login">@${esc(m.date.github)}</span>` : ''}</span><button class="ghost mic pericol" data-cheie="${esc(m.cheie)}">Scoate</button></li>`).join('')
+    : '<li><span>Nu ai încă alți colegi în echipă.</span></li>';
+}
+$('admLista').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-cheie]'); if (!b || b.disabled) return;
+  if (!b.dataset.conf) {
+    b.dataset.conf = '1'; b.textContent = 'Sigur? Apasă din nou';
+    setTimeout(() => { if (b.isConnected && !b.disabled) { delete b.dataset.conf; b.textContent = 'Scoate'; } }, 4000);
+    return;
+  }
+  b.disabled = true; b.textContent = 'Se scoate…';
+  await scoateColeg(b.dataset.cheie);
+});
+async function scoateColeg(cheie) {
+  const m = echipa.find(x => x.cheie === cheie); if (!m || !esteAdmin()) return;
+  const nume = m.date.nume || cap(cheie.replace(/-/g, ' ')), cale = m.path || `data/ture-${cheie}.json`;
+  admStare(`Îl scot pe ${nume}…`);
+  try {
+    const g = await fetch(ghFisierUrl(cale), { headers: ghHead(), cache: 'no-store' });
+    if (g.ok) {
+      const sha = (await g.json()).sha;
+      const d = await fetch(`${repoApi()}/contents/${cale}`, { method: 'DELETE', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()),
+        body: JSON.stringify({ message: `Scos din echipă: ${nume}`, sha, branch: gh.branch }) });
+      if (!d.ok) throw new Error(ghEroare(d));
+    } else if (g.status !== 404) throw new Error(ghEroare(g));
+    let acces;
+    const login = m.date.github;
+    if (login && login.toLowerCase() !== gh.owner.toLowerCase()) {
+      const c = await fetch(`${repoApi()}/collaborators/${encodeURIComponent(login)}`, { method: 'DELETE', headers: ghHead() });
+      acces = c.status === 204 ? ` Nu mai are acces la ${gh.repo}.`
+        : ` Accesul nu i l-am putut tăia: tokenul tău nu are permisiunea „Administration”. Scoate-l manual din GitHub: ${gh.repo} → Settings → Collaborators.`;
+    } else {
+      acces = ' Dacă vrei să nu mai poată intra deloc, fă un token nou pentru echipă și dă-l doar colegilor rămași.';
+    }
+    echipa = echipa.filter(x => x.cheie !== cheie);
+    try { localStorage.setItem(CHEIE_ECH, JSON.stringify(echipa)); } catch (e) {}
+    randeazaEchipa();
+    admStare(`${nume} a fost scos din echipă.${acces}`, 'ok');
+  } catch (e) {
+    randeazaAdmin();
+    admStare(e.message === 'Failed to fetch' ? 'Nu am internet. Încearcă din nou.' : e.message, 'err');
+  }
+}
+
 /* ---------- Pornire ---------- */
 (async function porneste() {
   citesteGh();
-  try { const c = JSON.parse(localStorage.getItem(CHEIE_ECH) || 'null'); if (Array.isArray(c)) echipa = c.map(m => ({ cheie: m.cheie, date: normalizeaza(m.date) })); } catch (e) {}
+  try { const c = JSON.parse(localStorage.getItem(CHEIE_ECH) || 'null'); if (Array.isArray(c)) echipa = c.map(m => ({ cheie: m.cheie, path: m.path, sha: m.sha, date: normalizeaza(m.date) })); } catch (e) {}
   $('echZi').value = iso(azi());
   const local = citesteLocal();
   if (local) st = local;
