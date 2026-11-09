@@ -7,7 +7,7 @@ Aplicație pentru program în ture de 24/48 (sau 24/72). Îi spui o zi în care 
 - **Calendar** cu zilele de tură (T), ieșirea din tură (Ieș) și zilele libere.
 - **Starea de azi**: ești în tură, ieși din tură sau ești liber, plus când e următoarea tură.
 - **Verifică o zi**: alegi orice dată și îți spune dacă ești de serviciu.
-- **Excepții**: atingi o zi și pui CO (concediu de odihnă), CM (concediu medical), Liber cerut sau Tură în plus, cu o notă (de exemplu „schimb cu Andrei”).
+- **Excepții**: atingi o zi și pui CO (concediu de odihnă), CM (concediu medical), Liber cerut, RS (recuperare ore suplimentare), Schimb de tură (cu numele colegului) sau Tură în plus, cu o notă.
 - **Perioade**: pui CO sau CM pe mai multe zile deodată.
 - **Statistici pe an și pe lună**: ture lucrate, ore lucrate, normă de ore, diferența față de normă, zile CO folosite și rămase, ture în weekend și de sărbători.
 - **Sărbătorile legale din România** sunt calculate automat, inclusiv Paștele și Rusaliile ortodoxe.
@@ -112,13 +112,14 @@ Cum dai acces colegilor (alege una):
 
 - `ciclu`: 3 înseamnă 24/48, 4 înseamnă 24/72.
 - `dataReferinta`: o zi de tură; de la ea se calculează restul.
-- `exceptii`: zilele schimbate față de program. `tip` poate fi `CO`, `CM`, `L` (liber cerut) sau `extra` (tură în plus).
+- `exceptii`: zilele schimbate față de program. `tip` poate fi `CO`, `CM`, `L` (liber cerut), `RS` (recuperare ore suplimentare), `SCH` (schimb de tură, cu numele colegului în `cu`) sau `extra` (tură în plus).
+- Un `SCH` pus într-o zi de tură înseamnă că ți-ai dat tura; pus într-o zi liberă înseamnă că lucrezi în locul colegului.
 
 ## Cum se calculează statisticile
 
 - **Ore lucrate** = ture lucrate × 24. Orele unei ture se numără în ziua în care începe.
 - **Normă** = zile lucrătoare (luni–vineri, fără sărbători legale) × 8 ore. E orientativă; verifică cum se calculează la locul tău de muncă.
-- O zi cu CO, CM sau Liber cerut peste o tură scade tura din total. O „Tură în plus” o adaugă.
+- O zi cu CO, CM, Liber cerut sau RS peste o tură scade tura din total. Statisticile arată și câte ore ai recuperat prin RS și câte schimburi ai făcut. O „Tură în plus” o adaugă.
 
 ## Dacă modifici codul
 
