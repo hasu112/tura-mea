@@ -1,0 +1,11 @@
+{
+  "versiune": 1,
+  "setari": {
+    "ciclu": 3,
+    "dataReferinta": "2026-11-09",
+    "oraStart": "08:00",
+    "oreTura": 24,
+    "zileCO": 25
+  },
+  "exceptii": {}
+}

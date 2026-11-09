@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="ro">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tura Mea</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Calendarul turelor 24/48: zile de tură, libere, CO, CM și statistici.">
+<meta name="theme-color" content="#C42B1C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: o singură coloană îngustă, ca un carnet de tură; antet lipicios cu file, calendarul e piesa centrală. */
+:root {
+  --bg:#EDF0F3; --surface:#FFFFFF; --ink:#141B22; --muted:#5A6570; --line:#D3D9DF; --soft:#F5F7F9;
+  --tura:#C42B1C; --tura-bg:#FBE2DE; --iesire:#A86A12; --iesire-bg:#F9EDD6;
+  --co:#1F7449; --co-bg:#D9EFE2; --cm:#2C5E9E; --cm-bg:#DDE8F6; --lib:#6A5896; --lib-bg:#EAE4F5;
+  --on-accent:#FFFFFF;
+  --f-disp:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#0E1317; --surface:#172027; --ink:#E7ECF0; --muted:#94A1AD; --line:#29343D; --soft:#1C262E;
+  --tura:#FF6A58; --tura-bg:#3B1A16; --iesire:#E7A84A; --iesire-bg:#352711;
+  --co:#5DC894; --co-bg:#12301F; --cm:#7BA9EA; --cm-bg:#15253A; --lib:#B3A1E4; --lib-bg:#251E37;
+  --on-accent:#1A0705; color-scheme:dark } }
+:root[data-theme="dark"] {
+  --bg:#0E1317; --surface:#172027; --ink:#E7ECF0; --muted:#94A1AD; --line:#29343D; --soft:#1C262E;
+  --tura:#FF6A58; --tura-bg:#3B1A16; --iesire:#E7A84A; --iesire-bg:#352711;
+  --co:#5DC894; --co-bg:#12301F; --cm:#7BA9EA; --cm-bg:#15253A; --lib:#B3A1E4; --lib-bg:#251E37;
+  --on-accent:#1A0705; color-scheme:dark }
+
+* { box-sizing:border-box }
+[hidden] { display:none !important }
+html { -webkit-text-size-adjust:100% }
+body { background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.45; margin:0 }
+body::before { content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--surface) }
+.wrap { max-width:720px; margin:0 auto; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)) }
+button, input, select, textarea { font:inherit; color:inherit }
+button { cursor:pointer }
+:focus-visible { outline:2px solid var(--tura); outline-offset:2px }
+.num { font-variant-numeric:tabular-nums }
+
+/* Antet */
+.top { position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--surface); border-bottom:1px solid var(--line) }
+.top .wrap { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding-block:10px }
+.brand { display:flex; align-items:center; gap:10px; font-family:var(--f-disp); font-weight:700; font-size:22px; letter-spacing:.02em; text-transform:uppercase; margin-right:auto }
+.logo { width:30px; height:30px; display:grid; place-items:center; border-radius:7px; background:var(--tura); color:var(--on-accent); font-size:17px }
+.cyc { font-size:13px; font-weight:600; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:1px 6px; letter-spacing:.06em }
+.tabs { display:flex; gap:2px; background:var(--soft); border:1px solid var(--line); border-radius:9px; padding:3px }
+.tabs button { border:0; background:none; padding:6px 12px; border-radius:6px; font-weight:600; font-size:14px; color:var(--muted) }
+.tabs button[aria-selected="true"] { background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.12) }
+#instal { border:1px solid var(--tura); color:var(--tura); background:none; border-radius:7px; padding:5px 10px; font-weight:600; font-size:14px }
+
+main.wrap { padding-block:18px 48px; display:grid; gap:18px }
+section { display:grid; gap:18px; min-width:0 }
+h2, h3 { font-family:var(--f-disp); font-weight:700; text-transform:uppercase; letter-spacing:.03em; margin:0; text-wrap:balance }
+h3 { font-size:17px; color:var(--muted) }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px; display:grid; gap:12px; min-width:0 }
+.hint { color:var(--muted); font-size:14px; margin:0 }
+
+/* Starea de azi */
+.status { --c:var(--muted); --cb:var(--soft); background:var(--surface); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:grid; grid-template-columns:8px 1fr }
+.status::before { content:""; background:var(--c) }
+.status .in { padding:16px 18px; display:grid; gap:4px }
+.status .eti { font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted) }
+.status .tit { font-family:var(--f-disp); font-weight:700; font-size:clamp(30px,8vw,42px); line-height:1; text-transform:uppercase; color:var(--c) }
+.status .det { color:var(--ink); font-size:15px }
+.status .urm { margin-top:6px; padding-top:10px; border-top:1px dashed var(--line); font-size:15px }
+.status .urm b { font-weight:600 }
+.status.tura { --c:var(--tura) } .status.iesire { --c:var(--iesire) } .status.co { --c:var(--co) } .status.cm { --c:var(--cm) } .status.l { --c:var(--lib) } .status.liber { --c:var(--ink) }
+
+/* Calendar */
+.cal-head { display:flex; align-items:center; gap:6px }
+.cal-head h2 { font-size:24px; margin-right:auto }
+.btn-ic { width:38px; height:38px; border-radius:8px; border:1px solid var(--line); background:var(--surface); font-size:20px; line-height:1 }
+.btn, .ghost { border-radius:8px; padding:8px 14px; font-weight:600; font-size:15px }
+.btn { border:0; background:var(--tura); color:var(--on-accent) }
+.ghost { border:1px solid var(--line); background:var(--surface) }
+.btn:disabled, .ghost:disabled { opacity:.5; cursor:default }
+.dow, .grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px }
+.dow span { text-align:center; font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--muted); text-transform:uppercase }
+.zi { --c:var(--muted); --cb:transparent; position:relative; aspect-ratio:1/1.05; min-width:0; border:1px solid var(--line); border-radius:8px; background:var(--cb); padding:4px 5px; display:flex; flex-direction:column; justify-content:space-between; text-align:left }
+.zi .d { font-weight:600; font-size:15px }
+.zi .t { align-self:flex-end; font-family:var(--f-disp); font-weight:700; font-size:13px; letter-spacing:.04em; color:var(--c); text-transform:uppercase }
+.zi.gol { border:0; background:none; pointer-events:none }
+.zi.sarb .d { text-decoration:underline; text-decoration-color:var(--tura); text-underline-offset:3px }
+.zi.weekend .d { color:var(--muted) }
+.zi.azi { outline:2px solid var(--ink); outline-offset:1px }
+.zi.nota::after { content:""; position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%; background:var(--ink) }
+.zi.tura { --c:var(--tura); --cb:var(--tura-bg); border-color:transparent }
+.zi.tura .d { color:var(--tura) }
+.zi.extra { --c:var(--tura); --cb:var(--tura-bg); border:2px dashed var(--tura) }
+.zi.iesire { --c:var(--iesire); --cb:var(--iesire-bg); border-color:transparent }
+.zi.co { --c:var(--co); --cb:var(--co-bg); border-color:transparent }
+.zi.cm { --c:var(--cm); --cb:var(--cm-bg); border-color:transparent }
+.zi.l { --c:var(--lib); --cb:var(--lib-bg); border-color:transparent }
+/* Ture în weekend: nuanță plină, ca să iasă în evidență */
+.zi.tura.weekend, .zi.extra.weekend { --c:var(--on-accent); --cb:var(--tura) }
+.zi.tura.weekend .d, .zi.extra.weekend .d { color:var(--on-accent); text-decoration-color:var(--on-accent) }
+.zi.extra.weekend { border-color:var(--ink) }
+.zi.tura.weekend.nota::after, .zi.extra.weekend.nota::after { background:var(--on-accent) }
+.legend { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; color:var(--muted) }
+.legend i { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:-1px; background:var(--c) }
+.luna-sum { display:flex; flex-wrap:wrap; gap:6px 18px; padding-top:10px; border-top:1px solid var(--line); font-size:15px }
+.luna-sum b { font-family:var(--f-disp); font-size:20px; margin-right:3px }
+.plus { color:var(--co) } .minus { color:var(--tura) }
+
+.rand { display:flex; flex-wrap:wrap; gap:10px; align-items:center }
+input[type=date], input[type=time], input[type=number], input[type=text], input[type=password], select, textarea {
+  background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:8px 10px; min-width:0; max-width:100% }
+textarea { width:100%; min-height:64px; resize:vertical }
+.rez { font-size:16px; margin:0 }
+.rez b { font-weight:600 }
+ol.urm { list-style:none; margin:0; padding:0; display:grid; gap:6px }
+ol.urm li { display:flex; justify-content:space-between; gap:12px; padding:8px 10px; border-radius:8px; background:var(--soft) }
+ol.urm li span:last-child { color:var(--muted); font-size:14px; white-space:nowrap }
+
+/* Statistici */
+.tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px }
+.tile { background:var(--soft); border-radius:10px; padding:12px; display:grid; gap:2px }
+.tile .v { font-family:var(--f-disp); font-weight:700; font-size:32px; line-height:1.05 }
+.tile .k { font-size:13px; color:var(--muted) }
+.chart svg { width:100%; height:auto; display:block }
+.chart .bar { fill:var(--tura) } .chart .bar.viit { fill:var(--tura-bg); stroke:var(--tura); stroke-dasharray:3 2 }
+.chart .norma { stroke:var(--ink); stroke-width:2.5 }
+.chart .grid-l { stroke:var(--line) } .chart text { fill:var(--muted); font-size:12px; font-family:var(--f-body) }
+.tabel { overflow-x:auto }
+table { width:100%; border-collapse:collapse; font-size:14px; font-variant-numeric:tabular-nums }
+th, td { padding:7px 8px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap }
+th:first-child, td:first-child { text-align:left }
+th { font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600 }
+tr.viit td { color:var(--muted) }
+
+/* Setări */
+.camp { display:grid; gap:4px; min-width:0 }
+.camp label { font-size:14px; font-weight:600 }
+.campuri { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px }
+.chk { display:flex; gap:8px; align-items:center; font-size:15px }
+.gh-st { font-size:14px; color:var(--muted); margin:0 }
+.gh-st.ok { color:var(--co) } .gh-st.err { color:var(--tura) }
+
+/* Fereastra unei zile */
+.sheet-bg { position:fixed; inset:0; z-index:20; background:rgba(8,12,16,.45); display:flex; align-items:flex-end; justify-content:center }
+.sheet { background:var(--surface); width:100%; max-width:520px; border-radius:16px 16px 0 0; padding:18px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px)); display:grid; gap:12px; max-height:90vh; overflow:auto }
+@media (min-width:600px) { .sheet-bg { align-items:center } .sheet { border-radius:16px } }
+.sheet h2 { font-size:24px }
+.optiuni { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px }
+.optiuni label { --c:var(--muted); display:flex; gap:8px; align-items:center; border:1px solid var(--line); border-radius:8px; padding:10px; font-weight:500 }
+.optiuni label:has(input:checked) { border-color:var(--c); box-shadow:inset 0 0 0 1px var(--c) }
+.optiuni input { accent-color:var(--c) }
+
+.toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:30; background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:9px; font-weight:500; max-width:calc(100% - 32px) }
+@media (max-width:420px) { .tabs button { padding:6px 9px } .zi .d { font-size:14px } .zi .t { font-size:11px } }
+@media (prefers-reduced-motion: no-preference) { .zi { transition:transform .12s } .zi:active { transform:scale(.96) } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="logo" aria-hidden="true">T</span>Tura Mea <span class="cyc" id="cicluEt">24/48</span></div>
+    <button id="instal" hidden>Instalează</button>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="cal" aria-selected="true">Calendar</button>
+      <button role="tab" data-tab="stat" aria-selected="false">Statistici</button>
+      <button role="tab" data-tab="set" aria-selected="false">Setări</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- CALENDAR -->
+  <section id="tab-cal">
+    <div class="status" id="status"></div>
+
+    <div class="card">
+      <div class="cal-head">
+        <h2 id="luna"></h2>
+        <button class="btn-ic" id="prev" aria-label="Luna anterioară">‹</button>
+        <button class="btn-ic" id="next" aria-label="Luna următoare">›</button>
+        <button class="ghost" id="laAzi">Azi</button>
+      </div>
+      <div class="dow"><span>L</span><span>Ma</span><span>Mi</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div class="grid" id="grid"></div>
+      <div class="legend">
+        <span style="--c:var(--tura-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>T · tură</span>
+        <span style="--c:var(--tura)"><i></i>T · tură în weekend</span>
+        <span style="--c:var(--iesire)"><i></i>Ieș · ieșire din tură</span>
+        <span style="--c:var(--co)"><i></i>CO · concediu</span>
+        <span style="--c:var(--cm)"><i></i>CM · medical</span>
+        <span style="--c:var(--lib)"><i></i>L · liber cerut</span>
+        <span>Data subliniată = sărbătoare legală</span>
+      </div>
+      <div class="luna-sum num" id="lunaSum"></div>
+      <p class="hint">Atinge o zi ca să pui CO, liber, medical sau o tură în plus.</p>
+    </div>
+
+    <div class="card">
+      <h3>Verifică o zi</h3>
+      <div class="rand"><input type="date" id="verif" aria-label="Data de verificat"></div>
+      <p class="rez" id="verifRez"></p>
+    </div>
+
+    <div class="card">
+      <h3>Următoarele ture</h3>
+      <ol class="urm num" id="urm"></ol>
+    </div>
+  </section>
+
+  <!-- STATISTICI -->
+  <section id="tab-stat" hidden>
+    <div class="card">
+      <div class="cal-head">
+        <h2 id="anEt"></h2>
+        <button class="btn-ic" id="anPrev" aria-label="Anul anterior">‹</button>
+        <button class="btn-ic" id="anNext" aria-label="Anul următor">›</button>
+      </div>
+      <div class="tiles num" id="tiles"></div>
+      <p class="hint">Normă = zile lucrătoare (luni–vineri, fără sărbători legale) × 8 ore. Ora unei ture de 24 h se numără în ziua în care începe. Lunile viitoare sunt planificate.</p>
+    </div>
+    <div class="card chart">
+      <h3>Ore lucrate pe lună față de normă</h3>
+      <div id="grafic"></div>
+      <div class="legend"><span style="--c:var(--tura)"><i></i>Ore lucrate</span><span style="--c:var(--ink)"><i style="height:3px;vertical-align:3px"></i>Normă</span></div>
+    </div>
+    <div class="card">
+      <h3>Pe luni</h3>
+      <div class="tabel" id="tabel"></div>
+    </div>
+  </section>
+
+  <!-- SETĂRI -->
+  <section id="tab-set" hidden>
+    <div class="card">
+      <h3>Programul tău</h3>
+      <div class="campuri">
+        <div class="camp"><label for="sTip">Tip tură</label>
+          <select id="sTip"><option value="3">24/48 (o zi tură, două libere)</option><option value="4">24/72 (o zi tură, trei libere)</option></select></div>
+        <div class="camp"><label for="sRef">O zi în care ai fost în tură</label><input type="date" id="sRef"></div>
+        <div class="camp"><label for="sOra">Ora intrării în tură</label><input type="time" id="sOra"></div>
+        <div class="camp"><label for="sCO">Zile CO pe an</label><input type="number" id="sCO" min="0" max="60"></div>
+      </div>
+      <p class="hint">Aplicația calculează toate turele pornind de la ziua aleasă. Dacă ai greșit-o, schimbi data și calendarul se recalculează.</p>
+    </div>
+
+    <div class="card">
+      <h3>Adaugă o perioadă</h3>
+      <div class="campuri">
+        <div class="camp"><label for="pDe">De la</label><input type="date" id="pDe"></div>
+        <div class="camp"><label for="pPana">Până la</label><input type="date" id="pPana"></div>
+        <div class="camp"><label for="pTip">Ce pui</label>
+          <select id="pTip"><option value="CO">Concediu de odihnă (CO)</option><option value="CM">Concediu medical (CM)</option><option value="L">Liber cerut</option><option value="sterge">Șterge ce era pus</option></select></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="pDoarTura" checked> Doar în zilele de tură</label>
+      <div class="rand"><button class="btn" id="pAplica">Aplică perioada</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Baza de date în GitHub</h3>
+      <p class="hint">Datele se salvează pe telefon. Dacă completezi câmpurile de mai jos, se salvează și în GitHub, în fișierul <code>data/ture-NUMELE.json</code>. Fiecare coleg are fișierul lui în același repository. Fără internet, salvarea se face singură când revine semnalul. Tokenul rămâne doar pe acest dispozitiv.</p>
+      <div class="campuri">
+        <div class="camp"><label for="gNume">Numele tău</label><input type="text" id="gNume" autocomplete="off" placeholder="ex. alexandru"></div>
+        <div class="camp"><label for="gOwner">Proprietarul repository-ului</label><input type="text" id="gOwner" autocomplete="off" placeholder="ex. borzaalex"></div>
+        <div class="camp"><label for="gRepo">Repository</label><input type="text" id="gRepo" autocomplete="off" placeholder="tura-mea"></div>
+        <div class="camp"><label for="gBranch">Ramura</label><input type="text" id="gBranch" autocomplete="off" placeholder="main"></div>
+        <div class="camp"><label for="gToken">Token de acces</label><input type="password" id="gToken" autocomplete="off" placeholder="github_pat_…"></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="gAuto"> Salvează automat în GitHub după fiecare modificare</label>
+      <div class="rand">
+        <button class="btn" id="gSalv">Salvează în GitHub</button>
+        <button class="ghost" id="gInc">Încarcă din GitHub</button>
+      </div>
+      <p class="gh-st" id="gSt">Nu e conectat la GitHub.</p>
+    </div>
+
+    <div class="card">
+      <h3>Copie de siguranță</h3>
+      <div class="rand">
+        <button class="ghost" id="exp">Descarcă fișierul cu date</button>
+        <label class="ghost" for="imp" style="display:inline-block">Încarcă un fișier</label>
+        <input type="file" id="imp" accept="application/json,.json" hidden>
+        <button class="ghost" id="sterg">Șterge toate datele</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="sheet-bg" id="sheetBg" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTit">
+    <h2 id="shTit"></h2>
+    <p class="hint" id="shBaza"></p>
+    <div class="optiuni" id="shOpt">
+      <label style="--c:var(--ink)"><input type="radio" name="tip" value=""> Ca în program</label>
+      <label style="--c:var(--co)"><input type="radio" name="tip" value="CO"> CO</label>
+      <label style="--c:var(--cm)"><input type="radio" name="tip" value="CM"> Medical (CM)</label>
+      <label style="--c:var(--lib)"><input type="radio" name="tip" value="L"> Liber cerut</label>
+      <label style="--c:var(--tura)"><input type="radio" name="tip" value="extra"> Tură în plus</label>
+    </div>
+    <div class="camp"><label for="shNota">Notă</label><textarea id="shNota" placeholder="ex. schimb cu Andrei"></textarea></div>
+    <div class="rand"><button class="btn" id="shSalv">Salvează</button><button class="ghost" id="shAnul">Anulează</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+'use strict';
+/* ---------- Date calendaristice ---------- */
+const ZI = 86400000;
+const dn = (y, m, d) => Math.round(Date.UTC(y, m, d) / ZI);
+const deLa = n => { const t = new Date(n * ZI); return { y: t.getUTCFullYear(), m: t.getUTCMonth(), d: t.getUTCDate(), w: t.getUTCDay() }; };
+const p2 = x => String(x).padStart(2, '0');
+const iso = n => { const o = deLa(n); return `${o.y}-${p2(o.m + 1)}-${p2(o.d)}`; };
+const dinIso = s => { const [y, m, d] = s.split('-').map(Number); return dn(y, m - 1, d); };
+const azi = () => { const t = new Date(); return dn(t.getFullYear(), t.getMonth(), t.getDate()); };
+const LUNI = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
+const LUNI_S = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Noi','Dec'];
+const ZILE = ['duminică','luni','marți','miercuri','joi','vineri','sâmbătă'];
+const scrie = n => { const o = deLa(n); return `${ZILE[o.w]}, ${o.d} ${LUNI[o.m]} ${o.y}`; };
+const scrieScurt = n => { const o = deLa(n); return `${ZILE[o.w]}, ${o.d} ${LUNI[o.m]}`; };
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+/* Paștele ortodox (calendar iulian + 13 zile, valabil 1900–2099) */
+function pasteOrtodox(y) {
+  const a = y % 4, b = y % 7, c = y % 19, d = (19 * c + 15) % 30, e = (2 * a + 4 * b - d + 34) % 7;
+  const luna = Math.floor((d + e + 114) / 31), zi = ((d + e + 114) % 31) + 1;
+  return dn(y, luna - 1, zi) + 13;
+}
+const cacheSarb = {};
+function sarbatori(y) {
+  if (cacheSarb[y]) return cacheSarb[y];
+  const P = pasteOrtodox(y), s = new Map();
+  [[0,1,'Anul Nou'],[0,2,'Anul Nou'],[0,6,'Boboteaza'],[0,7,'Sf. Ioan'],[0,24,'Unirea Principatelor'],
+   [4,1,'Ziua Muncii'],[5,1,'Ziua Copilului'],[7,15,'Adormirea Maicii Domnului'],[10,30,'Sf. Andrei'],
+   [11,1,'Ziua Națională'],[11,25,'Crăciunul'],[11,26,'Crăciunul']].forEach(([m,d,n]) => s.set(dn(y,m,d), n));
+  s.set(P - 2, 'Vinerea Mare'); s.set(P, 'Paștele'); s.set(P + 1, 'Paștele');
+  s.set(P + 49, 'Rusaliile'); s.set(P + 50, 'Rusaliile');
+  return (cacheSarb[y] = s);
+}
+const sarb = n => sarbatori(deLa(n).y).get(n);
+
+/* ---------- Stocare ---------- */
+const CHEIE = 'tura-mea-date', CHEIE_GH = 'tura-mea-github';
+const implicit = () => ({ versiune: 1, setari: { ciclu: 3, dataReferinta: iso(azi()), oraStart: '08:00', oreTura: 24, zileCO: 25 }, exceptii: {} });
+let st = implicit();
+let gh = { nume: '', owner: '', repo: '', branch: 'main', token: '', auto: true, inAsteptare: false };
+const slug = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const ghCale = () => `data/ture-${slug(gh.nume) || 'eu'}.json`;
+
+function normalizeaza(d) {
+  if (!d || typeof d !== 'object' || !d.setari || typeof d.exceptii !== 'object') throw new Error('Fișierul nu are formatul aplicației.');
+  const b = implicit();
+  return { versiune: 1, setari: Object.assign(b.setari, d.setari), exceptii: d.exceptii || {} };
+}
+function citesteLocal() { try { const r = localStorage.getItem(CHEIE); return r ? normalizeaza(JSON.parse(r)) : null; } catch (e) { return null; } }
+function scrieLocal() { try { localStorage.setItem(CHEIE, JSON.stringify(st)); } catch (e) {} }
+function citesteGh() { try { const r = localStorage.getItem(CHEIE_GH); if (r) Object.assign(gh, JSON.parse(r)); } catch (e) {} }
+function scrieGh() { try { localStorage.setItem(CHEIE_GH, JSON.stringify(gh)); } catch (e) {} }
+
+function salveaza() {
+  scrieLocal();
+  randeazaTot();
+  if (gh.auto && ghGata()) { clearTimeout(salveaza.t); salveaza.t = setTimeout(() => ghSalveaza(true), 1500); }
+}
+
+/* ---------- Logica turelor ---------- */
+function infoZi(n) {
+  const s = st.setari, c = Number(s.ciclu) || 3;
+  const poz = (((n - dinIso(s.dataReferinta)) % c) + c) % c;
+  const baza = poz === 0 ? 'tura' : poz === 1 ? 'iesire' : 'liber';
+  const ex = st.exceptii[iso(n)] || null;
+  let lucreaza = baza === 'tura';
+  if (ex && ex.tip === 'extra') lucreaza = true;
+  if (ex && ['CO', 'CM', 'L'].includes(ex.tip)) lucreaza = false;
+  return { baza, ex, lucreaza };
+}
+function clasaZi(n) {
+  const z = infoZi(n);
+  if (z.ex && z.ex.tip === 'extra') return ['extra', 'T+'];
+  if (z.ex && z.ex.tip === 'CO') return ['co', 'CO'];
+  if (z.ex && z.ex.tip === 'CM') return ['cm', 'CM'];
+  if (z.ex && z.ex.tip === 'L') return ['l', 'L'];
+  if (z.lucreaza) return ['tura', 'T'];
+  if (z.baza === 'iesire' && infoZi(n - 1).lucreaza) return ['iesire', 'Ieș'];
+  return ['liber', ''];
+}
+function urmatoareaTura(dupa) { for (let n = dupa + 1; n < dupa + 800; n++) if (infoZi(n).lucreaza) return n; return null; }
+function inCate(n) { const d = n - azi(); return d === 0 ? 'azi' : d === 1 ? 'mâine' : d === 2 ? 'poimâine' : d > 0 ? `peste ${d} zile` : `acum ${-d} zile`; }
+
+function stat(a, b) {
+  const r = { plan: 0, lucrate: 0, co: 0, cm: 0, l: 0, extra: 0, weekend: 0, sarb: 0, norma: 0 };
+  for (let n = a; n <= b; n++) {
+    const z = infoZi(n), o = deLa(n), sb = sarb(n);
+    if (z.baza === 'tura') r.plan++;
+    if (z.ex) { if (z.ex.tip === 'CO') r.co++; else if (z.ex.tip === 'CM') r.cm++; else if (z.ex.tip === 'L') r.l++; else if (z.ex.tip === 'extra') r.extra++; }
+    if (z.lucreaza) { r.lucrate++; if (o.w === 0 || o.w === 6) r.weekend++; if (sb) r.sarb++; }
+    if (o.w >= 1 && o.w <= 5 && !sb) r.norma += 8;
+  }
+  r.ore = r.lucrate * (Number(st.setari.oreTura) || 24);
+  r.dif = r.ore - r.norma;
+  return r;
+}
+const semn = x => (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x);
+
+/* ---------- Randare ---------- */
+const $ = id => document.getElementById(id);
+let vedere = (() => { const o = deLa(azi()); return { y: o.y, m: o.m }; })();
+let anStat = deLa(azi()).y;
+
+function randeazaStatus() {
+  const t = azi(), z = infoZi(t), [cls] = clasaZi(t), ora = st.setari.oraStart;
+  const titluri = { tura: 'În tură', extra: 'Tură în plus', iesire: 'Ieși din tură', co: 'Concediu', cm: 'Medical', l: 'Liber cerut', liber: 'Liber' };
+  let det = '';
+  if (z.lucreaza) det = `Intri la ${ora}, ieși mâine la ${ora}.`;
+  else if (cls === 'iesire') det = `Ieși la ${ora}, după tura de ieri.`;
+  else if (cls === 'co') det = 'Zi de concediu de odihnă.';
+  else if (cls === 'cm') det = 'Zi de concediu medical.';
+  else if (cls === 'l') det = 'Zi liberă cerută în locul turei.';
+  else det = 'Nu ai tură azi.';
+  if (z.ex && z.ex.nota) det += ` Notă: ${z.ex.nota}`;
+  const u = urmatoareaTura(t);
+  const el = $('status');
+  el.className = 'status ' + (cls === 'extra' ? 'tura' : cls);
+  el.innerHTML = `<div class="in"><span class="eti">Azi · ${esc(scrie(t))}</span><span class="tit">${titluri[cls]}</span><span class="det"></span>
+    ${u ? `<span class="urm">Următoarea tură: <b>${esc(scrieScurt(u))}</b>, ${inCate(u)}, la ${esc(ora)}</span>` : ''}</div>`;
+  el.querySelector('.det').textContent = det;
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function randeazaCalendar() {
+  const { y, m } = vedere;
+  $('luna').textContent = `${cap(LUNI[m])} ${y}`;
+  const prima = dn(y, m, 1), ultima = dn(y, m + 1, 1) - 1, t = azi();
+  const decalaj = (deLa(prima).w + 6) % 7;
+  let h = '';
+  for (let i = 0; i < decalaj; i++) h += '<div class="zi gol"></div>';
+  for (let n = prima; n <= ultima; n++) {
+    const [cls, tag] = clasaZi(n), o = deLa(n), z = infoZi(n), sb = sarb(n);
+    const c = [cls, n === t ? 'azi' : '', sb ? 'sarb' : '', (o.w === 0 || o.w === 6) ? 'weekend' : '', z.ex && z.ex.nota ? 'nota' : ''].join(' ');
+    const et = `${scrie(n)}${tag ? ', ' + tag : ''}${sb ? ', ' + sb : ''}`;
+    h += `<button class="zi ${c}" data-n="${n}" aria-label="${esc(et)}"${sb ? ` title="${esc(sb)}"` : ''}><span class="d num">${o.d}</span><span class="t">${tag}</span></button>`;
+  }
+  $('grid').innerHTML = h;
+  const s = stat(prima, ultima);
+  $('lunaSum').innerHTML = `<span><b>${s.lucrate}</b>ture</span><span><b>${s.ore}</b>ore</span><span><b>${s.norma}</b>ore normă</span>
+    <span class="${s.dif >= 0 ? 'plus' : 'minus'}"><b>${semn(s.dif)}</b>ore față de normă</span>`;
+}
+
+function randeazaVerif() {
+  const v = $('verif').value; if (!v) { $('verifRez').textContent = ''; return; }
+  const n = dinIso(v), [cls] = clasaZi(n), z = infoZi(n), sb = sarb(n);
+  const txt = { tura: 'ești în tură', extra: 'ai tură în plus', iesire: 'ieși din tură', co: 'ești în concediu de odihnă', cm: 'ești în concediu medical', l: 'ai liber cerut', liber: 'ești liber' }[cls];
+  let r = `<b>${esc(cap(scrie(n)))}</b>: ${txt}.`;
+  if (sb) r += ` E sărbătoare legală (${esc(sb)}).`;
+  if (!z.lucreaza) { const u = urmatoareaTura(n); if (u) r += ` Următoarea tură: ${esc(scrieScurt(u))}.`; }
+  $('verifRez').innerHTML = r;
+}
+
+function randeazaUrm() {
+  let n = azi() - 1, h = '';
+  for (let i = 0; i < 6; i++) { n = urmatoareaTura(n); if (n == null) break; const sb = sarb(n), o = deLa(n);
+    h += `<li><span>${esc(cap(scrieScurt(n)))}${sb ? ' · ' + esc(sb) : (o.w === 0 || o.w === 6) ? ' · weekend' : ''}</span><span>${inCate(n)}</span></li>`; }
+  $('urm').innerHTML = h;
+}
+
+function randeazaStat() {
+  const y = anStat, t = azi();
+  $('anEt').textContent = `Anul ${y}`;
+  const an = stat(dn(y, 0, 1), dn(y + 1, 0, 1) - 1);
+  const coRam = (Number(st.setari.zileCO) || 0) - an.co;
+  const tiles = [
+    [an.lucrate, 'ture lucrate și planificate'], [an.ore, 'ore lucrate'],
+    [semn(an.dif), 'ore față de normă (' + an.norma + ')'], [`${an.co}/${st.setari.zileCO}`, `zile CO, rămân ${coRam}`],
+    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.weekend, 'ture în weekend'], [an.sarb, 'ture de sărbători']];
+  $('tiles').innerHTML = tiles.map(([v, k]) => `<div class="tile"><span class="v">${esc(v)}</span><span class="k">${esc(k)}</span></div>`).join('');
+
+  const luni = []; for (let m = 0; m < 12; m++) { const a = dn(y, m, 1), b = dn(y, m + 1, 1) - 1; luni.push(Object.assign(stat(a, b), { viit: a > t })); }
+  // grafic
+  const W = 640, H = 230, L = 40, R = 10, T = 12, B = 26, pw = W - L - R, ph = H - T - B;
+  const max = Math.max(50, ...luni.map(l => Math.max(l.ore, l.norma)));
+  const sus = Math.ceil(max / 50) * 50, sy = v => T + ph - (v / sus) * ph, bw = pw / 12;
+  let g = '';
+  for (let k = 0; k <= 4; k++) { const v = (sus / 4) * k, yy = sy(v); g += `<line class="grid-l" x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}"/><text x="${L - 6}" y="${yy + 4}" text-anchor="end">${Math.round(v)}</text>`; }
+  luni.forEach((l, i) => {
+    const x = L + i * bw, bx = x + bw * 0.2, w = bw * 0.6;
+    g += `<rect class="bar${l.viit ? ' viit' : ''}" x="${bx}" y="${sy(l.ore)}" width="${w}" height="${Math.max(0, T + ph - sy(l.ore))}" rx="2"><title>${LUNI_S[i]}: ${l.ore} ore, normă ${l.norma}</title></rect>`;
+    g += `<line class="norma" x1="${x + bw * 0.1}" x2="${x + bw * 0.9}" y1="${sy(l.norma)}" y2="${sy(l.norma)}"/>`;
+    g += `<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle">${LUNI_S[i]}</text>`;
+  });
+  $('grafic').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ore lucrate pe lună în ${y}">${g}</svg>`;
+  // tabel
+  let tb = '<table><thead><tr><th>Luna</th><th>Ture</th><th>Ore</th><th>Normă</th><th>Dif.</th><th>CO</th><th>CM</th><th>L</th><th>Weekend</th><th>Sărb.</th></tr></thead><tbody>';
+  luni.forEach((l, i) => { tb += `<tr class="${l.viit ? 'viit' : ''}"><td>${cap(LUNI[i])}</td><td>${l.lucrate}</td><td>${l.ore}</td><td>${l.norma}</td><td class="${l.dif >= 0 ? 'plus' : 'minus'}">${semn(l.dif)}</td><td>${l.co}</td><td>${l.cm}</td><td>${l.l}</td><td>${l.weekend}</td><td>${l.sarb}</td></tr>`; });
+  tb += `</tbody><tfoot><tr><th>Total</th><th>${an.lucrate}</th><th>${an.ore}</th><th>${an.norma}</th><th>${semn(an.dif)}</th><th>${an.co}</th><th>${an.cm}</th><th>${an.l}</th><th>${an.weekend}</th><th>${an.sarb}</th></tr></tfoot></table>`;
+  $('tabel').innerHTML = tb;
+}
+
+function randeazaSetari() {
+  const s = st.setari;
+  $('sTip').value = String(s.ciclu); $('sRef').value = s.dataReferinta; $('sOra').value = s.oraStart; $('sCO').value = s.zileCO;
+  $('cicluEt').textContent = Number(s.ciclu) === 4 ? '24/72' : '24/48';
+  $('gNume').value = gh.nume; $('gOwner').value = gh.owner; $('gRepo').value = gh.repo; $('gBranch').value = gh.branch; $('gToken').value = gh.token; $('gAuto').checked = gh.auto;
+}
+function randeazaTot() { randeazaStatus(); randeazaCalendar(); randeazaVerif(); randeazaUrm(); randeazaStat(); randeazaSetari(); }
+
+/* ---------- Interacțiuni ---------- */
+function toast(m) { const t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
+
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  ['cal', 'stat', 'set'].forEach(k => ($('tab-' + k).hidden = k !== b.dataset.tab));
+  window.scrollTo(0, 0);
+}));
+$('prev').onclick = () => { vedere.m--; if (vedere.m < 0) { vedere.m = 11; vedere.y--; } randeazaCalendar(); };
+$('next').onclick = () => { vedere.m++; if (vedere.m > 11) { vedere.m = 0; vedere.y++; } randeazaCalendar(); };
+$('laAzi').onclick = () => { const o = deLa(azi()); vedere = { y: o.y, m: o.m }; randeazaCalendar(); };
+$('anPrev').onclick = () => { anStat--; randeazaStat(); };
+$('anNext').onclick = () => { anStat++; randeazaStat(); };
+$('verif').addEventListener('change', randeazaVerif);
+
+// fereastra unei zile
+let ziDeschisa = null;
+$('grid').addEventListener('click', e => { const b = e.target.closest('.zi[data-n]'); if (b) deschideZi(Number(b.dataset.n)); });
+function deschideZi(n) {
+  ziDeschisa = n; const z = infoZi(n), sb = sarb(n);
+  $('shTit').textContent = cap(scrie(n));
+  const bazaTxt = z.baza === 'tura' ? 'tură' : (z.baza === 'iesire' && infoZi(n - 1).baza === 'tura') ? 'ieșire din tură' : 'zi liberă';
+  $('shBaza').textContent = `După program: ${bazaTxt}.` + (sb ? ` Sărbătoare legală: ${sb}.` : '');
+  const tip = z.ex ? z.ex.tip : '';
+  document.querySelectorAll('#shOpt input').forEach(i => (i.checked = i.value === tip));
+  $('shNota').value = z.ex && z.ex.nota ? z.ex.nota : '';
+  $('sheetBg').hidden = false;
+  $('shSalv').focus();
+}
+function inchideZi() { $('sheetBg').hidden = true; ziDeschisa = null; }
+$('shAnul').onclick = inchideZi;
+$('sheetBg').addEventListener('click', e => { if (e.target === $('sheetBg')) inchideZi(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheetBg').hidden) inchideZi(); });
+$('shSalv').onclick = () => {
+  const tip = (document.querySelector('#shOpt input:checked') || {}).value || '', nota = $('shNota').value.trim(), k = iso(ziDeschisa);
+  if (!tip && !nota) delete st.exceptii[k]; else st.exceptii[k] = { tip, nota };
+  inchideZi(); salveaza(); toast('Ziua a fost salvată');
+};
+
+// setări program
+function actualizeazaSetari() {
+  const s = st.setari;
+  s.ciclu = Number($('sTip').value); if ($('sRef').value) s.dataReferinta = $('sRef').value;
+  if ($('sOra').value) s.oraStart = $('sOra').value; s.zileCO = Math.max(0, Number($('sCO').value) || 0);
+  salveaza();
+}
+['sTip', 'sRef', 'sOra', 'sCO'].forEach(id => $(id).addEventListener('change', actualizeazaSetari));
+
+// perioadă
+$('pAplica').onclick = () => {
+  const a = $('pDe').value, b = $('pPana').value, tip = $('pTip').value, doarTura = $('pDoarTura').checked;
+  if (!a || !b) return toast('Alege data de început și de sfârșit');
+  let x = dinIso(a), y = dinIso(b); if (y < x) [x, y] = [y, x];
+  if (y - x > 400) return toast('Perioada e prea lungă (maxim 400 de zile)');
+  let nr = 0;
+  for (let n = x; n <= y; n++) {
+    const k = iso(n);
+    if (tip === 'sterge') { if (st.exceptii[k]) { delete st.exceptii[k]; nr++; } continue; }
+    if (doarTura && infoZi(n).baza !== 'tura') continue;
+    st.exceptii[k] = { tip, nota: (st.exceptii[k] && st.exceptii[k].nota) || '' }; nr++;
+  }
+  salveaza(); toast(tip === 'sterge' ? `Am șters ${nr} zile` : `Am marcat ${nr} zile`);
+};
+
+// GitHub
+const ghGata = () => gh.nume && gh.owner && gh.repo && gh.token;
+function ghStare(m, cls) { const e = $('gSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+['gNume', 'gOwner', 'gRepo', 'gBranch', 'gToken'].forEach(id => $(id).addEventListener('change', () => {
+  gh.nume = $('gNume').value.trim(); gh.owner = $('gOwner').value.trim(); gh.repo = $('gRepo').value.trim(); gh.branch = $('gBranch').value.trim() || 'main'; gh.token = $('gToken').value.trim(); scrieGh();
+}));
+$('gAuto').addEventListener('change', () => { gh.auto = $('gAuto').checked; scrieGh(); });
+const b64enc = s => { const by = new TextEncoder().encode(s); let bin = ''; by.forEach(c => (bin += String.fromCharCode(c))); return btoa(bin); };
+const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), c => c.charCodeAt(0)));
+function ghUrl() { return `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${ghCale()}`; }
+function ghHead() { return { Authorization: `Bearer ${gh.token}`, Accept: 'application/vnd.github+json' }; }
+function ghEroare(r) {
+  if (r.status === 401) return 'Tokenul nu e valid sau a expirat.';
+  if (r.status === 403) return 'Tokenul nu are voie să scrie în repository. Dă-i permisiunea „Contents: Read and write”.';
+  if (r.status === 404) return 'Nu găsesc repository-ul. Verifică numele de utilizator, repository-ul și ramura.';
+  if (r.status === 409) return 'Fișierul s-a schimbat între timp. Încearcă din nou.';
+  return `GitHub a răspuns cu eroarea ${r.status}.`;
+}
+async function ghCiteste() {
+  const r = await fetch(`${ghUrl()}?ref=${encodeURIComponent(gh.branch)}`, { headers: ghHead(), cache: 'no-store' });
+  if (r.status === 404) { const rr = await fetch(`https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}`, { headers: ghHead() }); if (rr.ok) return { sha: null, date: null }; throw new Error(ghEroare(rr)); }
+  if (!r.ok) throw new Error(ghEroare(r));
+  const j = await r.json();
+  return { sha: j.sha, date: JSON.parse(b64dec(j.content)) };
+}
+async function ghSalveaza(automat) {
+  if (!ghGata()) return ghStare('Completează numele tău, proprietarul, repository-ul și tokenul.', 'err');
+  ghStare('Se salvează în GitHub…');
+  try {
+    const { sha } = await ghCiteste();
+    const corp = { message: `Ture actualizate ${iso(azi())}`, content: b64enc(JSON.stringify(st, null, 2) + '\n'), branch: gh.branch };
+    if (sha) corp.sha = sha;
+    const r = await fetch(ghUrl(), { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify(corp) });
+    if (!r.ok) throw new Error(ghEroare(r));
+    const ora = new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+    gh.inAsteptare = false; scrieGh();
+    ghStare(`Salvat în GitHub (${ghCale()}) la ${ora}.`, 'ok'); if (!automat) toast('Salvat în GitHub');
+  } catch (e) {
+    if (e.message === 'Failed to fetch' || !navigator.onLine) { gh.inAsteptare = true; scrieGh(); ghStare('Salvat pe telefon. Se trimite în GitHub când ai internet.', ''); }
+    else ghStare(e.message, 'err');
+  }
+}
+async function ghIncarca() {
+  if (!ghGata()) return ghStare('Completează numele tău, proprietarul, repository-ul și tokenul.', 'err');
+  ghStare('Se încarcă din GitHub…');
+  try {
+    const { date } = await ghCiteste();
+    if (!date) return ghStare(`În repository nu există încă ${ghCale()}. Apasă „Salvează în GitHub” ca să-l creezi.`, 'err');
+    st = normalizeaza(date); scrieLocal(); randeazaTot(); ghStare('Datele au fost încărcate din GitHub.', 'ok'); toast('Încărcat din GitHub');
+  } catch (e) { ghStare(e.message === 'Failed to fetch' ? 'Nu am internet sau GitHub nu răspunde.' : e.message, 'err'); }
+}
+$('gSalv').onclick = () => ghSalveaza(false);
+window.addEventListener('online', () => { if (gh.inAsteptare && ghGata()) ghSalveaza(true); });
+$('gInc').onclick = ghIncarca;
+
+// copie de siguranță
+$('exp').onclick = () => {
+  const blob = new Blob([JSON.stringify(st, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ture-${iso(azi())}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
+$('imp').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { st = normalizeaza(JSON.parse(await f.text())); salveaza(); toast('Datele au fost încărcate'); }
+  catch (err) { toast('Fișierul nu poate fi citit: ' + err.message); }
+  e.target.value = '';
+});
+$('sterg').onclick = () => {
+  const b = $('sterg');
+  if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Apasă din nou ca să ștergi tot'; setTimeout(() => { delete b.dataset.conf; b.textContent = 'Șterge toate datele'; }, 4000); return; }
+  st = implicit(); delete b.dataset.conf; b.textContent = 'Șterge toate datele'; salveaza(); toast('Toate datele au fost șterse');
+};
+
+// instalare ca aplicație
+let promptInstal = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); promptInstal = e; $('instal').hidden = false; });
+$('instal').onclick = async () => { if (!promptInstal) return; promptInstal.prompt(); await promptInstal.userChoice; promptInstal = null; $('instal').hidden = true; };
+try { if ('serviceWorker' in navigator && location.protocol === 'https:' && !/claude/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+
+/* ---------- Pornire ---------- */
+(async function porneste() {
+  citesteGh();
+  const local = citesteLocal();
+  if (local) st = local;
+  else {
+    try { const r = await fetch('data/ture.json', { cache: 'no-store' }); if (r.ok) { st = normalizeaza(await r.json()); scrieLocal(); } } catch (e) {}
+  }
+  $('verif').value = iso(azi() + 7);
+  randeazaTot();
+  if (ghGata()) { ghStare(`Conectat la ${gh.owner}/${gh.repo}, fișierul ${ghCale()}.`, 'ok'); if (gh.inAsteptare && navigator.onLine) ghSalveaza(true); }
+})();
+</script>
+</html>
