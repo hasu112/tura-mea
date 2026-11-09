@@ -662,9 +662,16 @@ $('pAplica').onclick = () => {
 // GitHub
 const ghGata = () => gh.nume && gh.owner && gh.repo && gh.token;
 function ghStare(m, cls) { const e = $('gSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
-['gNume', 'gOwner', 'gRepo', 'gBranch', 'gToken'].forEach(id => $(id).addEventListener('change', () => {
-  gh.nume = $('gNume').value.trim(); gh.owner = $('gOwner').value.trim(); gh.repo = $('gRepo').value.trim(); gh.branch = $('gBranch').value.trim() || 'main'; gh.token = $('gToken').value.trim(); scrieGh();
-}));
+function citesteCampuriGh() {
+  gh.nume = $('gNume').value.trim(); gh.owner = $('gOwner').value.trim(); gh.repo = $('gRepo').value.trim();
+  gh.branch = $('gBranch').value.trim() || 'main'; gh.token = $('gToken').value.trim(); scrieGh();
+}
+function lipsaGh() {
+  citesteCampuriGh();
+  const lipsa = [[gh.nume, 'numele tău'], [gh.owner, 'proprietarul'], [gh.repo, 'repository-ul'], [gh.token, 'tokenul']].filter(x => !x[0]).map(x => x[1]);
+  return lipsa.length ? `Lipsește: ${lipsa.join(', ')}.` : '';
+}
+['gNume', 'gOwner', 'gRepo', 'gBranch', 'gToken'].forEach(id => ['input', 'change', 'blur'].forEach(ev => $(id).addEventListener(ev, citesteCampuriGh)));
 $('gAuto').addEventListener('change', () => { gh.auto = $('gAuto').checked; scrieGh(); });
 const b64enc = s => { const by = new TextEncoder().encode(s); let bin = ''; by.forEach(c => (bin += String.fromCharCode(c))); return btoa(bin); };
 const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), c => c.charCodeAt(0)));
@@ -685,7 +692,7 @@ async function ghCiteste() {
   return { sha: j.sha, date: JSON.parse(b64dec(j.content)) };
 }
 async function ghSalveaza(automat) {
-  if (!ghGata()) return ghStare('Completează numele tău, proprietarul, repository-ul și tokenul.', 'err');
+  const lipsa = lipsaGh(); if (lipsa) return ghStare(lipsa, 'err');
   ghStare('Se salvează în GitHub…');
   try {
     const { sha } = await ghCiteste();
@@ -703,7 +710,7 @@ async function ghSalveaza(automat) {
   }
 }
 async function ghIncarca() {
-  if (!ghGata()) return ghStare('Completează numele tău, proprietarul, repository-ul și tokenul.', 'err');
+  const lipsa = lipsaGh(); if (lipsa) return ghStare(lipsa, 'err');
   ghStare('Se încarcă din GitHub…');
   try {
     const { date } = await ghCiteste();
@@ -745,6 +752,7 @@ let echipa = [], echVedere = null;
 function echStare(m, cls) { const e = $('echSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
 const ghFisierUrl = cale => `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${cale}?ref=${encodeURIComponent(gh.branch)}`;
 async function incarcaEchipa() {
+  citesteCampuriGh();
   if (!ghGata()) { echStare('Leagă întâi aplicația de GitHub din Setări. Echipa se citește din același repository.', 'err'); randeazaEchipa(); return; }
   echStare('Se încarcă echipa…'); $('echRef').disabled = true;
   try {
