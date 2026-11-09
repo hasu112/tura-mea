@@ -151,6 +151,11 @@ th:first-child, td:first-child { text-align:left }
 th { font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600 }
 tr.viit td { color:var(--muted) }
 
+/* Coleg scos din echipă */
+#scosBanner { border-color:var(--accent) }
+#scosBanner h3 { color:var(--accent) }
+.adm li.sep { background:none; padding:10px 0 0 }
+
 /* Echipa */
 .echipa table { border-collapse:separate; border-spacing:2px; width:auto }
 .echipa th, .echipa td { padding:0; border:0; text-align:center; white-space:nowrap }
@@ -215,6 +220,10 @@ tr.viit td { color:var(--muted) }
 <main class="wrap">
   <!-- CALENDAR -->
   <section id="tab-cal">
+    <div class="card" id="scosBanner" hidden>
+      <h3>Ai fost scos din echipă</h3>
+      <p class="hint">Administratorul te-a scos din echipă. Turele tale rămân pe acest telefon și poți folosi calendarul în continuare, dar nu se mai salvează în GitHub și nu mai vezi echipa.</p>
+    </div>
     <div class="status" id="status"></div>
 
     <div class="card">
@@ -608,7 +617,7 @@ function randeazaSetari() {
   $('cicluEt').textContent = Number(s.ciclu) === 4 ? '24/72' : '24/48';
   $('gNume').value = gh.nume; $('gOwner').value = gh.owner; $('gRepo').value = gh.repo; $('gBranch').value = gh.branch; $('gToken').value = gh.token; $('gAuto').checked = gh.auto;
 }
-function randeazaTot() { randeazaAdmSet(); randeazaEchipa(); randeazaStatus(); randeazaCalendar(); randeazaVerif(); randeazaUrm(); randeazaStat(); randeazaSetari(); }
+function randeazaTot() { $('scosBanner').hidden = !esteScos(); randeazaAdmSet(); randeazaEchipa(); randeazaStatus(); randeazaCalendar(); randeazaVerif(); randeazaUrm(); randeazaStat(); randeazaSetari(); }
 
 /* ---------- Interacțiuni ---------- */
 function toast(m) { const t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
@@ -714,6 +723,8 @@ async function ghSalveaza(automat) {
   const lipsa = lipsaGh(); if (lipsa) return ghStare(lipsa, 'err');
   ghStare('Se salvează în GitHub…');
   try {
+    await citesteScosi();
+    if (esteScos()) { gh.inAsteptare = false; scrieGh(); $('scosBanner').hidden = false; return ghStare('Ai fost scos din echipă de administrator. Turele tale rămân doar pe acest telefon.', 'err'); }
     const { sha } = await ghCiteste();
     st.nume = gh.nume;
     try { st.github = await ghLogin(); } catch (e) {}
@@ -776,6 +787,8 @@ async function incarcaEchipa() {
   if (!ghGata()) { echStare('Leagă întâi aplicația de GitHub din Setări. Echipa se citește din același repository.', 'err'); randeazaEchipa(); return; }
   echStare('Se încarcă echipa…'); $('echRef').disabled = true;
   try {
+    await citesteScosi();
+    if (esteScos()) { echipa = []; $('scosBanner').hidden = false; throw new Error('Ai fost scos din echipă de administrator, așa că nu mai vezi turele colegilor.'); }
     const r = await fetch(ghFisierUrl('data'), { headers: ghHead(), cache: 'no-store' });
     if (r.status === 404) throw new Error('În repository nu există încă folderul data. Salvează-ți întâi datele din Setări.');
     if (!r.ok) throw new Error(ghEroare(r));
@@ -799,7 +812,7 @@ async function incarcaEchipa() {
 }
 function membri() {
   const eu = slug(gh.nume) || 'eu';
-  const lista = echipa.filter(m => m.cheie !== eu)
+  const lista = echipa.filter(m => m.cheie !== eu && !scosi.some(s => s.cheie === m.cheie))
     .map(m => ({ cheie: m.cheie, nume: m.date.nume || cap(m.cheie.replace(/-/g, ' ')), date: m.date, eu: false }))
     .sort((a, b) => a.nume.localeCompare(b.nume, 'ro'));
   lista.unshift({ nume: gh.nume || 'Eu', date: st, eu: true });
@@ -909,8 +922,11 @@ function randeazaAdmin() {
   $('admLista').innerHTML = altii.length
     ? altii.map(m => `<li><span>${esc(m.nume)}${m.date.github ? ` <span class="login">@${esc(m.date.github)}</span>` : ''}</span><button class="ghost mic pericol" data-cheie="${esc(m.cheie)}">Scoate</button></li>`).join('')
     : '<li><span>Nu ai încă alți colegi în echipă.</span></li>';
+  if (scosi.length) $('admLista').innerHTML += '<li class="sep"><span><b>Scoși din echipă</b></span></li>'
+    + scosi.map(x => `<li><span>${esc(x.nume)}${x.data ? ` <span class="login">din ${esc(scrieScurt(dinIso(x.data)))}</span>` : ''}</span><button class="ghost mic" data-readauga="${esc(x.cheie)}">Readaugă</button></li>`).join('');
 }
 $('admLista').addEventListener('click', async e => {
+  const ra = e.target.closest('button[data-readauga]'); if (ra && !ra.disabled) { ra.disabled = true; return readauga(ra.dataset.readauga); }
   const b = e.target.closest('button[data-cheie]'); if (!b || b.disabled) return;
   if (!b.dataset.conf) {
     b.dataset.conf = '1'; b.textContent = 'Sigur? Apasă din nou';
@@ -920,6 +936,35 @@ $('admLista').addEventListener('click', async e => {
   b.disabled = true; b.textContent = 'Se scoate…';
   await scoateColeg(b.dataset.cheie);
 });
+const CHEIE_SC = 'tura-mea-scosi';
+let scosi = [];
+const esteScos = () => !!gh.nume && !esteAdmin() && scosi.some(x => x.cheie === slug(gh.nume));
+function salvScosiLocal() { try { localStorage.setItem(CHEIE_SC, JSON.stringify(scosi)); } catch (e) {} }
+async function citesteScosi() {
+  const r = await fetch(ghFisierUrl('data/scosi.json'), { headers: ghHead(), cache: 'no-store' });
+  if (r.status === 404) { scosi = []; salvScosiLocal(); return { sha: null }; }
+  if (!r.ok) throw new Error(ghEroare(r));
+  const j = await r.json(), d = JSON.parse(b64dec(j.content));
+  scosi = Array.isArray(d.scosi) ? d.scosi : []; salvScosiLocal();
+  return { sha: j.sha };
+}
+async function scrieScosi(lista, sha, mesaj) {
+  const corp = { message: mesaj, branch: gh.branch, content: b64enc(JSON.stringify({ scosi: lista }, null, 2) + '\n') };
+  if (sha) corp.sha = sha;
+  const r = await fetch(`${repoApi()}/contents/data/scosi.json`, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify(corp) });
+  if (!r.ok) throw new Error(ghEroare(r));
+  scosi = lista; salvScosiLocal();
+}
+async function readauga(cheie) {
+  if (!esteAdmin()) return;
+  admStare('Se readaugă…');
+  try {
+    const { sha } = await citesteScosi(), x = scosi.find(s => s.cheie === cheie), nume = x ? x.nume : cheie;
+    await scrieScosi(scosi.filter(s => s.cheie !== cheie), sha, `Readăugat în echipă: ${nume}`);
+    randeazaEchipa();
+    admStare(`${nume} poate intra din nou în echipă. Apare în tabel după ce își salvează turele.`, 'ok');
+  } catch (e) { randeazaAdmin(); admStare(e.message === 'Failed to fetch' ? 'Nu am internet. Încearcă din nou.' : e.message, 'err'); }
+}
 async function scoateColeg(cheie) {
   const m = echipa.find(x => x.cheie === cheie); if (!m || !esteAdmin()) return;
   const nume = m.date.nume || cap(cheie.replace(/-/g, ' ')), cale = m.path || `data/ture-${cheie}.json`;
@@ -932,6 +977,8 @@ async function scoateColeg(cheie) {
         body: JSON.stringify({ message: `Scos din echipă: ${nume}`, sha, branch: gh.branch }) });
       if (!d.ok) throw new Error(ghEroare(d));
     } else if (g.status !== 404) throw new Error(ghEroare(g));
+    const { sha: shaSc } = await citesteScosi();
+    if (!scosi.some(x => x.cheie === cheie)) await scrieScosi([...scosi, { cheie, nume, data: iso(azi()) }], shaSc, `Scos din echipă: ${nume}`);
     let acces;
     const login = m.date.github;
     if (login && login.toLowerCase() !== gh.owner.toLowerCase()) {
@@ -939,7 +986,7 @@ async function scoateColeg(cheie) {
       acces = c.status === 204 ? ` Nu mai are acces la ${gh.repo}.`
         : ` Accesul nu i l-am putut tăia: tokenul tău nu are permisiunea „Administration”. Scoate-l manual din GitHub: ${gh.repo} → Settings → Collaborators.`;
     } else {
-      acces = ' Dacă vrei să nu mai poată intra deloc, fă un token nou pentru echipă și dă-l doar colegilor rămași.';
+      acces = ' Nu mai apare în echipă, iar aplicația lui nu mai salvează în GitHub. Va vedea un mesaj că a fost scos.';
     }
     echipa = echipa.filter(x => x.cheie !== cheie);
     try { localStorage.setItem(CHEIE_ECH, JSON.stringify(echipa)); } catch (e) {}
@@ -956,6 +1003,7 @@ async function scoateColeg(cheie) {
   citesteGh();
   try { const c = JSON.parse(localStorage.getItem(CHEIE_ECH) || 'null'); if (Array.isArray(c)) echipa = c.map(m => ({ cheie: m.cheie, path: m.path, sha: m.sha, date: normalizeaza(m.date) })); } catch (e) {}
   $('echZi').value = iso(azi());
+  try { scosi = JSON.parse(localStorage.getItem(CHEIE_SC) || '[]') || []; } catch (e) {}
   const local = citesteLocal();
   if (local) st = local;
   else {
@@ -963,7 +1011,10 @@ async function scoateColeg(cheie) {
   }
   $('verif').value = iso(azi() + 7);
   randeazaTot();
-  if (ghGata()) { ghStare(`Conectat la ${gh.owner}/${gh.repo}, fișierul ${ghCale()}.`, 'ok'); if (gh.inAsteptare && navigator.onLine) ghSalveaza(true); }
+  if (ghGata()) {
+    ghStare(`Conectat la ${gh.owner}/${gh.repo}, fișierul ${ghCale()}.`, 'ok');
+    citesteScosi().then(() => { randeazaTot(); if (gh.inAsteptare && navigator.onLine) ghSalveaza(true); }).catch(() => {});
+  }
 })();
 </script>
 </html>

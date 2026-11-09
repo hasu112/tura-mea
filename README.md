@@ -96,7 +96,12 @@ Cum dai acces colegilor (alege una):
 3. Pe alt telefon sau pe Mac introduci același cod.
 4. În fila **Echipa**, jos, apare **Administrează echipa**. **Scoate** (apeși de două ori) șterge fișierul colegului.
 
-Panoul apare doar unde s-a introdus codul. Colegii nu-l văd, dar tokenul comun le dă tehnic voie să scrie în repository. Ca să tai complet accesul cuiva, fă un token nou de echipă și dă-l doar celor rămași.
+Ce se întâmplă cu colegul scos:
+- numele lui intră în lista `data/scosi.json`, deci nu mai apare în echipă;
+- în aplicația lui apare mesajul „Ai fost scos din echipă”; calendarul lui merge mai departe pe telefon, dar nu mai salvează în GitHub și nu mai vede echipa;
+- în panoul tău apare la „Scoși din echipă”, cu butonul **Readaugă**.
+
+Panoul apare doar unde s-a introdus codul. Tokenul comun le dă totuși tehnic voie colegilor să scrie în repository (de exemplu, cineva și-ar putea schimba numele în aplicație ca să ocolească lista). Ca să tai complet accesul cuiva, fă un token nou de echipă și dă-l doar celor rămași.
 Ca să schimbi codul: șterge pe GitHub fișierul `data/admin.json` și activează din nou cu codul nou.
 
 > Oricine are acces la `tura-mea-date` poate vedea și modifica fișierele tuturor colegilor. GitHub nu poate da acces doar la un fișier. Dă acces doar oamenilor de încredere și nu scrie în note lucruri personale.
