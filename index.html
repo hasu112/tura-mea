@@ -121,6 +121,10 @@ h3 { font-size:17px; color:var(--muted) }
 .legend { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; color:var(--muted) }
 .legend i { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:-1px; background:var(--c) }
 .luna-sum { display:flex; flex-wrap:wrap; gap:6px 18px; padding-top:10px; border-top:1px solid var(--line); font-size:15px }
+.we-rand { flex-basis:100% }
+.we-det { flex-basis:100%; font-size:15px }
+.we-det summary { cursor:pointer; color:var(--muted); font-weight:600; padding:4px 0 }
+.we-det ol { margin-top:6px }
 .luna-sum b { font-family:var(--f-disp); font-size:20px; margin-right:3px }
 .plus { color:var(--ok) } .minus { color:var(--accent) }
 
@@ -294,7 +298,7 @@ tr.viit td { color:var(--muted) }
         <button class="btn-ic" id="anNext" aria-label="Anul următor">›</button>
       </div>
       <div class="tiles num" id="tiles"></div>
-      <p class="hint">Normă = zile lucrătoare (luni–vineri, fără sărbători legale) × 8 ore. Ora unei ture de 24 h se numără în ziua în care începe. Lunile viitoare sunt planificate.</p>
+      <p class="hint">Normă = zile lucrătoare (luni–vineri, fără sărbători legale) × 8 ore. Ora unei ture de 24 h se numără în ziua în care începe. Lunile viitoare sunt planificate. <span id="statStart"></span></p>
     </div>
     <div class="card chart">
       <h3>Ore lucrate pe lună față de normă</h3>
@@ -357,6 +361,7 @@ tr.viit td { color:var(--muted) }
         <div class="camp"><label for="sRef">O zi în care ai fost în tură</label><input type="date" id="sRef"></div>
         <div class="camp"><label for="sOra">Ora intrării în tură</label><input type="time" id="sOra"></div>
         <div class="camp"><label for="sPerm">Ziua de permanență</label><select id="sPerm"></select></div>
+        <div class="camp"><label for="sStart">Statisticile încep din</label><input type="date" id="sStart"></div>
         <div class="camp"><label for="sCO">Zile CO pe an</label><input type="number" id="sCO" min="0" max="60"></div>
       </div>
       <p class="hint">Aplicația calculează toate turele pornind de la ziua aleasă. Dacă ai greșit-o, schimbi data și calendarul se recalculează.</p>
@@ -550,17 +555,28 @@ const DESC = { perm: 'permanență', cc: 'creșterea capacității', cos: 'COS',
 function urmatoareaTura(dupa) { for (let n = dupa + 1; n < dupa + 800; n++) if (infoZi(n).lucreaza) return n; return null; }
 function inCate(n) { const d = n - azi(); return d === 0 ? 'azi' : d === 1 ? 'mâine' : d === 2 ? 'poimâine' : d > 0 ? `peste ${d} zile` : `acum ${-d} zile`; }
 
-/* Ore de weekend: de sâmbătă 00:00 până duminică 24:00, plus zilele de sărbătoare legală (00:00–24:00). Se numără în luna în care începe tura. */
-function oreWeekend(n, panaLa) {
+/* Ore de weekend: de sâmbătă 00:00 până duminică 24:00, plus zilele de sărbătoare legală (00:00–24:00).
+   Se numără în luna în care sunt lucrate: tura care trece peste miezul nopții de la sfârșitul lunii se împarte între cele două luni. */
+function oreWeekend(n, panaLa, de = -Infinity, pana = Infinity) {
   const [hh, mm] = String(st.setari.oraStart || '08:00').split(':').map(Number);
-  const s = n * 24 + (hh || 0) + (mm || 0) / 60;
-  const e = Math.min(s + (Number(st.setari.oreTura) || 24), panaLa == null ? Infinity : panaLa);
+  const start = n * 24 + (hh || 0) + (mm || 0) / 60;
+  const s = Math.max(start, de);
+  const e = Math.min(start + (Number(st.setari.oreTura) || 24), panaLa == null ? Infinity : panaLa, pana);
   let h = 0;
-  for (let d = n; d * 24 < e; d++) { const w = deLa(d).w; if (w === 6 || w === 0 || sarb(d)) h += Math.max(0, Math.min(e, d * 24 + 24) - Math.max(s, d * 24)); }
+  for (let d = Math.floor(s / 24); d * 24 < e; d++) { const w = deLa(d).w; if (w === 6 || w === 0 || sarb(d)) h += Math.max(0, Math.min(e, d * 24 + 24) - Math.max(s, d * 24)); }
   return h;
 }
 const acumOre = () => { const t = new Date(); return azi() * 24 + t.getHours() + t.getMinutes() / 60; };
+/* Statisticile pornesc din luna în care ai început să completezi date (sau din data aleasă în Setări). */
+function inceputStat() {
+  const s = st.setari;
+  if (s.inceput) return dinIso(s.inceput);
+  const date = [s.dataReferinta, ...Object.keys(st.exceptii)].filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x || '')).sort();
+  const o = deLa(dinIso(date[0] || iso(azi())));
+  return dn(o.y, o.m, 1);
+}
 function stat(a, b) {
+  a = Math.max(a, inceputStat());
   const acum = acumOre();
   const r = { oreWE: 0, oreWEFacute: 0, plan: 0, lucrate: 0, perm: 0, cc: 0, oreCC: 0, curs: 0, co: 0, cos: 0, cm: 0, l: 0, rs: 0, schDat: 0, schLuat: 0, extra: 0, weekend: 0, sarb: 0, norma: 0 };
   for (let n = a; n <= b; n++) {
@@ -569,11 +585,12 @@ function stat(a, b) {
     if (z.ex) { if (z.ex.tip === 'CO') r.co++; else if (z.ex.tip === 'COS') r.cos++; else if (z.ex.tip === 'CM') r.cm++; else if (z.ex.tip === 'L') r.l++; else if (z.ex.tip === 'extra') r.extra++; else if (z.ex.tip === 'RS') r.rs++; else if (z.ex.tip === 'CURS') r.curs++; else if (z.ex.tip === 'SCH') { if (z.lucreaza) r.schLuat++; else r.schDat++; } }
     if (clasaZi(n)[0] === 'perm') r.perm++;
     if (z.ex && z.ex.tip === 'CC') { r.cc++; r.oreCC += Number(z.ex.ore) || 0; }
-    if (z.lucreaza) { r.oreWE += oreWeekend(n); r.oreWEFacute += oreWeekend(n, acum); }
     if (z.lucreaza) { r.lucrate++; if (o.w === 0 || o.w === 6) r.weekend++; if (sb) r.sarb++; }
     if (o.w >= 1 && o.w <= 5 && !sb) r.norma += 8;
   }
   r.ore = r.lucrate * (Number(st.setari.oreTura) || 24);
+  const lo = a * 24, hi = (b + 1) * 24, peste = Math.ceil((Number(st.setari.oreTura) || 24) / 24);
+  for (let n = a - peste; n <= b; n++) if (infoZi(n).lucreaza) { r.oreWE += oreWeekend(n, null, lo, hi); r.oreWEFacute += oreWeekend(n, acum, lo, hi); }
   r.dif = r.ore - r.norma;
   return r;
 }
@@ -629,7 +646,18 @@ function grila(y, m, idGrid, idLuna, idSum) {
   const s = stat(prima, ultima);
   $(idSum).innerHTML = `<span><b>${s.lucrate}</b>ture</span><span><b>${s.ore}</b>ore</span><span><b>${s.norma}</b>ore normă</span>
     <span class="${s.dif >= 0 ? 'plus' : 'minus'}"><b>${semn(s.dif)}</b>ore față de normă</span>
-    <span><b>${fmtOre(s.oreWEFacute)}</b>din ${fmtOre(s.oreWE)} ore de weekend făcute</span>`;
+    <span class="we-rand"><b>${fmtOre(s.oreWEFacute)}</b>ore de weekend făcute până azi</span><span class="we-rand"><b>${fmtOre(s.oreWE)}</b>ore de weekend programate în lună</span>` + detaliiWE(prima, ultima);
+}
+function detaliiWE(a, b) {
+  const acum = acumOre(), rand = [], lo = a * 24, hi = (b + 1) * 24, peste = Math.ceil((Number(st.setari.oreTura) || 24) / 24);
+  for (let n = a - peste; n <= b; n++) {
+    if (!infoZi(n).lucreaza) continue;
+    const h = oreWeekend(n, null, lo, hi); if (!h) continue;
+    const f = oreWeekend(n, acum, lo, hi), sb = sarb(n);
+    const cont = n < a ? ' (partea din luna aceasta)' : oreWeekend(n) > h ? ' (restul trece în luna următoare)' : '';
+    rand.push(`<li><span>Tura de ${esc(scrieScurt(n))}${sb ? ' · ' + esc(sb) : ''}${cont}</span><span>${fmtOre(h)} ore${f >= h ? ' · făcute' : f > 0 ? ` · ${fmtOre(f)} făcute` : ''}</span></li>`);
+  }
+  return `<details class="we-det"><summary>Vezi orele de weekend pe fiecare tură</summary>${rand.length ? `<ol class="urm num">${rand.join('')}</ol>` : '<p class="hint">Nicio tură cu ore de weekend în luna aceasta.</p>'}</details>`;
 }
 function randeazaCalendar() {
   const { y, m } = vedere;
@@ -652,12 +680,13 @@ function randeazaVerif() {
 function randeazaStat() {
   const y = anStat, t = azi();
   $('anEt').textContent = `Anul ${y}`;
+  $('statStart').textContent = `Statisticile încep din ${scrie(inceputStat())}; înainte de această dată totul e 0. Data se schimbă din Setări.`;
   const an = stat(dn(y, 0, 1), dn(y + 1, 0, 1) - 1);
   const coRam = (Number(st.setari.zileCO) || 0) - an.co;
   const tiles = [
     [an.lucrate, 'ture lucrate și planificate'], [an.ore, 'ore lucrate'],
     [semn(an.dif), 'ore față de normă (' + an.norma + ')'], [`${an.co}/${st.setari.zileCO}`, `zile CO, rămân ${coRam}`], [an.cos, 'zile COS'],
-    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.rs, `zile RS, ${an.rs * (Number(st.setari.oreTura) || 24)} ore recuperate`], [`${an.schDat} / ${an.schLuat}`, 'schimburi: ture date / luate'], [an.curs, 'zile de curs'], [an.perm, 'zile de permanență'], [fmtOre(an.oreCC), `ore creșterea capacității (${an.cc} ${an.cc === 1 ? 'zi' : 'zile'})`], [an.weekend, 'ture în weekend'], [`${fmtOre(an.oreWEFacute)} / ${fmtOre(an.oreWE)}`, 'ore de weekend: făcute / total'], [an.sarb, 'ture de sărbători']];
+    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.rs, `zile RS, ${an.rs * (Number(st.setari.oreTura) || 24)} ore recuperate`], [`${an.schDat} / ${an.schLuat}`, 'schimburi: ture date / luate'], [an.curs, 'zile de curs'], [an.perm, 'zile de permanență'], [fmtOre(an.oreCC), `ore creșterea capacității (${an.cc} ${an.cc === 1 ? 'zi' : 'zile'})`], [an.weekend, 'ture în weekend'], [fmtOre(an.oreWEFacute), 'ore de weekend făcute până azi'], [fmtOre(an.oreWE), 'ore de weekend programate în an'], [an.sarb, 'ture de sărbători']];
   $('tiles').innerHTML = tiles.map(([v, k]) => `<div class="tile"><span class="v">${esc(v)}</span><span class="k">${esc(k)}</span></div>`).join('');
 
   const luni = []; for (let m = 0; m < 12; m++) { const a = dn(y, m, 1), b = dn(y, m + 1, 1) - 1; luni.push(Object.assign(stat(a, b), { viit: a > t })); }
@@ -683,7 +712,7 @@ function randeazaStat() {
 
 function randeazaSetari() {
   const s = st.setari;
-  $('sTip').value = String(s.ciclu); $('sRef').value = s.dataReferinta; $('sOra').value = s.oraStart; $('sCO').value = s.zileCO;
+  $('sTip').value = String(s.ciclu); $('sRef').value = s.dataReferinta; $('sOra').value = s.oraStart; $('sCO').value = s.zileCO; $('sStart').value = iso(inceputStat());
   { const c = Number(s.ciclu) || 3, nume = ['Prima', 'A doua', 'A treia'];
     $('sPerm').innerHTML = '<option value="0">Fără permanență</option>' + Array.from({ length: c - 1 }, (_, i) => `<option value="${i + 1}">${nume[i]} zi după tură${i === 0 ? ' (ziua de ieșire)' : ''}</option>`).join('');
     $('sPerm').value = String((Number(s.permanenta) || 0) < c ? (Number(s.permanenta) || 0) : 0); }
@@ -742,6 +771,7 @@ $('shSalv').onclick = () => {
 };
 
 // setări program
+$('sStart').addEventListener('change', () => { st.setari.inceput = $('sStart').value || ''; salveaza(); });
 function actualizeazaSetari() {
   const s = st.setari;
   s.ciclu = Number($('sTip').value); if ($('sRef').value) s.dataReferinta = $('sRef').value;
