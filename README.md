@@ -7,7 +7,8 @@ Aplicație pentru program în ture de 24/48 (sau 24/72). Îi spui o zi în care 
 - **Calendar** pe luna curentă și luna următoare, cu zilele de TURA, ieșirea din tură (Ieș) și zilele libere.
 - **Starea de azi**: ești în tură, ieși din tură sau ești liber, plus când e următoarea tură.
 - **Verifică o zi**: alegi orice dată și îți spune dacă ești de serviciu.
-- **Excepții**: atingi o zi și pui CO (concediu de odihnă), COS, CM (concediu medical), Liber cerut, RS (recuperare ore suplimentare), Curs sau Schimb de tură (cu numele colegului). Poți scrie și o notă (de ex. „Ambulanță”), care apare în ziua respectivă din calendar.
+- **Excepții**: atingi o zi și pui CO (concediu de odihnă), COS, CM (concediu medical), Liber cerut, RS (recuperare ore suplimentare), Curs, Permanență, Creșterea capacității (cu numărul de ore) sau Schimb de tură (cu numele colegului). Poți scrie și o notă (de ex. „Ambulanță”), care apare în ziua respectivă din calendar.
+- **Ziua de permanență**: în Setări alegi care zi după tură e de permanență (prima sau a doua). Apare cu galben și „PERM”. Dacă tura dinainte e acoperită de CO, COS sau CM, permanența ei nu se mai pune. O poți pune și manual pe orice zi, sau o scoți dintr-o zi cu „Fără permanență”.
 - **Perioade**: pui CO, COS, CM, RS, Curs sau o notă pe mai multe zile deodată.
 - **Statistici pe an și pe lună**: ture lucrate, ore lucrate, normă de ore, diferența față de normă, zile CO folosite și rămase, ture în weekend și de sărbători.
 - **Sărbătorile legale din România** sunt calculate automat, inclusiv Paștele și Rusaliile ortodoxe.
@@ -133,12 +134,13 @@ Ca să schimbi codul: șterge pe GitHub fișierul `data/admin.json` și activeaz
 
 - `ciclu`: 3 înseamnă 24/48, 4 înseamnă 24/72.
 - `dataReferinta`: o zi de tură; de la ea se calculează restul.
-- `exceptii`: zilele schimbate față de program. `tip` poate fi `CO`, `COS`, `CM`, `L` (liber cerut), `RS` (recuperare ore suplimentare), `CURS` (zi de curs) sau `SCH` (schimb de tură, cu numele colegului în `cu`). `nota` e textul care apare în calendar.
+- `exceptii`: zilele schimbate față de program. `tip` poate fi `CO`, `COS`, `CM`, `L` (liber cerut), `RS` (recuperare ore suplimentare), `CURS` (zi de curs), `PERM` (permanență), `FARAPERM` (fără permanența automată), `CC` (creșterea capacității, cu orele în `ore`) sau `SCH` (schimb de tură, cu numele colegului în `cu`). `nota` e textul care apare în calendar.
 - Un `SCH` pus într-o zi de tură înseamnă că ți-ai dat tura; pus într-o zi liberă înseamnă că lucrezi în locul colegului.
 
 ## Cum se calculează statisticile
 
 - **Ore lucrate** = ture lucrate × 24. Zilele de curs nu sunt zile de muncă: apar doar la „zile de curs”. Orele unei ture se numără în ziua în care începe.
+- **Creșterea capacității** se numără separat: zile și ore CC. Nu se adună la orele de tură.
 - **Normă** = zile lucrătoare (luni–vineri, fără sărbători legale) × 8 ore. E orientativă; verifică cum se calculează la locul tău de muncă.
 - O zi cu CO, COS, CM, Liber cerut, RS sau Curs peste o tură scade tura din total. Statisticile arată și câte ore ai recuperat prin RS și câte schimburi ai făcut.
 

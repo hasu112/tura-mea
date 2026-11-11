@@ -19,7 +19,7 @@
   --accent:#C42B1C; --ok:#1E7A46;
   --tura:#13693A; --tura-bg:#B5E6C7; --iesire:#A86A12; --iesire-bg:#F9EDD6;
   --co:#2A5FB0; --co-bg:#DCE7F8; --cm:#B42318; --cm-bg:#FBE1DD; --lib:#6A5896; --lib-bg:#EAE4F5;
-  --rs:#A3306C; --rs-bg:#F7E0EC; --curs:#0B7285; --curs-bg:#D5F0F4; --cos:#4338A8; --cos-bg:#E2E0F7;
+  --rs:#A3306C; --rs-bg:#F7E0EC; --curs:#0B7285; --curs-bg:#D5F0F4; --cos:#4338A8; --cos-bg:#E2E0F7; --perm:#7A5F00; --perm-bg:#FFF0A0; --cc:#E8590C;
   --on-accent:#FFFFFF;
   --f-disp:"Barlow Condensed","Avenir Next Condensed","Roboto Condensed","sans-serif-condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -29,14 +29,14 @@
   --accent:#FF6A58; --ok:#5DC894;
   --tura:#6FDBA4; --tura-bg:#1B4A31; --iesire:#E7A84A; --iesire-bg:#352711;
   --co:#7BA9EA; --co-bg:#15253A; --cm:#FF7A6B; --cm-bg:#3B1A16; --lib:#B3A1E4; --lib-bg:#251E37;
-  --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A; --cos:#A9A3F5; --cos-bg:#252248;
+  --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A; --cos:#A9A3F5; --cos-bg:#252248; --perm:#F2D45C; --perm-bg:#3B3412; --cc:#FF8F57;
   --on-accent:#0B1A12; color-scheme:dark } }
 :root[data-theme="dark"] {
   --bg:#0E1317; --surface:#172027; --ink:#E7ECF0; --muted:#94A1AD; --line:#29343D; --soft:#1C262E;
   --accent:#FF6A58; --ok:#5DC894;
   --tura:#6FDBA4; --tura-bg:#1B4A31; --iesire:#E7A84A; --iesire-bg:#352711;
   --co:#7BA9EA; --co-bg:#15253A; --cm:#FF7A6B; --cm-bg:#3B1A16; --lib:#B3A1E4; --lib-bg:#251E37;
-  --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A; --cos:#A9A3F5; --cos-bg:#252248;
+  --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A; --cos:#A9A3F5; --cos-bg:#252248; --perm:#F2D45C; --perm-bg:#3B3412; --cc:#FF8F57;
   --on-accent:#0B1A12; color-scheme:dark }
 
 * { box-sizing:border-box }
@@ -77,7 +77,7 @@ h3 { font-size:17px; color:var(--muted) }
 .status .det { color:var(--ink); font-size:15px }
 .status .urm { margin-top:6px; padding-top:10px; border-top:1px dashed var(--line); font-size:15px }
 .status .urm b { font-weight:600 }
-.status.tura { --c:var(--tura) } .status.iesire { --c:var(--iesire) } .status.co { --c:var(--co) } .status.cm { --c:var(--cm) } .status.l { --c:var(--lib) } .status.rs { --c:var(--rs) } .status.cos { --c:var(--cos) } .status.curs { --c:var(--curs) } .status.liber { --c:var(--ink) }
+.status.tura { --c:var(--tura) } .status.iesire { --c:var(--iesire) } .status.co { --c:var(--co) } .status.cm { --c:var(--cm) } .status.l { --c:var(--lib) } .status.rs { --c:var(--rs) } .status.cos { --c:var(--cos) } .status.perm { --c:var(--perm) } .status.cc { --c:var(--cc) } .status.curs { --c:var(--curs) } .status.liber { --c:var(--ink) }
 
 /* Calendar */
 .cal-head { display:flex; align-items:center; gap:6px }
@@ -104,6 +104,9 @@ h3 { font-size:17px; color:var(--muted) }
 .zi.co { --c:var(--co); --cb:var(--co-bg); border-color:transparent }
 .zi.cm { --c:var(--cm); --cb:var(--cm-bg); border-color:transparent }
 .zi.l { --c:var(--lib); --cb:var(--lib-bg); border-color:transparent }
+.zi.perm { --c:var(--perm); --cb:var(--perm-bg); border-color:transparent }
+.zi.cc { --c:var(--on-accent); --cb:var(--cc); border-color:transparent }
+.zi.cc .d { color:var(--on-accent) }
 .zi.cos { --c:var(--cos); --cb:var(--cos-bg); border-color:transparent }
 .zi.rs { --c:var(--rs); --cb:var(--rs-bg); border-color:transparent }
 .zi.curs { --c:var(--curs); --cb:var(--curs-bg); border-color:transparent }
@@ -183,6 +186,8 @@ tr.viit td { color:var(--muted) }
 .echipa td.c.co { --c:var(--on-accent); background:var(--co) }
 .echipa td.c.cm { --c:var(--on-accent); background:var(--cm) }
 .echipa td.c.l { --c:var(--on-accent); background:var(--lib) }
+.echipa td.c.perm { --c:var(--perm); background:var(--perm-bg) }
+.echipa td.c.cc { --c:var(--on-accent); background:var(--cc); font-size:9px }
 .echipa td.c.cos { --c:var(--on-accent); background:var(--cos) }
 .echipa td.c.rs { --c:var(--on-accent); background:var(--rs) }
 .echipa td.c.curs { --c:var(--on-accent); background:var(--curs) }
@@ -190,7 +195,7 @@ tr.viit td { color:var(--muted) }
 .ech-zi { display:grid; gap:8px }
 .ech-gr { --c:var(--muted); display:grid; gap:2px; padding:8px 12px; background:var(--soft); border-left:4px solid var(--c); border-radius:0 8px 8px 0 }
 .ech-gr .eti { font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--c) }
-.ech-gr.tura { --c:var(--tura) } .ech-gr.liber { --c:var(--ink) } .ech-gr.iesire { --c:var(--iesire) } .ech-gr.co { --c:var(--co) }
+.ech-gr.tura { --c:var(--tura) } .ech-gr.perm { --c:var(--perm) } .ech-gr.liber { --c:var(--ink) } .ech-gr.iesire { --c:var(--iesire) } .ech-gr.co { --c:var(--co) }
 
 /* Setări */
 .camp { display:grid; gap:4px; min-width:0 }
@@ -250,6 +255,8 @@ tr.viit td { color:var(--muted) }
         <span style="--c:var(--tura-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>TURA</span>
         <span style="--c:var(--tura)"><i></i>TURA în weekend</span>
         <span style="--c:var(--iesire)"><i></i>Ieș · ieșire din tură</span>
+        <span style="--c:var(--perm-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--perm)"></i>PERM · permanență</span>
+        <span style="--c:var(--cc)"><i></i>CC · creșterea capacității</span>
         <span style="--c:var(--co)"><i></i>CO · concediu</span>
         <span style="--c:var(--cos)"><i></i>COS</span>
         <span style="--c:var(--cm)"><i></i>CM · medical</span>
@@ -260,7 +267,7 @@ tr.viit td { color:var(--muted) }
         <span>Data subliniată = sărbătoare legală</span>
       </div>
       <div class="luna-sum num" id="lunaSum"></div>
-      <p class="hint">Atinge o zi ca să pui CO, COS, medical, schimb sau o notă.</p>
+      <p class="hint">Atinge o zi ca să pui CO, COS, medical, permanență, creșterea capacității, schimb sau o notă.</p>
     </div>
 
     <div class="card">
@@ -315,6 +322,8 @@ tr.viit td { color:var(--muted) }
         <span style="--c:var(--tura-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>TURA</span>
         <span style="--c:var(--tura)"><i></i>tură în weekend</span>
         <span style="--c:var(--iesire-bg)"><i></i>ieșire din tură</span>
+        <span style="--c:var(--perm-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--perm)"></i>PERM</span>
+        <span style="--c:var(--cc)"><i></i>CC</span>
         <span style="--c:var(--co)"><i></i>CO</span>
         <span style="--c:var(--cos)"><i></i>COS</span>
         <span style="--c:var(--cm)"><i></i>CM</span>
@@ -347,6 +356,7 @@ tr.viit td { color:var(--muted) }
           <select id="sTip"><option value="3">24/48 (o zi tură, două libere)</option><option value="4">24/72 (o zi tură, trei libere)</option></select></div>
         <div class="camp"><label for="sRef">O zi în care ai fost în tură</label><input type="date" id="sRef"></div>
         <div class="camp"><label for="sOra">Ora intrării în tură</label><input type="time" id="sOra"></div>
+        <div class="camp"><label for="sPerm">Ziua de permanență</label><select id="sPerm"></select></div>
         <div class="camp"><label for="sCO">Zile CO pe an</label><input type="number" id="sCO" min="0" max="60"></div>
       </div>
       <p class="hint">Aplicația calculează toate turele pornind de la ziua aleasă. Dacă ai greșit-o, schimbi data și calendarul se recalculează.</p>
@@ -423,8 +433,12 @@ tr.viit td { color:var(--muted) }
       <label style="--c:var(--lib)"><input type="radio" name="tip" value="L"> Liber cerut</label>
       <label style="--c:var(--rs)"><input type="radio" name="tip" value="RS"> RS (recuperare ore)</label>
       <label style="--c:var(--curs)"><input type="radio" name="tip" value="CURS"> Curs</label>
+      <label style="--c:var(--perm)"><input type="radio" name="tip" value="PERM"> Permanență</label>
+      <label style="--c:var(--cc)"><input type="radio" name="tip" value="CC"> Creșterea capacității</label>
+      <label style="--c:var(--ink)" id="shFaraPerm"><input type="radio" name="tip" value="FARAPERM"> Fără permanență</label>
       <label style="--c:var(--tura)"><input type="radio" name="tip" value="SCH"> Schimb de tură</label>
     </div>
+    <div class="camp" id="shCCCamp" hidden><label for="shCCore">Ore la creșterea capacității</label><input type="text" id="shCCore" inputmode="decimal" autocomplete="off" placeholder="ex. 8 sau 4,5"></div>
     <div class="camp" id="shCuCamp" hidden><label for="shCu">Schimb cu</label><input type="text" id="shCu" autocomplete="off" placeholder="ex. Andrei">
       <p class="hint">Într-o zi de tură înseamnă că îți dai tura colegului. Într-o zi liberă înseamnă că lucrezi tu în locul lui.</p></div>
     <div class="camp"><label for="shNota">Notă (apare în calendar)</label><textarea id="shNota" placeholder="ex. Ambulanță"></textarea></div>
@@ -471,7 +485,7 @@ const sarb = n => sarbatori(deLa(n).y).get(n);
 
 /* ---------- Stocare ---------- */
 const CHEIE = 'tura-mea-date', CHEIE_GH = 'tura-mea-github';
-const implicit = () => ({ versiune: 1, setari: { ciclu: 3, dataReferinta: iso(azi()), oraStart: '08:00', oreTura: 24, zileCO: 25 }, exceptii: {} });
+const implicit = () => ({ versiune: 1, setari: { ciclu: 3, dataReferinta: iso(azi()), oraStart: '08:00', oreTura: 24, zileCO: 25, permanenta: 0 }, exceptii: {} });
 let st = implicit();
 let gh = { nume: '', owner: '', repo: '', branch: 'main', token: '', auto: true, inAsteptare: false };
 const slug = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -502,8 +516,14 @@ function infoZiPt(d, n) {
   let lucreaza = baza === 'tura';
   if (ex && ex.tip === 'extra') lucreaza = true;
   if (ex && ex.tip === 'SCH') lucreaza = baza !== 'tura';
-  if (ex && ['CO', 'COS', 'CM', 'L', 'RS', 'CURS'].includes(ex.tip)) lucreaza = false;
-  return { baza, ex, lucreaza };
+  if (ex && ['CO', 'COS', 'CM', 'L', 'RS', 'CURS', 'PERM', 'CC', 'FARAPERM'].includes(ex.tip)) lucreaza = false;
+  const k = Number(s.permanenta) || 0;
+  let perm = !!(ex && ex.tip === 'PERM');
+  if (!perm && k > 0 && k < c && poz === k && !(ex && ex.tip)) {
+    const exTura = d.exceptii[iso(n - k)];
+    perm = !(exTura && ['CO', 'COS', 'CM'].includes(exTura.tip));
+  }
+  return { baza, ex, lucreaza, perm, poz };
 }
 const infoZi = n => infoZiPt(st, n);
 function clasaZiPt(d, n) {
@@ -516,23 +536,28 @@ function clasaZiPt(d, n) {
   if (z.ex && z.ex.tip === 'RS') return ['rs', 'RS'];
   if (z.ex && z.ex.tip === 'CURS') return ['curs', 'CURS'];
   if (z.ex && z.ex.tip === 'SCH') return z.lucreaza ? ['sch-luat', 'SCH'] : ['sch-dat', 'SCH'];
+  if (z.ex && z.ex.tip === 'CC') return ['cc', 'CC ' + fmtOre(z.ex.ore)];
   if (z.lucreaza) return ['tura', 'TURA'];
+  if (z.perm) return ['perm', 'PERM'];
   if (infoZiPt(d, n - 1).lucreaza) return ['iesire', 'Ieș'];
   return ['liber', ''];
 }
 const clasaZi = n => clasaZiPt(st, n);
 const notaZi = ex => ex ? (ex.nota || ex.eticheta || '') : '';
 const scurtEt = s => { const w = s.trim().split(/\s+/)[0]; return w.length <= 6 ? w : w.slice(0, 4) + '.'; };
-const DESC = { cos: 'COS', tura: 'tură', extra: 'tură în plus', 'sch-luat': 'tură la schimb', 'sch-dat': 'tură dată la schimb', iesire: 'iese din tură', co: 'CO', cm: 'CM', l: 'liber cerut', rs: 'RS, recuperare ore', curs: 'curs', liber: 'liber' };
+const fmtOre = x => String(Math.round((Number(x) || 0) * 10) / 10).replace('.', ',');
+const DESC = { perm: 'permanență', cc: 'creșterea capacității', cos: 'COS', tura: 'tură', extra: 'tură în plus', 'sch-luat': 'tură la schimb', 'sch-dat': 'tură dată la schimb', iesire: 'iese din tură', co: 'CO', cm: 'CM', l: 'liber cerut', rs: 'RS, recuperare ore', curs: 'curs', liber: 'liber' };
 function urmatoareaTura(dupa) { for (let n = dupa + 1; n < dupa + 800; n++) if (infoZi(n).lucreaza) return n; return null; }
 function inCate(n) { const d = n - azi(); return d === 0 ? 'azi' : d === 1 ? 'mâine' : d === 2 ? 'poimâine' : d > 0 ? `peste ${d} zile` : `acum ${-d} zile`; }
 
 function stat(a, b) {
-  const r = { plan: 0, lucrate: 0, curs: 0, co: 0, cos: 0, cm: 0, l: 0, rs: 0, schDat: 0, schLuat: 0, extra: 0, weekend: 0, sarb: 0, norma: 0 };
+  const r = { plan: 0, lucrate: 0, perm: 0, cc: 0, oreCC: 0, curs: 0, co: 0, cos: 0, cm: 0, l: 0, rs: 0, schDat: 0, schLuat: 0, extra: 0, weekend: 0, sarb: 0, norma: 0 };
   for (let n = a; n <= b; n++) {
     const z = infoZi(n), o = deLa(n), sb = sarb(n);
     if (z.baza === 'tura') r.plan++;
     if (z.ex) { if (z.ex.tip === 'CO') r.co++; else if (z.ex.tip === 'COS') r.cos++; else if (z.ex.tip === 'CM') r.cm++; else if (z.ex.tip === 'L') r.l++; else if (z.ex.tip === 'extra') r.extra++; else if (z.ex.tip === 'RS') r.rs++; else if (z.ex.tip === 'CURS') r.curs++; else if (z.ex.tip === 'SCH') { if (z.lucreaza) r.schLuat++; else r.schDat++; } }
+    if (clasaZi(n)[0] === 'perm') r.perm++;
+    if (z.ex && z.ex.tip === 'CC') { r.cc++; r.oreCC += Number(z.ex.ore) || 0; }
     if (z.lucreaza) { r.lucrate++; if (o.w === 0 || o.w === 6) r.weekend++; if (sb) r.sarb++; }
     if (o.w >= 1 && o.w <= 5 && !sb) r.norma += 8;
   }
@@ -549,7 +574,7 @@ let anStat = deLa(azi()).y;
 
 function randeazaStatus() {
   const t = azi(), z = infoZi(t), [cls] = clasaZi(t), ora = st.setari.oraStart;
-  const titluri = { tura: 'În tură', extra: 'Tură în plus', iesire: 'Ieși din tură', co: 'Concediu', cos: 'Concediu (COS)', cm: 'Medical', l: 'Liber cerut', rs: 'Recuperare (RS)', curs: 'Curs', 'sch-luat': 'Tură la schimb', 'sch-dat': 'Liber (schimb)', liber: 'Liber' };
+  const titluri = { tura: 'În tură', extra: 'Tură în plus', iesire: 'Ieși din tură', co: 'Concediu', cos: 'Concediu (COS)', cm: 'Medical', l: 'Liber cerut', rs: 'Recuperare (RS)', curs: 'Curs', perm: 'Permanență', cc: 'Creșterea capacității', 'sch-luat': 'Tură la schimb', 'sch-dat': 'Liber (schimb)', liber: 'Liber' };
   let det = '';
   if (z.lucreaza) det = `Intri la ${ora}, ieși mâine la ${ora}.`;
   else if (cls === 'iesire') det = `Ieși la ${ora}, după tura de ieri.`;
@@ -559,6 +584,8 @@ function randeazaStatus() {
   else if (cls === 'l') det = 'Zi liberă cerută în locul turei.';
   else if (cls === 'rs') det = 'Zi de recuperare a orelor suplimentare.';
   else if (cls === 'curs') det = 'Zi de curs.';
+  else if (cls === 'perm') det = 'Ești de permanență azi.';
+  else if (cls === 'cc') det = `Creșterea capacității: ${fmtOre(z.ex.ore)} ore.`;
   else if (cls === 'sch-dat') det = 'Ți-ai dat tura la schimb.';
   else det = 'Nu ai tură azi.';
   if (z.ex && z.ex.cu) det += ` Schimb cu ${z.ex.cu}.`;
@@ -600,8 +627,9 @@ function randeazaCalendar() {
 function randeazaVerif() {
   const v = $('verif').value; if (!v) { $('verifRez').textContent = ''; return; }
   const n = dinIso(v), [cls] = clasaZi(n), z = infoZi(n), sb = sarb(n);
-  const txt = { tura: 'ești în tură', extra: 'ai tură în plus', 'sch-luat': 'lucrezi la schimb', 'sch-dat': 'ești liber, ți-ai dat tura la schimb', curs: 'ai curs', rs: 'ai zi de recuperare ore suplimentare (RS)', iesire: 'ieși din tură', co: 'ești în concediu de odihnă', cos: 'ești în COS', cm: 'ești în concediu medical', l: 'ai liber cerut', liber: 'ești liber' }[cls];
+  const txt = { tura: 'ești în tură', extra: 'ai tură în plus', 'sch-luat': 'lucrezi la schimb', 'sch-dat': 'ești liber, ți-ai dat tura la schimb', curs: 'ai curs', perm: 'ești de permanență', cc: 'ai creșterea capacității', rs: 'ai zi de recuperare ore suplimentare (RS)', iesire: 'ieși din tură', co: 'ești în concediu de odihnă', cos: 'ești în COS', cm: 'ești în concediu medical', l: 'ai liber cerut', liber: 'ești liber' }[cls];
   let r = `<b>${esc(cap(scrie(n)))}</b>: ${txt}.`;
+  if (cls === 'cc') r += ` Ore: ${fmtOre(z.ex.ore)}.`;
   if (notaZi(z.ex)) r += ` Notă: ${esc(notaZi(z.ex))}`;
   if (sb) r += ` E sărbătoare legală (${esc(sb)}).`;
   if (!z.lucreaza) { const u = urmatoareaTura(n); if (u) r += ` Următoarea tură: ${esc(scrieScurt(u))}.`; }
@@ -616,7 +644,7 @@ function randeazaStat() {
   const tiles = [
     [an.lucrate, 'ture lucrate și planificate'], [an.ore, 'ore lucrate'],
     [semn(an.dif), 'ore față de normă (' + an.norma + ')'], [`${an.co}/${st.setari.zileCO}`, `zile CO, rămân ${coRam}`], [an.cos, 'zile COS'],
-    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.rs, `zile RS, ${an.rs * (Number(st.setari.oreTura) || 24)} ore recuperate`], [`${an.schDat} / ${an.schLuat}`, 'schimburi: ture date / luate'], [an.curs, 'zile de curs'], [an.weekend, 'ture în weekend'], [an.sarb, 'ture de sărbători']];
+    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.rs, `zile RS, ${an.rs * (Number(st.setari.oreTura) || 24)} ore recuperate`], [`${an.schDat} / ${an.schLuat}`, 'schimburi: ture date / luate'], [an.curs, 'zile de curs'], [an.perm, 'zile de permanență'], [fmtOre(an.oreCC), `ore creșterea capacității (${an.cc} ${an.cc === 1 ? 'zi' : 'zile'})`], [an.weekend, 'ture în weekend'], [an.sarb, 'ture de sărbători']];
   $('tiles').innerHTML = tiles.map(([v, k]) => `<div class="tile"><span class="v">${esc(v)}</span><span class="k">${esc(k)}</span></div>`).join('');
 
   const luni = []; for (let m = 0; m < 12; m++) { const a = dn(y, m, 1), b = dn(y, m + 1, 1) - 1; luni.push(Object.assign(stat(a, b), { viit: a > t })); }
@@ -634,15 +662,18 @@ function randeazaStat() {
   });
   $('grafic').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ore lucrate pe lună în ${y}">${g}</svg>`;
   // tabel
-  let tb = '<table><thead><tr><th>Luna</th><th>Ture</th><th>Ore</th><th>Normă</th><th>Dif.</th><th>CO</th><th>COS</th><th>CM</th><th>L</th><th>RS</th><th>Curs</th><th>Sch.</th><th>Weekend</th><th>Sărb.</th></tr></thead><tbody>';
-  luni.forEach((l, i) => { tb += `<tr class="${l.viit ? 'viit' : ''}"><td>${cap(LUNI[i])}</td><td>${l.lucrate}</td><td>${l.ore}</td><td>${l.norma}</td><td class="${l.dif >= 0 ? 'plus' : 'minus'}">${semn(l.dif)}</td><td>${l.co}</td><td>${l.cos}</td><td>${l.cm}</td><td>${l.l}</td><td>${l.rs}</td><td>${l.curs}</td><td>${l.schDat + l.schLuat}</td><td>${l.weekend}</td><td>${l.sarb}</td></tr>`; });
-  tb += `</tbody><tfoot><tr><th>Total</th><th>${an.lucrate}</th><th>${an.ore}</th><th>${an.norma}</th><th>${semn(an.dif)}</th><th>${an.co}</th><th>${an.cos}</th><th>${an.cm}</th><th>${an.l}</th><th>${an.rs}</th><th>${an.curs}</th><th>${an.schDat + an.schLuat}</th><th>${an.weekend}</th><th>${an.sarb}</th></tr></tfoot></table>`;
+  let tb = '<table><thead><tr><th>Luna</th><th>Ture</th><th>Ore</th><th>Normă</th><th>Dif.</th><th>CO</th><th>COS</th><th>CM</th><th>L</th><th>RS</th><th>Curs</th><th>Perm</th><th>CC ore</th><th>Sch.</th><th>Weekend</th><th>Sărb.</th></tr></thead><tbody>';
+  luni.forEach((l, i) => { tb += `<tr class="${l.viit ? 'viit' : ''}"><td>${cap(LUNI[i])}</td><td>${l.lucrate}</td><td>${l.ore}</td><td>${l.norma}</td><td class="${l.dif >= 0 ? 'plus' : 'minus'}">${semn(l.dif)}</td><td>${l.co}</td><td>${l.cos}</td><td>${l.cm}</td><td>${l.l}</td><td>${l.rs}</td><td>${l.curs}</td><td>${l.perm}</td><td>${fmtOre(l.oreCC)}</td><td>${l.schDat + l.schLuat}</td><td>${l.weekend}</td><td>${l.sarb}</td></tr>`; });
+  tb += `</tbody><tfoot><tr><th>Total</th><th>${an.lucrate}</th><th>${an.ore}</th><th>${an.norma}</th><th>${semn(an.dif)}</th><th>${an.co}</th><th>${an.cos}</th><th>${an.cm}</th><th>${an.l}</th><th>${an.rs}</th><th>${an.curs}</th><th>${an.perm}</th><th>${fmtOre(an.oreCC)}</th><th>${an.schDat + an.schLuat}</th><th>${an.weekend}</th><th>${an.sarb}</th></tr></tfoot></table>`;
   $('tabel').innerHTML = tb;
 }
 
 function randeazaSetari() {
   const s = st.setari;
   $('sTip').value = String(s.ciclu); $('sRef').value = s.dataReferinta; $('sOra').value = s.oraStart; $('sCO').value = s.zileCO;
+  { const c = Number(s.ciclu) || 3, nume = ['Prima', 'A doua', 'A treia'];
+    $('sPerm').innerHTML = '<option value="0">Fără permanență</option>' + Array.from({ length: c - 1 }, (_, i) => `<option value="${i + 1}">${nume[i]} zi după tură${i === 0 ? ' (ziua de ieșire)' : ''}</option>`).join('');
+    $('sPerm').value = String((Number(s.permanenta) || 0) < c ? (Number(s.permanenta) || 0) : 0); }
   $('cicluEt').textContent = Number(s.ciclu) === 4 ? '24/72' : '24/48';
   $('gNume').value = gh.nume; $('gOwner').value = gh.owner; $('gRepo').value = gh.repo; $('gBranch').value = gh.branch; $('gToken').value = gh.token; $('gAuto').checked = gh.auto;
 }
@@ -670,10 +701,13 @@ let ziDeschisa = null;
 function deschideZi(n) {
   ziDeschisa = n; const z = infoZi(n), sb = sarb(n);
   $('shTit').textContent = cap(scrie(n));
-  const bazaTxt = z.baza === 'tura' ? 'tură' : (z.baza === 'iesire' && infoZi(n - 1).baza === 'tura') ? 'ieșire din tură' : 'zi liberă';
+  const permAuto = (Number(st.setari.permanenta) || 0) > 0 && z.poz === Number(st.setari.permanenta);
+  const bazaTxt = z.baza === 'tura' ? 'tură' : permAuto ? 'permanență' : (z.baza === 'iesire' && infoZi(n - 1).baza === 'tura') ? 'ieșire din tură' : 'zi liberă';
+  $('shFaraPerm').hidden = !permAuto;
   $('shBaza').textContent = `După program: ${bazaTxt}.` + (sb ? ` Sărbătoare legală: ${sb}.` : '');
   const tip = z.ex ? z.ex.tip : '';
   document.querySelectorAll('#shOpt input').forEach(i => (i.checked = i.value === tip));
+  $('shCCore').value = z.ex && z.ex.tip === 'CC' ? z.ex.ore : ''; $('shCCCamp').hidden = tip !== 'CC';
   $('shCu').value = z.ex && z.ex.cu ? z.ex.cu : ''; $('shCuCamp').hidden = tip !== 'SCH';
   $('shNota').value = notaZi(z.ex);
   $('sheetBg').hidden = false;
@@ -681,14 +715,16 @@ function deschideZi(n) {
 }
 function inchideZi() { $('sheetBg').hidden = true; ziDeschisa = null; }
 $('shAnul').onclick = inchideZi;
-$('shOpt').addEventListener('change', () => { $('shCuCamp').hidden = (document.querySelector('#shOpt input:checked') || {}).value !== 'SCH'; });
+$('shOpt').addEventListener('change', () => { const v = (document.querySelector('#shOpt input:checked') || {}).value; $('shCuCamp').hidden = v !== 'SCH'; $('shCCCamp').hidden = v !== 'CC'; if (v === 'CC' && !$('shCCore').value) $('shCCore').focus(); });
 $('sheetBg').addEventListener('click', e => { if (e.target === $('sheetBg')) inchideZi(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheetBg').hidden) inchideZi(); });
 $('shSalv').onclick = () => {
   const tip = (document.querySelector('#shOpt input:checked') || {}).value || '', nota = $('shNota').value.trim(), k = iso(ziDeschisa);
   const cu = tip === 'SCH' ? $('shCu').value.trim() : '';
+  const ore = tip === 'CC' ? Number(String($('shCCore').value).replace(',', '.')) : 0;
+  if (tip === 'CC' && !(ore > 0)) { $('shCCore').focus(); return toast('Scrie câte ore ai la creșterea capacității'); }
   if (!tip && !nota) delete st.exceptii[k];
-  else { const o = { tip, nota }; if (cu) o.cu = cu; st.exceptii[k] = o; }
+  else { const o = { tip, nota }; if (cu) o.cu = cu; if (tip === 'CC') o.ore = ore; st.exceptii[k] = o; }
   inchideZi(); salveaza(); toast('Ziua a fost salvată');
 };
 
@@ -697,9 +733,10 @@ function actualizeazaSetari() {
   const s = st.setari;
   s.ciclu = Number($('sTip').value); if ($('sRef').value) s.dataReferinta = $('sRef').value;
   if ($('sOra').value) s.oraStart = $('sOra').value; s.zileCO = Math.max(0, Number($('sCO').value) || 0);
+  s.permanenta = Number($('sPerm').value) || 0; if (s.permanenta >= s.ciclu) s.permanenta = 0;
   salveaza();
 }
-['sTip', 'sRef', 'sOra', 'sCO'].forEach(id => $(id).addEventListener('change', actualizeazaSetari));
+['sTip', 'sRef', 'sOra', 'sCO', 'sPerm'].forEach(id => $(id).addEventListener('change', actualizeazaSetari));
 
 // perioadă
 $('pTip').addEventListener('change', () => { $('pEtCamp').hidden = $('pTip').value !== 'ET'; });
@@ -884,20 +921,21 @@ function randeazaEchipa() {
 }
 function randeazaEchZi() {
   const v = $('echZi').value; if (!v) { $('echZiRez').innerHTML = ''; return; }
-  const n = dinIso(v), g = { tura: [], liber: [], iesire: [], co: [] };
+  const n = dinIso(v), g = { tura: [], perm: [], liber: [], iesire: [], co: [] };
   membri().forEach(mb => {
     const [cls] = clasaZiPt(mb.date, n), nm = mb.nume + (mb.eu ? ' (tu)' : '');
     const exz = mb.date.exceptii[iso(n)], cu = exz && exz.cu ? ' cu ' + exz.cu : '', post = notaZi(exz) ? ' · ' + notaZi(exz) : '';
     if (cls === 'tura') g.tura.push(nm + post); else if (cls === 'extra') g.tura.push(nm + ' (în plus)' + post);
     else if (cls === 'sch-luat') g.tura.push(nm + ' (schimb' + cu + ')' + post);
     else if (cls === 'sch-dat') g.liber.push(nm + ' (a dat tura' + cu + ')');
+    else if (cls === 'perm') g.perm.push(nm + post);
     else if (cls === 'iesire') g.iesire.push(nm); else if (cls === 'liber') g.liber.push(nm);
-    else g.co.push(nm + ' · ' + { co: 'CO', cos: 'COS', cm: 'CM', l: 'liber cerut', rs: 'RS', curs: 'curs' }[cls]);
+    else g.co.push(nm + ' · ' + (cls === 'cc' ? `CC ${fmtOre(exz.ore)} ore` : { co: 'CO', cos: 'COS', cm: 'CM', l: 'liber cerut', rs: 'RS', curs: 'curs' }[cls]));
   });
   const bloc = (t, c, l) => `<div class="ech-gr ${c}"><span class="eti">${t} · ${l.length}</span><span>${l.length ? l.map(esc).join(', ') : 'nimeni'}</span></div>`;
   $('echZiRez').innerHTML = `<p class="rez"><b>${esc(cap(scrie(n)))}</b>${sarb(n) ? ' · ' + esc(sarb(n)) : ''}</p>`
-    + bloc('În tură', 'tura', g.tura) + bloc('Liberi, pot face schimb', 'liber', g.liber)
-    + bloc('Ies din tură', 'iesire', g.iesire) + bloc('Absenți: concediu, curs, liber cerut', 'co', g.co);
+    + bloc('În tură', 'tura', g.tura) + bloc('De permanență', 'perm', g.perm) + bloc('Liberi, pot face schimb', 'liber', g.liber)
+    + bloc('Ies din tură', 'iesire', g.iesire) + bloc('Concediu, curs și altele', 'co', g.co);
 }
 $('echPrev').onclick = () => { echVedere.m--; if (echVedere.m < 0) { echVedere.m = 11; echVedere.y--; } randeazaEchipa(); };
 $('echNext').onclick = () => { echVedere.m++; if (echVedere.m > 11) { echVedere.m = 0; echVedere.y++; } randeazaEchipa(); };
