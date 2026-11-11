@@ -550,14 +550,26 @@ const DESC = { perm: 'permanență', cc: 'creșterea capacității', cos: 'COS',
 function urmatoareaTura(dupa) { for (let n = dupa + 1; n < dupa + 800; n++) if (infoZi(n).lucreaza) return n; return null; }
 function inCate(n) { const d = n - azi(); return d === 0 ? 'azi' : d === 1 ? 'mâine' : d === 2 ? 'poimâine' : d > 0 ? `peste ${d} zile` : `acum ${-d} zile`; }
 
+/* Ore de weekend: de sâmbătă 00:00 până duminică 24:00. Se numără în luna în care începe tura. */
+function oreWeekend(n, panaLa) {
+  const [hh, mm] = String(st.setari.oraStart || '08:00').split(':').map(Number);
+  const s = n * 24 + (hh || 0) + (mm || 0) / 60;
+  const e = Math.min(s + (Number(st.setari.oreTura) || 24), panaLa == null ? Infinity : panaLa);
+  let h = 0;
+  for (let d = n; d * 24 < e; d++) { const w = deLa(d).w; if (w === 6 || w === 0) h += Math.max(0, Math.min(e, d * 24 + 24) - Math.max(s, d * 24)); }
+  return h;
+}
+const acumOre = () => { const t = new Date(); return azi() * 24 + t.getHours() + t.getMinutes() / 60; };
 function stat(a, b) {
-  const r = { plan: 0, lucrate: 0, perm: 0, cc: 0, oreCC: 0, curs: 0, co: 0, cos: 0, cm: 0, l: 0, rs: 0, schDat: 0, schLuat: 0, extra: 0, weekend: 0, sarb: 0, norma: 0 };
+  const acum = acumOre();
+  const r = { oreWE: 0, oreWEFacute: 0, plan: 0, lucrate: 0, perm: 0, cc: 0, oreCC: 0, curs: 0, co: 0, cos: 0, cm: 0, l: 0, rs: 0, schDat: 0, schLuat: 0, extra: 0, weekend: 0, sarb: 0, norma: 0 };
   for (let n = a; n <= b; n++) {
     const z = infoZi(n), o = deLa(n), sb = sarb(n);
     if (z.baza === 'tura') r.plan++;
     if (z.ex) { if (z.ex.tip === 'CO') r.co++; else if (z.ex.tip === 'COS') r.cos++; else if (z.ex.tip === 'CM') r.cm++; else if (z.ex.tip === 'L') r.l++; else if (z.ex.tip === 'extra') r.extra++; else if (z.ex.tip === 'RS') r.rs++; else if (z.ex.tip === 'CURS') r.curs++; else if (z.ex.tip === 'SCH') { if (z.lucreaza) r.schLuat++; else r.schDat++; } }
     if (clasaZi(n)[0] === 'perm') r.perm++;
     if (z.ex && z.ex.tip === 'CC') { r.cc++; r.oreCC += Number(z.ex.ore) || 0; }
+    if (z.lucreaza) { r.oreWE += oreWeekend(n); r.oreWEFacute += oreWeekend(n, acum); }
     if (z.lucreaza) { r.lucrate++; if (o.w === 0 || o.w === 6) r.weekend++; if (sb) r.sarb++; }
     if (o.w >= 1 && o.w <= 5 && !sb) r.norma += 8;
   }
@@ -616,7 +628,8 @@ function grila(y, m, idGrid, idLuna, idSum) {
   $(idGrid).innerHTML = h;
   const s = stat(prima, ultima);
   $(idSum).innerHTML = `<span><b>${s.lucrate}</b>ture</span><span><b>${s.ore}</b>ore</span><span><b>${s.norma}</b>ore normă</span>
-    <span class="${s.dif >= 0 ? 'plus' : 'minus'}"><b>${semn(s.dif)}</b>ore față de normă</span>`;
+    <span class="${s.dif >= 0 ? 'plus' : 'minus'}"><b>${semn(s.dif)}</b>ore față de normă</span>
+    <span><b>${fmtOre(s.oreWEFacute)}</b>din ${fmtOre(s.oreWE)} ore de weekend făcute</span>`;
 }
 function randeazaCalendar() {
   const { y, m } = vedere;
@@ -644,7 +657,7 @@ function randeazaStat() {
   const tiles = [
     [an.lucrate, 'ture lucrate și planificate'], [an.ore, 'ore lucrate'],
     [semn(an.dif), 'ore față de normă (' + an.norma + ')'], [`${an.co}/${st.setari.zileCO}`, `zile CO, rămân ${coRam}`], [an.cos, 'zile COS'],
-    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.rs, `zile RS, ${an.rs * (Number(st.setari.oreTura) || 24)} ore recuperate`], [`${an.schDat} / ${an.schLuat}`, 'schimburi: ture date / luate'], [an.curs, 'zile de curs'], [an.perm, 'zile de permanență'], [fmtOre(an.oreCC), `ore creșterea capacității (${an.cc} ${an.cc === 1 ? 'zi' : 'zile'})`], [an.weekend, 'ture în weekend'], [an.sarb, 'ture de sărbători']];
+    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.rs, `zile RS, ${an.rs * (Number(st.setari.oreTura) || 24)} ore recuperate`], [`${an.schDat} / ${an.schLuat}`, 'schimburi: ture date / luate'], [an.curs, 'zile de curs'], [an.perm, 'zile de permanență'], [fmtOre(an.oreCC), `ore creșterea capacității (${an.cc} ${an.cc === 1 ? 'zi' : 'zile'})`], [an.weekend, 'ture în weekend'], [`${fmtOre(an.oreWEFacute)} / ${fmtOre(an.oreWE)}`, 'ore de weekend: făcute / total'], [an.sarb, 'ture de sărbători']];
   $('tiles').innerHTML = tiles.map(([v, k]) => `<div class="tile"><span class="v">${esc(v)}</span><span class="k">${esc(k)}</span></div>`).join('');
 
   const luni = []; for (let m = 0; m < 12; m++) { const a = dn(y, m, 1), b = dn(y, m + 1, 1) - 1; luni.push(Object.assign(stat(a, b), { viit: a > t })); }
@@ -662,9 +675,9 @@ function randeazaStat() {
   });
   $('grafic').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ore lucrate pe lună în ${y}">${g}</svg>`;
   // tabel
-  let tb = '<table><thead><tr><th>Luna</th><th>Ture</th><th>Ore</th><th>Normă</th><th>Dif.</th><th>CO</th><th>COS</th><th>CM</th><th>L</th><th>RS</th><th>Curs</th><th>Perm</th><th>CC ore</th><th>Sch.</th><th>Weekend</th><th>Sărb.</th></tr></thead><tbody>';
-  luni.forEach((l, i) => { tb += `<tr class="${l.viit ? 'viit' : ''}"><td>${cap(LUNI[i])}</td><td>${l.lucrate}</td><td>${l.ore}</td><td>${l.norma}</td><td class="${l.dif >= 0 ? 'plus' : 'minus'}">${semn(l.dif)}</td><td>${l.co}</td><td>${l.cos}</td><td>${l.cm}</td><td>${l.l}</td><td>${l.rs}</td><td>${l.curs}</td><td>${l.perm}</td><td>${fmtOre(l.oreCC)}</td><td>${l.schDat + l.schLuat}</td><td>${l.weekend}</td><td>${l.sarb}</td></tr>`; });
-  tb += `</tbody><tfoot><tr><th>Total</th><th>${an.lucrate}</th><th>${an.ore}</th><th>${an.norma}</th><th>${semn(an.dif)}</th><th>${an.co}</th><th>${an.cos}</th><th>${an.cm}</th><th>${an.l}</th><th>${an.rs}</th><th>${an.curs}</th><th>${an.perm}</th><th>${fmtOre(an.oreCC)}</th><th>${an.schDat + an.schLuat}</th><th>${an.weekend}</th><th>${an.sarb}</th></tr></tfoot></table>`;
+  let tb = '<table><thead><tr><th>Luna</th><th>Ture</th><th>Ore</th><th>Normă</th><th>Dif.</th><th>CO</th><th>COS</th><th>CM</th><th>L</th><th>RS</th><th>Curs</th><th>Perm</th><th>CC ore</th><th>Sch.</th><th>Ture WE</th><th>Ore WE făcute</th><th>Ore WE total</th><th>Sărb.</th></tr></thead><tbody>';
+  luni.forEach((l, i) => { tb += `<tr class="${l.viit ? 'viit' : ''}"><td>${cap(LUNI[i])}</td><td>${l.lucrate}</td><td>${l.ore}</td><td>${l.norma}</td><td class="${l.dif >= 0 ? 'plus' : 'minus'}">${semn(l.dif)}</td><td>${l.co}</td><td>${l.cos}</td><td>${l.cm}</td><td>${l.l}</td><td>${l.rs}</td><td>${l.curs}</td><td>${l.perm}</td><td>${fmtOre(l.oreCC)}</td><td>${l.schDat + l.schLuat}</td><td>${l.weekend}</td><td>${fmtOre(l.oreWEFacute)}</td><td>${fmtOre(l.oreWE)}</td><td>${l.sarb}</td></tr>`; });
+  tb += `</tbody><tfoot><tr><th>Total</th><th>${an.lucrate}</th><th>${an.ore}</th><th>${an.norma}</th><th>${semn(an.dif)}</th><th>${an.co}</th><th>${an.cos}</th><th>${an.cm}</th><th>${an.l}</th><th>${an.rs}</th><th>${an.curs}</th><th>${an.perm}</th><th>${fmtOre(an.oreCC)}</th><th>${an.schDat + an.schLuat}</th><th>${an.weekend}</th><th>${fmtOre(an.oreWEFacute)}</th><th>${fmtOre(an.oreWE)}</th><th>${an.sarb}</th></tr></tfoot></table>`;
   $('tabel').innerHTML = tb;
 }
 

@@ -140,6 +140,7 @@ Ca să schimbi codul: șterge pe GitHub fișierul `data/admin.json` și activeaz
 ## Cum se calculează statisticile
 
 - **Ore lucrate** = ture lucrate × 24. Zilele de curs nu sunt zile de muncă: apar doar la „zile de curs”. Orele unei ture se numără în ziua în care începe.
+- **Ore de weekend** = orele de tură care cad între sâmbătă 00:00 și duminică 24:00. Cu intrarea la 08:00: tura de vineri are 8 ore de weekend, cea de sâmbătă 24, cea de duminică 16. „Făcute” sunt orele deja lucrate până acum, „total” sunt toate orele de weekend ale lunii, inclusiv cele planificate. Se numără în luna în care începe tura.
 - **Creșterea capacității** se numără separat: zile și ore CC. Nu se adună la orele de tură.
 - **Normă** = zile lucrătoare (luni–vineri, fără sărbători legale) × 8 ore. E orientativă; verifică cum se calculează la locul tău de muncă.
 - O zi cu CO, COS, CM, Liber cerut, RS sau Curs peste o tură scade tura din total. Statisticile arată și câte ore ai recuperat prin RS și câte schimburi ai făcut.
