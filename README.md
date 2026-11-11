@@ -4,11 +4,11 @@ Aplicație pentru program în ture de 24/48 (sau 24/72). Îi spui o zi în care 
 
 ## Ce face
 
-- **Calendar** cu zilele de tură (T), ieșirea din tură (Ieș) și zilele libere.
+- **Calendar** pe luna curentă și luna următoare, cu zilele de TURA, ieșirea din tură (Ieș) și zilele libere.
 - **Starea de azi**: ești în tură, ieși din tură sau ești liber, plus când e următoarea tură.
 - **Verifică o zi**: alegi orice dată și îți spune dacă ești de serviciu.
-- **Excepții**: atingi o zi și pui CO (concediu de odihnă), CM (concediu medical), Liber cerut, RS (recuperare ore suplimentare), Curs, Schimb de tură (cu numele colegului) sau Tură în plus, cu o notă.
-- **Perioade**: pui CO sau CM pe mai multe zile deodată.
+- **Excepții**: atingi o zi și pui CO (concediu de odihnă), COS, CM (concediu medical), Liber cerut, RS (recuperare ore suplimentare), Curs sau Schimb de tură (cu numele colegului). Poți scrie și o notă (de ex. „Ambulanță”), care apare în ziua respectivă din calendar.
+- **Perioade**: pui CO, COS, CM, RS, Curs sau o notă pe mai multe zile deodată.
 - **Statistici pe an și pe lună**: ture lucrate, ore lucrate, normă de ore, diferența față de normă, zile CO folosite și rămase, ture în weekend și de sărbători.
 - **Sărbătorile legale din România** sunt calculate automat, inclusiv Paștele și Rusaliile ortodoxe.
 - **Baza de date în GitHub**: datele se salvează în fișierul `data/ture.json` din repository-ul tău.
@@ -104,6 +104,12 @@ Ce se întâmplă cu colegul scos:
 Panoul apare doar unde s-a introdus codul. Tokenul comun le dă totuși tehnic voie colegilor să scrie în repository (de exemplu, cineva și-ar putea schimba numele în aplicație ca să ocolească lista). Ca să tai complet accesul cuiva, fă un token nou de echipă și dă-l doar celor rămași.
 Ca să schimbi codul: șterge pe GitHub fișierul `data/admin.json` și activează din nou cu codul nou.
 
+### Te scoți sau te înlocuiești singur din echipă
+
+În **Setări** → **Eu în echipă**:
+- **Înlocuiește-mă cu numele nou**: scrii numele nou, iar turele tale se mută sub el; numele vechi dispare din echipă. Dacă există deja cineva cu numele acela, aplicația refuză.
+- **Ieși din echipă** (apeși de două ori): îți scoate turele din baza de date. Ele rămân pe telefon, iar salvarea automată se oprește. Revii oricând cu **Salvează în GitHub**.
+
 > Oricine are acces la `tura-mea-date` poate vedea și modifica fișierele tuturor colegilor. GitHub nu poate da acces doar la un fișier. Dă acces doar oamenilor de încredere și nu scrie în note lucruri personale.
 
 ## Cum arată baza de date
@@ -120,21 +126,21 @@ Ca să schimbi codul: șterge pe GitHub fișierul `data/admin.json` și activeaz
   },
   "exceptii": {
     "2026-12-24": { "tip": "CO", "nota": "" },
-    "2026-12-27": { "tip": "extra", "nota": "schimb cu Andrei" }
+    "2026-12-27": { "tip": "SCH", "nota": "Ambulanță", "cu": "Andrei" }
   }
 }
 ```
 
 - `ciclu`: 3 înseamnă 24/48, 4 înseamnă 24/72.
 - `dataReferinta`: o zi de tură; de la ea se calculează restul.
-- `exceptii`: zilele schimbate față de program. `tip` poate fi `CO`, `CM`, `L` (liber cerut), `RS` (recuperare ore suplimentare), `CURS` (zi de curs), `SCH` (schimb de tură, cu numele colegului în `cu`) sau `extra` (tură în plus).
+- `exceptii`: zilele schimbate față de program. `tip` poate fi `CO`, `COS`, `CM`, `L` (liber cerut), `RS` (recuperare ore suplimentare), `CURS` (zi de curs) sau `SCH` (schimb de tură, cu numele colegului în `cu`). `nota` e textul care apare în calendar.
 - Un `SCH` pus într-o zi de tură înseamnă că ți-ai dat tura; pus într-o zi liberă înseamnă că lucrezi în locul colegului.
 
 ## Cum se calculează statisticile
 
 - **Ore lucrate** = ture lucrate × 24. Zilele de curs nu sunt zile de muncă: apar doar la „zile de curs”. Orele unei ture se numără în ziua în care începe.
 - **Normă** = zile lucrătoare (luni–vineri, fără sărbători legale) × 8 ore. E orientativă; verifică cum se calculează la locul tău de muncă.
-- O zi cu CO, CM, Liber cerut sau RS peste o tură scade tura din total. Statisticile arată și câte ore ai recuperat prin RS și câte schimburi ai făcut. O „Tură în plus” o adaugă.
+- O zi cu CO, COS, CM, Liber cerut, RS sau Curs peste o tură scade tura din total. Statisticile arată și câte ore ai recuperat prin RS și câte schimburi ai făcut.
 
 ## Dacă modifici codul
 
