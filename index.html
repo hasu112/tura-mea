@@ -219,8 +219,35 @@ tr.viit td { color:var(--muted) }
 .optiuni label:has(input:checked) { border-color:var(--c); box-shadow:inset 0 0 0 1px var(--c) }
 .optiuni input { accent-color:var(--c) }
 
+/* Dulap: stocuri și bani */
+.tabs button.atentie::after { content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent); margin-left:5px; vertical-align:2px }
+.pastila { font-size:13px; font-weight:600; color:var(--accent); border:1px solid var(--accent); border-radius:999px; padding:2px 10px; white-space:nowrap }
+.bani { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; background:var(--soft); border-radius:10px; padding:12px }
+.bani .k { display:block; font-size:13px; color:var(--muted) }
+.bani .v { font-family:var(--f-disp); font-weight:700; font-size:32px; line-height:1.05 }
+ul.stoc { list-style:none; margin:0; padding:0; display:grid }
+ul.stoc li { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line) }
+ul.stoc li:last-child { border-bottom:0 }
+ul.stoc .ico { font-size:22px; width:28px; text-align:center }
+ul.stoc .pn { flex:1; min-width:0; display:grid; gap:1px; text-align:left; border:0; background:none; padding:0 }
+ul.stoc .pn b { font-weight:600; overflow-wrap:anywhere }
+ul.stoc .pn small { font-size:13px; color:var(--muted) }
+ul.stoc .pm { width:46px; height:46px; flex:none; border-radius:10px; border:1px solid var(--line); background:var(--surface); font-size:24px; line-height:1; font-weight:600 }
+ul.stoc .pm:disabled { opacity:.35; cursor:default }
+ul.stoc .cant { min-width:44px; text-align:center; font-family:var(--f-disp); font-weight:700; font-size:28px; line-height:1 }
+ul.stoc li.putin .cant, ul.stoc li.putin .pn small { color:var(--accent) }
+ul.stoc li.gol { color:var(--muted); font-size:15px }
+ol.jurnal { list-style:none; margin:0; padding:0; display:grid; gap:6px }
+ol.jurnal li { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border-radius:8px; background:var(--soft); font-size:15px }
+ol.jurnal li > span:first-child { min-width:0; overflow-wrap:anywhere }
+ol.jurnal .cand { display:block; font-size:13px; color:var(--muted) }
+ol.jurnal li.anulat .ce { text-decoration:line-through; color:var(--muted) }
+ol.jurnal li.anulare { border-left:4px solid var(--iesire); border-radius:0 8px 8px 0 }
+ol.jurnal .eti-an { font-size:12px; font-weight:600; color:var(--iesire); margin-left:6px; text-decoration:none; display:inline-block }
+
 .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:30; background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:9px; font-weight:500; max-width:calc(100% - 32px) }
-@media (max-width:420px) { .tabs button { padding:6px 9px } .zi .d { font-size:14px } .zi .t { font-size:11px } }
+@media (max-width:520px) { .tabs { width:100% } .tabs button { flex:1; padding:6px 2px; font-size:13px } }
+@media (max-width:420px) { .zi .d { font-size:14px } .zi .t { font-size:11px } }
 @media (prefers-reduced-motion: no-preference) { .zi { transition:transform .12s } .zi:active { transform:scale(.96) } }
 </style>
 
@@ -232,6 +259,7 @@ tr.viit td { color:var(--muted) }
       <button role="tab" data-tab="cal" aria-selected="true">Calendar</button>
       <button role="tab" data-tab="stat" aria-selected="false">Statistici</button>
       <button role="tab" data-tab="ech" aria-selected="false">Echipa</button>
+      <button role="tab" data-tab="dul" aria-selected="false">Dulap</button>
       <button role="tab" data-tab="set" aria-selected="false">Setări</button>
     </nav>
   </div>
@@ -351,6 +379,35 @@ tr.viit td { color:var(--muted) }
     </div>
   </section>
 
+  <!-- DULAP -->
+  <section id="tab-dul" hidden>
+    <div class="card">
+      <div class="cal-head">
+        <h2>Dulap</h2>
+        <span class="pastila" id="dulAtentie" hidden></span>
+        <button class="ghost" id="dulRef">Reîncarcă</button>
+      </div>
+      <p class="gh-st" id="dulSt"></p>
+      <div class="bani">
+        <div><span class="k">Bani pentru diverse</span><span class="v num" id="dulBani">0 lei</span></div>
+        <div class="rand"><button class="ghost" id="dulBaniScot">Scot</button><button class="ghost" id="dulBaniAdaug">Adaug</button></div>
+      </div>
+      <ul class="stoc" id="dulLista"></ul>
+      <div class="rand" id="dulRespRand" hidden><button class="btn" id="dulNou">Produs nou</button></div>
+      <p class="hint" id="dulHint"></p>
+    </div>
+    <div class="card">
+      <h3>Ultimele mișcări</h3>
+      <ol class="jurnal" id="dulJurnal"></ol>
+      <div class="rand"><button class="ghost" id="dulMaiMult" hidden>Arată mai multe</button></div>
+    </div>
+    <div class="card" id="dulAdmCard" hidden>
+      <h3>Responsabili de dulap</h3>
+      <p class="hint">Doar administratorul vede această listă. Responsabilul poate adăuga în stoc, poate crea, modifica și șterge produse. Administratorul are mereu aceste drepturi.</p>
+      <ol class="urm adm" id="dulRespLista"></ol>
+    </div>
+  </section>
+
   <!-- SETĂRI -->
   <section id="tab-set" hidden>
     <div class="card">
@@ -448,6 +505,14 @@ tr.viit td { color:var(--muted) }
       <p class="hint">Într-o zi de tură înseamnă că îți dai tura colegului. Într-o zi liberă înseamnă că lucrezi tu în locul lui.</p></div>
     <div class="camp"><label for="shNota">Notă (apare în calendar)</label><textarea id="shNota" placeholder="ex. Ambulanță"></textarea></div>
     <div class="rand"><button class="btn" id="shSalv">Salvează</button><button class="ghost" id="shAnul">Anulează</button></div>
+  </div>
+</div>
+<div class="sheet-bg" id="dulBg" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dulShTit">
+    <h2 id="dulShTit"></h2>
+    <div class="campuri" id="dulShCorp"></div>
+    <p class="gh-st err" id="dulShErr"></p>
+    <div class="rand"><button class="btn" id="dulShOk">Salvează</button><button class="ghost" id="dulShAnul">Renunță</button><button class="ghost pericol" id="dulShSterge" hidden>Șterge produsul</button></div>
   </div>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -719,14 +784,15 @@ function randeazaSetari() {
   $('cicluEt').textContent = Number(s.ciclu) === 4 ? '24/72' : '24/48';
   $('gNume').value = gh.nume; $('gOwner').value = gh.owner; $('gRepo').value = gh.repo; $('gBranch').value = gh.branch; $('gToken').value = gh.token; $('gAuto').checked = gh.auto;
 }
-function randeazaTot() { $('scosBanner').hidden = !esteScos(); randeazaAdmSet(); randeazaEchipa(); randeazaStatus(); randeazaCalendar(); randeazaVerif(); randeazaStat(); randeazaSetari(); }
+function randeazaTot() { $('scosBanner').hidden = !esteScos(); randeazaAdmSet(); randeazaEchipa(); randeazaStatus(); randeazaCalendar(); randeazaVerif(); randeazaStat(); randeazaSetari(); randeazaDulap(); }
 
 /* ---------- Interacțiuni ---------- */
 function toast(m) { const t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
 
 document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
-  ['cal', 'stat', 'ech', 'set'].forEach(k => ($('tab-' + k).hidden = k !== b.dataset.tab));
+  ['cal', 'stat', 'ech', 'dul', 'set'].forEach(k => ($('tab-' + k).hidden = k !== b.dataset.tab));
+  if (b.dataset.tab === 'dul') incarcaDulap();
   if (b.dataset.tab === 'ech' && !incarcaEchipa.facut) { incarcaEchipa.facut = true; incarcaEchipa(); }
   window.scrollTo(0, 0);
 }));
@@ -1164,6 +1230,287 @@ $('gIes').onclick = async () => {
   } catch (e) { euStare(e.message === 'Failed to fetch' ? 'Nu am internet. Încearcă din nou.' : e.message, 'err'); }
   b.disabled = false;
 };
+
+/* ---------- Dulap: stocuri și bani ---------- */
+// Toată echipa lucrează pe același fișier, data/dulap.json. Fiecare apăsare e o „mișcare” pusă într-o coadă pe telefon
+// și trimisă în GitHub; fără internet rămâne în coadă și pleacă singură când revine semnalul.
+const CHEIE_DUL = 'tura-mea-dulap', CHEIE_DULQ = 'tura-mea-dulap-coada', DUL_CALE = 'data/dulap.json', DUL_JURNAL_MAX = 300;
+const dulGol = () => ({ versiune: 1, produse: [], bani: 0, responsabili: [], jurnal: [] });
+const rot2 = x => Math.round(x * 100) / 100;
+function normalizeazaDulap(d) {
+  const b = dulGol(); if (!d || typeof d !== 'object') return b;
+  b.produse = (Array.isArray(d.produse) ? d.produse : []).filter(p => p && p.id && p.nume)
+    .map(p => ({ id: String(p.id), nume: String(p.nume), um: String(p.um || 'buc'), cant: Math.max(0, Math.round(Number(p.cant) || 0)), prag: Math.max(0, Math.round(Number(p.prag) || 0)) }));
+  b.bani = Math.max(0, rot2(Number(d.bani) || 0));
+  b.responsabili = (Array.isArray(d.responsabili) ? d.responsabili : []).map(String);
+  b.jurnal = (Array.isArray(d.jurnal) ? d.jurnal : []).filter(e => e && e.id && e.tip);
+  return b;
+}
+let dulServer = dulGol(), dulCoada = [], dulap = dulGol(), dulArata = 12, dulIncarcat = false;
+try { dulServer = normalizeazaDulap(JSON.parse(localStorage.getItem(CHEIE_DUL) || 'null')); } catch (e) {}
+try { const q = JSON.parse(localStorage.getItem(CHEIE_DULQ) || '[]'); if (Array.isArray(q)) dulCoada = q; } catch (e) {}
+function dulScrieLocal() { try { localStorage.setItem(CHEIE_DUL, JSON.stringify(dulServer)); localStorage.setItem(CHEIE_DULQ, JSON.stringify(dulCoada)); } catch (e) {} }
+
+// Aplică o mișcare peste o stare a dulapului și o trece în jurnal. Aceeași funcție rulează și pe telefon, și înainte de salvarea în GitHub.
+function dulAplica(d, op) {
+  if (d.jurnal.some(e => e.id === op.id)) return;
+  const e = { id: op.id, t: op.t, cine: op.cine, cheie: op.cheie, tip: op.tip };
+  const p = op.pid ? d.produse.find(x => x.id === op.pid) : null;
+  if (op.tip === 'scos') {
+    if (!p) return; const c = Math.min(op.cant, p.cant); if (c <= 0) return;
+    p.cant -= c; Object.assign(e, { pid: p.id, produs: p.nume, cant: c });
+  } else if (op.tip === 'adaugat') {
+    if (!p || !(op.cant > 0)) return;
+    p.cant += op.cant; Object.assign(e, { pid: p.id, produs: p.nume, cant: op.cant });
+  } else if (op.tip === 'bani-') {
+    const s = Math.min(op.suma, d.bani); if (!(s > 0)) return;
+    d.bani = rot2(d.bani - s); Object.assign(e, { suma: s, nota: op.nota || '' });
+  } else if (op.tip === 'bani+') {
+    if (!(op.suma > 0)) return;
+    d.bani = rot2(d.bani + op.suma); Object.assign(e, { suma: op.suma, nota: op.nota || '' });
+  } else if (op.tip === 'produs-nou') {
+    if (d.produse.some(x => x.id === op.produs.id)) return;
+    d.produse.push(Object.assign({}, op.produs)); Object.assign(e, { pid: op.produs.id, produs: op.produs.nume, cant: op.produs.cant });
+  } else if (op.tip === 'produs-mod') {
+    if (!p) return;
+    p.nume = op.nume; p.um = op.um; p.prag = op.prag; Object.assign(e, { pid: p.id, produs: p.nume });
+  } else if (op.tip === 'produs-sters') {
+    if (!p) return;
+    d.produse = d.produse.filter(x => x.id !== p.id); Object.assign(e, { produs: p.nume, cant: p.cant });
+  } else if (op.tip === 'resp') {
+    const are = d.responsabili.includes(op.cheieCol); if (are === op.da) return;
+    d.responsabili = op.da ? [...d.responsabili, op.cheieCol] : d.responsabili.filter(x => x !== op.cheieCol);
+    Object.assign(e, { numeCol: op.numeCol, da: op.da });
+  } else if (op.tip === 'anulare') {
+    const v = d.jurnal.find(x => x.id === op.ref);
+    if (!v || v.anulat || !['scos', 'adaugat', 'bani-', 'bani+'].includes(v.tip)) return;
+    const pv = v.pid ? d.produse.find(x => x.id === v.pid) : null;
+    if (v.tip === 'scos' && pv) pv.cant += v.cant;
+    if (v.tip === 'adaugat' && pv) pv.cant = Math.max(0, pv.cant - v.cant);
+    if (v.tip === 'bani-') d.bani = rot2(d.bani + v.suma);
+    if (v.tip === 'bani+') d.bani = Math.max(0, rot2(d.bani - v.suma));
+    v.anulat = true;
+    Object.assign(e, { ref: v.id, tipRef: v.tip, produs: v.produs, cant: v.cant, suma: v.suma, nota: v.nota, cineRef: v.cine });
+  } else return;
+  d.jurnal.push(e);
+  if (d.jurnal.length > DUL_JURNAL_MAX) d.jurnal = d.jurnal.slice(-DUL_JURNAL_MAX);
+}
+function dulRecalc() {
+  dulap = normalizeazaDulap(JSON.parse(JSON.stringify(dulServer)));
+  dulCoada.forEach(op => dulAplica(dulap, op));
+}
+dulRecalc();
+
+const dulCheie = () => slug(gh.nume);
+const esteResp = () => esteAdmin() || (!!dulCheie() && dulap.responsabili.includes(dulCheie()));
+const dulAcces = () => ghGata() && !esteScos();
+function dulStare(m, cls) { const e = $('dulSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+const dulId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+// Pune o mișcare în coadă, o arată imediat pe ecran și o trimite în GitHub.
+function dulOp(op) {
+  if (!dulAcces()) { toast('Leagă întâi aplicația de GitHub din Setări'); return; }
+  const ultim = dulCoada[dulCoada.length - 1];
+  if (!dulTrimite.merge && ultim && (op.tip === 'scos' || op.tip === 'adaugat') && ultim.tip === op.tip && ultim.pid === op.pid && ultim.cheie === dulCheie()) ultim.cant += op.cant;
+  else dulCoada.push(Object.assign({ id: dulId(), t: new Date().toISOString(), cine: gh.nume, cheie: dulCheie() }, op));
+  dulScrieLocal(); dulRecalc(); randeazaDulap();
+  clearTimeout(dulOp.t); dulOp.t = setTimeout(dulTrimite, 900);
+}
+async function dulCiteste() {
+  const r = await fetch(ghFisierUrl(DUL_CALE), { headers: ghHead(), cache: 'no-store' });
+  if (r.status === 404) {
+    const rr = await fetch(repoApi(), { headers: ghHead() });
+    if (rr.ok) return { sha: null, date: dulGol() };
+    throw new Error(ghEroare(rr));
+  }
+  if (!r.ok) throw new Error(ghEroare(r));
+  const j = await r.json();
+  return { sha: j.sha, date: normalizeazaDulap(JSON.parse(b64dec(j.content))) };
+}
+async function dulTrimite() {
+  if (dulTrimite.merge) { dulTrimite.iar = true; return; }
+  if (!dulCoada.length || !dulAcces()) return;
+  dulTrimite.merge = true; dulStare('Se salvează…');
+  try {
+    let gata = false;
+    for (let i = 0; i < 5 && !gata; i++) {
+      const { sha, date } = await dulCiteste(), lot = dulCoada.slice();
+      lot.forEach(op => dulAplica(date, op));
+      const corp = { message: `Dulap: ${gh.nume} ${iso(azi())}`, branch: gh.branch, content: b64enc(JSON.stringify(date, null, 2) + '\n') };
+      if (sha) corp.sha = sha;
+      const r = await fetch(`${repoApi()}/contents/${DUL_CALE}`, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify(corp) });
+      if (r.status === 409 || r.status === 422) continue; // un coleg a salvat în același timp: citesc din nou și reîncerc
+      if (!r.ok) throw new Error(ghEroare(r));
+      dulServer = date; dulCoada = dulCoada.filter(o => !lot.includes(o)); gata = true;
+    }
+    if (!gata) throw new Error('Dulapul e folosit de mai mulți colegi chiar acum. Apasă „Reîncarcă” peste câteva secunde.');
+    dulIncarcat = true; dulScrieLocal(); dulRecalc();
+    dulStare(`Salvat la ${new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}.`, 'ok');
+  } catch (e) {
+    if (e.message === 'Failed to fetch' || !navigator.onLine) dulStare('Salvat pe telefon. Se trimite singur când ai internet.', '');
+    else dulStare(e.message, 'err');
+  }
+  dulTrimite.merge = false; randeazaDulap();
+  if (dulTrimite.iar) { dulTrimite.iar = false; dulTrimite(); }
+}
+async function incarcaDulap() {
+  citesteCampuriGh();
+  if (!ghGata()) { dulStare('Leagă întâi aplicația de GitHub din Setări. Dulapul se ține în același repository cu turele.', 'err'); randeazaDulap(); return; }
+  if (esteAdmin() && !incarcaEchipa.facut) { incarcaEchipa.facut = true; incarcaEchipa(); }
+  if (dulCoada.length) return dulTrimite();
+  if (incarcaDulap.merge) return;
+  incarcaDulap.merge = true; dulStare('Se încarcă dulapul…'); $('dulRef').disabled = true;
+  try {
+    await citesteScosi();
+    if (esteScos()) throw new Error('Ai fost scos din echipă de administrator, așa că nu mai vezi dulapul.');
+    const { date } = await dulCiteste();
+    dulServer = date; dulIncarcat = true; dulScrieLocal(); dulRecalc();
+    dulStare(`Actualizat la ${new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}.`, 'ok');
+  } catch (e) { dulStare(e.message === 'Failed to fetch' ? 'Nu am internet. Arăt ultima variantă salvată pe telefon.' : e.message, 'err'); }
+  incarcaDulap.merge = false; $('dulRef').disabled = false;
+  randeazaDulap();
+}
+
+const DUL_ICO = [[/ulei/, '🫒'], [/otet/, '🧴'], [/zahar/, '🧂'], [/cafea|cafe|ness/, '☕'], [/ceai/, '🍵'], [/hartie|igienic/, '🧻'], [/servet|prosop/, '🧻'], [/sare/, '🧂'],
+  [/detergent|sapun|burete|clor/, '🧼'], [/apa/, '💧'], [/lapte/, '🥛'], [/pahar/, '🥤'], [/sac|pung/, '🛍️'], [/bec|baterie/, '🔋']];
+const dulIco = nume => { const s = slug(nume); const g = DUL_ICO.find(x => x[0].test(s)); return g ? g[1] : '📦'; };
+const fmtLei = x => `${rot2(x).toLocaleString('ro-RO', { maximumFractionDigits: 2 })} lei`;
+function dulCand(t) {
+  const d = new Date(t); if (isNaN(d)) return '';
+  const n = dn(d.getFullYear(), d.getMonth(), d.getDate()), ora = `${p2(d.getHours())}:${p2(d.getMinutes())}`, dif = azi() - n;
+  return dif === 0 ? `azi ${ora}` : dif === 1 ? `ieri ${ora}` : `${d.getDate()} ${LUNI_S[d.getMonth()].toLowerCase()} ${ora}`;
+}
+function dulCe(tip, e) {
+  if (tip === 'scos') return `a scos ${e.cant} × ${e.produs}`;
+  if (tip === 'adaugat') return `a adăugat ${e.cant} × ${e.produs}`;
+  if (tip === 'bani-') return `a scos ${fmtLei(e.suma)}${e.nota ? ' · ' + e.nota : ''}`;
+  if (tip === 'bani+') return `a pus ${fmtLei(e.suma)}${e.nota ? ' · ' + e.nota : ''}`;
+  if (tip === 'produs-nou') return `a adăugat produsul ${e.produs}${e.cant ? ` (${e.cant} în stoc)` : ''}`;
+  if (tip === 'produs-mod') return `a modificat produsul ${e.produs}`;
+  if (tip === 'produs-sters') return `a șters produsul ${e.produs}`;
+  if (tip === 'resp') return e.da ? `l-a făcut responsabil pe ${e.numeCol}` : `i-a retras lui ${e.numeCol} dreptul de responsabil`;
+  return '';
+}
+function dulText(e) {
+  if (e.tip === 'anulare') return `${e.cine} a anulat: ${e.cineRef && e.cineRef !== e.cine ? e.cineRef + ' ' : ''}${dulCe(e.tipRef, e)}`;
+  return `${e.cine} ${dulCe(e.tip, e)}`;
+}
+function randeazaDulap() {
+  const acces = dulAcces(), resp = acces && esteResp(), eu = dulCheie();
+  const putine = dulap.produse.filter(p => p.cant <= p.prag);
+  document.querySelector('.tabs button[data-tab="dul"]').classList.toggle('atentie', acces && putine.length > 0);
+  $('dulAtentie').hidden = !putine.length; $('dulAtentie').textContent = putine.length === 1 ? '1 pe terminate' : `${putine.length} pe terminate`;
+  $('dulBani').textContent = fmtLei(dulap.bani);
+  $('dulBaniScot').disabled = !acces || dulap.bani <= 0; $('dulBaniAdaug').disabled = !acces;
+  $('dulRespRand').hidden = !resp;
+  $('dulLista').innerHTML = dulap.produse.length ? dulap.produse.map(p => {
+    const putin = p.cant <= p.prag, sub = `${esc(p.um)}${p.cant === 0 ? ' · terminat' : putin ? ' · stoc mic' : ''}`;
+    const nume = `<b>${esc(p.nume)}</b><small>${sub}</small>`;
+    return `<li class="${putin ? 'putin' : ''}"><span class="ico" aria-hidden="true">${dulIco(p.nume)}</span>`
+      + (resp ? `<button class="pn" data-edit="${esc(p.id)}" aria-label="Modifică ${esc(p.nume)}">${nume}</button>` : `<span class="pn">${nume}</span>`)
+      + `<button class="pm" data-minus="${esc(p.id)}" aria-label="Scoate 1 ${esc(p.nume)}"${!acces || p.cant === 0 ? ' disabled' : ''}>−</button>`
+      + `<span class="cant num">${p.cant}</span>`
+      + (resp ? `<button class="pm" data-plus="${esc(p.id)}" aria-label="Adaugă 1 ${esc(p.nume)}">+</button>` : '') + '</li>';
+  }).join('') : `<li class="gol">${resp ? 'Dulapul e gol. Apasă „Produs nou” ca să adaugi primul produs.' : 'Responsabilul nu a adăugat încă produse.'}</li>`;
+  $('dulHint').textContent = !acces ? '' : resp
+    ? 'Ești responsabil: „+” adaugă în stoc, iar o atingere pe numele produsului îți lasă să îl modifici sau să adaugi mai multe bucăți deodată. Colegii văd doar „−”.'
+    : 'Apasă „−” când scoți ceva din dulap. Dacă ai greșit, anulezi mișcarea din lista de mai jos.';
+  const j = dulap.jurnal.slice().reverse(), inCoada = new Set(dulCoada.map(o => o.id));
+  $('dulJurnal').innerHTML = j.length ? j.slice(0, dulArata).map(e => {
+    const potAnula = acces && !e.anulat && ['scos', 'adaugat', 'bani-', 'bani+'].includes(e.tip) && (e.cheie === eu || resp);
+    return `<li class="${e.anulat ? 'anulat' : ''}${e.tip === 'anulare' ? ' anulare' : ''}"><span><span class="ce">${esc(dulText(e))}</span>${e.anulat ? '<span class="eti-an">anulat</span>' : ''}`
+      + `<span class="cand">${esc(dulCand(e.t))}${inCoada.has(e.id) ? ' · se trimite…' : ''}</span></span>`
+      + (potAnula ? `<button class="ghost mic" data-anul="${esc(e.id)}">Anulează</button>` : '') + '</li>';
+  }).join('') : '<li><span>Nicio mișcare încă.</span></li>';
+  $('dulMaiMult').hidden = j.length <= dulArata;
+  randeazaDulResp();
+}
+function randeazaDulResp() {
+  const card = $('dulAdmCard'); card.hidden = !(esteAdmin() && dulAcces()); if (card.hidden) return;
+  const colegi = membri().filter(m => !m.eu).map(m => ({ cheie: m.cheie, nume: m.nume }));
+  dulap.responsabili.forEach(c => { if (c !== dulCheie() && !colegi.some(x => x.cheie === c)) colegi.push({ cheie: c, nume: cap(c.replace(/-/g, ' ')) }); });
+  $('dulRespLista').innerHTML = colegi.length ? colegi.map(c => {
+    const da = dulap.responsabili.includes(c.cheie);
+    return `<li><span>${esc(c.nume)}${da ? ' <span class="login">· responsabil</span>' : ''}</span><button class="ghost mic${da ? ' pericol' : ''}" data-resp="${esc(c.cheie)}" data-nume="${esc(c.nume)}" data-da="${da ? '' : '1'}">${da ? 'Retrage' : 'Fă responsabil'}</button></li>`;
+  }).join('') : '<li><span>Nu văd încă alți colegi. Deschide fila Echipa și apasă „Reîncarcă”.</span></li>';
+}
+
+// Fereastra mică pentru sume și produse
+let dulShOk = null, dulShSterge = null;
+function dulSheet(titlu, campuri, peOk, peSterge) {
+  $('dulShTit').textContent = titlu; $('dulShErr').textContent = '';
+  $('dulShCorp').innerHTML = campuri.map(c => `<div class="camp"><label for="${c.id}">${esc(c.label)}</label><input id="${c.id}" type="text" autocomplete="off"${c.num ? ' inputmode="decimal"' : ''} maxlength="${c.max || 30}" value="${esc(c.val == null ? '' : c.val)}" placeholder="${esc(c.ph || '')}"></div>`).join('');
+  dulShOk = peOk; dulShSterge = peSterge || null;
+  const bs = $('dulShSterge'); bs.hidden = !peSterge; delete bs.dataset.conf; bs.textContent = 'Șterge produsul';
+  $('dulBg').hidden = false;
+  const prim = $('dulShCorp').querySelector('input'); if (prim) prim.focus();
+}
+function dulInchide() { $('dulBg').hidden = true; dulShOk = dulShSterge = null; }
+const dulNr = s => { const x = Number(String(s).trim().replace(',', '.')); return isFinite(x) ? x : NaN; };
+const dulIntreg = s => { const x = dulNr(s); return Number.isInteger(x) && x >= 0 ? x : NaN; };
+$('dulShOk').onclick = () => { if (!dulShOk) return; const er = dulShOk(); if (er) $('dulShErr').textContent = er; else dulInchide(); };
+$('dulShAnul').onclick = dulInchide;
+$('dulBg').addEventListener('click', e => { if (e.target === $('dulBg')) dulInchide(); });
+$('dulShCorp').addEventListener('keydown', e => { if (e.key === 'Enter') $('dulShOk').click(); });
+$('dulShSterge').onclick = () => {
+  const b = $('dulShSterge'); if (!dulShSterge) return;
+  if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Apasă din nou'; return; }
+  dulShSterge(); dulInchide();
+};
+function dulBani(tip) {
+  dulSheet(tip === 'bani-' ? 'Scot bani' : 'Adaug bani', [{ id: 'dulSuma', label: 'Suma în lei', num: true, ph: '20' }, { id: 'dulNota', label: 'Pentru ce (opțional)', ph: tip === 'bani-' ? 'pâine' : 'contribuție', max: 40 }], () => {
+    const s = rot2(dulNr($('dulSuma').value));
+    if (!(s > 0)) return 'Scrie o sumă mai mare decât zero.';
+    if (tip === 'bani-' && s > dulap.bani) return `În dulap sunt doar ${fmtLei(dulap.bani)}.`;
+    dulOp({ tip, suma: s, nota: $('dulNota').value.trim() }); toast(tip === 'bani-' ? `Ai scos ${fmtLei(s)}` : `Ai pus ${fmtLei(s)}`);
+  });
+}
+$('dulBaniScot').onclick = () => dulBani('bani-');
+$('dulBaniAdaug').onclick = () => dulBani('bani+');
+function dulCitesteProdus() {
+  const nume = $('dulPNume').value.trim(), um = $('dulPUm').value.trim() || 'buc', prag = dulIntreg($('dulPPrag').value || '0');
+  if (!nume) return { er: 'Scrie numele produsului.' };
+  if (isNaN(prag)) return { er: 'Pragul de stoc mic trebuie să fie un număr întreg.' };
+  return { nume, um, prag };
+}
+$('dulNou').onclick = () => {
+  if (!esteResp()) return;
+  dulSheet('Produs nou', [{ id: 'dulPNume', label: 'Nume', ph: 'Cafea' }, { id: 'dulPUm', label: 'Unitate', ph: 'pachete', max: 12 },
+    { id: 'dulPCant', label: 'Câte sunt acum în dulap', num: true, ph: '3', max: 5 }, { id: 'dulPPrag', label: 'Stoc mic de la (avertizare)', num: true, val: 1, max: 5 }], () => {
+    const p = dulCitesteProdus(); if (p.er) return p.er;
+    const cant = dulIntreg($('dulPCant').value || '0'); if (isNaN(cant)) return 'Cantitatea trebuie să fie un număr întreg.';
+    if (dulap.produse.some(x => slug(x.nume) === slug(p.nume))) return 'Există deja un produs cu acest nume.';
+    dulOp({ tip: 'produs-nou', produs: { id: dulId(), nume: p.nume, um: p.um, cant, prag: p.prag } }); toast(`Am adăugat ${p.nume}`);
+  });
+};
+function dulModifica(pid) {
+  const x = dulap.produse.find(p => p.id === pid); if (!x || !esteResp()) return;
+  dulSheet(x.nume, [{ id: 'dulPPlus', label: 'Adaugă în stoc (bucăți noi)', num: true, ph: '0', max: 5 }, { id: 'dulPNume', label: 'Nume', val: x.nume }, { id: 'dulPUm', label: 'Unitate', val: x.um, max: 12 },
+    { id: 'dulPPrag', label: 'Stoc mic de la (avertizare)', num: true, val: x.prag, max: 5 }], () => {
+    const p = dulCitesteProdus(); if (p.er) return p.er;
+    const plus = dulIntreg($('dulPPlus').value || '0'); if (isNaN(plus)) return 'Cantitatea adăugată trebuie să fie un număr întreg.';
+    if (dulap.produse.some(o => o.id !== pid && slug(o.nume) === slug(p.nume))) return 'Există deja un produs cu acest nume.';
+    if (p.nume !== x.nume || p.um !== x.um || p.prag !== x.prag) dulOp({ tip: 'produs-mod', pid, nume: p.nume, um: p.um, prag: p.prag });
+    if (plus > 0) { dulOp({ tip: 'adaugat', pid, cant: plus }); toast(`Ai adăugat ${plus} × ${p.nume}`); }
+  }, () => { dulOp({ tip: 'produs-sters', pid }); toast(`Am șters ${x.nume}`); });
+}
+$('dulLista').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  if (b.dataset.minus) dulOp({ tip: 'scos', pid: b.dataset.minus, cant: 1 });
+  else if (b.dataset.plus && esteResp()) dulOp({ tip: 'adaugat', pid: b.dataset.plus, cant: 1 });
+  else if (b.dataset.edit) dulModifica(b.dataset.edit);
+});
+$('dulJurnal').addEventListener('click', e => {
+  const b = e.target.closest('button[data-anul]'); if (!b) return;
+  dulOp({ tip: 'anulare', ref: b.dataset.anul }); toast('Mișcarea a fost anulată');
+});
+$('dulMaiMult').onclick = () => { dulArata += 30; randeazaDulap(); };
+$('dulRespLista').addEventListener('click', e => {
+  const b = e.target.closest('button[data-resp]'); if (!b || !esteAdmin()) return;
+  dulOp({ tip: 'resp', cheieCol: b.dataset.resp, numeCol: b.dataset.nume, da: b.dataset.da === '1' });
+});
+$('dulRef').onclick = incarcaDulap;
+window.addEventListener('online', () => { if (dulCoada.length && dulAcces()) dulTrimite(); });
 
 /* ---------- Pornire ---------- */
 (async function porneste() {

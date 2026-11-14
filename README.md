@@ -149,3 +149,14 @@ Ca să schimbi codul: șterge pe GitHub fișierul `data/admin.json` și activeaz
 ## Dacă modifici codul
 
 Totul e în `index.html`. După ce încarci o versiune nouă pe GitHub, deschide `sw.js` și schimbă `tura-mea-v1` în `tura-mea-v2` (și tot așa), ca telefoanele să ia versiunea nouă.
+
+## Dulapul (stocuri și bani)
+
+Fila **Dulap** ține evidența produselor din dulapul comun (ulei, zahăr, cafea, hârtie igienică etc.) și a banilor pentru diverse. Totul se salvează într-un singur fișier comun, `data/dulap.json`, în același repository privat cu turele.
+
+- **Oricine din echipă** apasă „−” când scoate un produs și poate pune sau scoate bani (cu o notă opțională).
+- **Responsabilul** vede în plus „+”, butonul „Produs nou” și poate modifica sau șterge un produs atingându-i numele. Tot acolo adaugă mai multe bucăți deodată și stabilește de la ce cantitate apare avertizarea „stoc mic”.
+- **Administratorul** (cel cu codul din Setări → Administrator) are mereu drepturile de responsabil și alege responsabilii din lista de jos a filei Dulap.
+- **Anulare:** fiecare își poate anula propriile mișcări, iar responsabilul pe ale oricui. Mișcarea anulată rămâne în listă, tăiată, iar anularea apare ca rând separat.
+- Fără internet, mișcările se păstrează pe telefon și se trimit singure când revine semnalul. Dacă doi colegi apasă în același timp, aplicația recitește fișierul și nu se pierde nimic.
+- Pe filă apare un punct roșu când un produs e pe terminate.
