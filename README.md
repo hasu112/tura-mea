@@ -160,3 +160,13 @@ Fila **Dulap** ține evidența produselor din dulapul comun (ulei, zahăr, cafea
 - **Anulare:** fiecare își poate anula propriile mișcări, iar responsabilul pe ale oricui. Mișcarea anulată rămâne în listă, tăiată, iar anularea apare ca rând separat.
 - Fără internet, mișcările se păstrează pe telefon și se trimit singure când revine semnalul. Dacă doi colegi apasă în același timp, aplicația recitește fișierul și nu se pierde nimic.
 - Pe filă apare un punct roșu când un produs e pe terminate.
+
+## Gătit pe tură (ceaunul)
+
+În fila **Dulap**, butonul cu ceaun deschide lista meselor gătite pe tură.
+
+- Oricine apasă „Gătit nou”, alege data și scrie ce se gătește. Cine pune masa devine **bucătarul**.
+- Bucătarul scrie ingredientele (mai multe deodată, despărțite prin virgulă), le poate șterge și poate modifica sau șterge masa. Administratorul poate face același lucru.
+- Fiecare coleg apasă „Particip” și „Aduc eu” la ingredientul pe care îl aduce; cu „Renunț” îl eliberează. Un ingredient îl aduce un singur om.
+- Ingredientele neacoperite au dungă roșie, cele acoperite dungă verde.
+- Mesele trecute dispar din listă a doua zi. Datele stau tot în `data/dulap.json`.
