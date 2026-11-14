@@ -246,6 +246,14 @@ ol.jurnal li.anulare { border-left:4px solid var(--iesire); border-radius:0 8px 
 ol.jurnal .eti-an { font-size:12px; font-weight:600; color:var(--iesire); margin-left:6px; text-decoration:none; display:inline-block }
 
 /* Gătit pe tură */
+.tabs button.ceaun::before { content:""; display:inline-block; width:15px; height:15px; margin-right:4px; vertical-align:-2px; background:var(--cc); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Cpath d='M11 22C11 10 45 10 45 22' fill='none' stroke='%23000' stroke-width='4'/%3E%3Cpath d='M9 24h38v5a19 17 0 0 1-38 0z'/%3E%3Crect x='6' y='20' width='44' height='5' rx='2.5'/%3E%3Cpath d='M17 43l-3 8M39 43l3 8' stroke='%23000' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Cpath d='M11 22C11 10 45 10 45 22' fill='none' stroke='%23000' stroke-width='4'/%3E%3Cpath d='M9 24h38v5a19 17 0 0 1-38 0z'/%3E%3Crect x='6' y='20' width='44' height='5' rx='2.5'/%3E%3Cpath d='M17 43l-3 8M39 43l3 8' stroke='%23000' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat }
+.anunt { border-color:var(--cc); box-shadow:inset 0 0 0 1px var(--cc) }
+.anunt .rd { display:grid; gap:8px }
+.anunt .rd + .rd { padding-top:12px; border-top:1px dashed var(--line) }
+.anunt .cap { display:flex; align-items:center; gap:12px }
+.anunt .cap svg { width:40px; height:40px; flex:none }
+.anunt .cap b { display:block; font-family:var(--f-disp); font-weight:700; font-size:20px; text-transform:uppercase; letter-spacing:.02em; line-height:1.1; overflow-wrap:anywhere }
+.anunt .cap small { display:block; font-size:14px; color:var(--muted) }
 .ceaun-btn { display:flex; align-items:center; gap:14px; width:100%; text-align:left; border:1px solid var(--line); background:var(--soft); border-radius:12px; padding:10px 14px }
 .ceaun-btn[aria-expanded="true"] { border-color:var(--iesire); box-shadow:inset 0 0 0 1px var(--iesire) }
 .ceaun-btn svg { width:56px; height:56px; flex:none }
@@ -297,6 +305,7 @@ ul.ingr .n small { display:block; font-size:13px; font-weight:400; color:var(--m
       <p class="hint">Administratorul te-a scos din echipă. Turele tale rămân pe acest telefon și poți folosi calendarul în continuare, dar nu se mai salvează în GitHub și nu mai vezi echipa.</p>
     </div>
     <div class="status" id="status"></div>
+    <div class="card anunt" id="gatAnunt" hidden></div>
 
     <div class="card">
       <div class="cal-head">
@@ -1583,9 +1592,32 @@ function gatAplica(d, op) {
   }
 }
 let gatDeschis = false;
+// Mesele la care am răspuns „Nu particip” se țin minte doar pe acest telefon, ca anunțul să nu mai apară.
+const CHEIE_GATNU = 'tura-mea-gatit-nu';
+let gatNu = [];
+try { const x = JSON.parse(localStorage.getItem(CHEIE_GATNU) || '[]'); if (Array.isArray(x)) gatNu = x; } catch (e) {}
+const gatFaraRaspuns = () => { const eu = dulCheie(), t = iso(azi()); return !dulAcces() ? [] : gatViitoare().filter(m => m.data >= t && m.sef.cheie !== eu && !m.participanti.some(p => p.cheie === eu) && !gatNu.includes(m.id)); };
+const GAT_SVG = '<svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9c-2 2 2 3 0 6M28 6c-2 2 2 4 0 7M36 9c-2 2 2 3 0 6" stroke="var(--muted)" stroke-width="2"/><path d="M11 22C11 10 45 10 45 22" stroke="var(--ink)" stroke-width="2.5"/><path d="M9 24h38v5a19 17 0 0 1-38 0z" fill="var(--ink)"/><rect x="6" y="20" width="44" height="5" rx="2.5" fill="var(--ink)"/><path d="M17 43l-3 7M39 43l3 7" stroke="var(--ink)" stroke-width="3"/><path d="M28 46c-3 3-4 5-2 8h4c2-3 1-5-2-8z" fill="var(--cc)"/></svg>';
+function randeazaAnunt() {
+  const noi = gatFaraRaspuns();
+  document.querySelector('.tabs button[data-tab="dul"]').classList.toggle('ceaun', noi.length > 0);
+  $('gatAnunt').hidden = !noi.length;
+  $('gatAnunt').innerHTML = noi.map(m => { const n = dinIso(m.data), lipsa = m.ingrediente.filter(i => !i.cine).length;
+    return `<div class="rd" data-mid="${esc(m.id)}"><div class="cap">${GAT_SVG}<div><b>Gătit: ${esc(m.ce || 'pe tură')}</b><small>${esc(cap(scrieScurt(n)))} · ${inCate(n)} · bucătar ${esc(m.sef.nume || '?')}</small>`
+      + `<small>Participă ${m.participanti.length}${lipsa ? ` · lipsesc ${lipsa} ingrediente` : ''}</small></div></div>`
+      + '<div class="rand"><button class="btn" data-da="1">Particip</button><button class="ghost" data-nu="1">Nu particip</button><button class="ghost" data-vezi="1">Vezi ingredientele</button></div></div>'; }).join('');
+}
+function gatDeschideFila() { gatDeschis = true; document.querySelector('.tabs button[data-tab="dul"]').click(); randeazaGatit(); setTimeout(() => $('gatCard').scrollIntoView({ block: 'start', behavior: 'smooth' }), 50); }
+$('gatAnunt').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; const mid = b.closest('.rd').dataset.mid;
+  if (b.dataset.da) { dulOp({ tip: 'particip', mid, da: true }); toast('Te-am trecut la masă'); }
+  else if (b.dataset.nu) { gatNu = [...gatNu, mid].slice(-100); try { localStorage.setItem(CHEIE_GATNU, JSON.stringify(gatNu)); } catch (er) {} randeazaAnunt(); }
+  else if (b.dataset.vezi) gatDeschideFila();
+});
 const gatViitoare = () => dulap.mese.filter(m => m.data >= iso(azi() - 1)).sort((a, b) => a.data.localeCompare(b.data));
 function randeazaGatit() {
   const acces = dulAcces(), eu = dulCheie(), mese = gatViitoare();
+  randeazaAnunt();
   $('gatBtn').setAttribute('aria-expanded', String(gatDeschis));
   $('gatSub').textContent = mese.length
     ? `${cap(scrieScurt(dinIso(mese[0].data)))}${mese[0].ce ? ' · ' + mese[0].ce : ''}${mese.length > 1 ? ` · încă ${mese.length - 1}` : ''}`
@@ -1656,6 +1688,7 @@ $('gatLista').addEventListener('keydown', e => { if (e.key === 'Enter' && e.targ
   if (ghGata()) {
     ghStare(`Conectat la ${gh.owner}/${gh.repo}, fișierul ${ghCale()}.`, 'ok');
     citesteScosi().then(() => { randeazaTot(); if (gh.inAsteptare && navigator.onLine) ghSalveaza(true); }).catch(() => {});
+    incarcaDulap(); // ca anunțul de gătit și punctul de stoc mic să apară imediat ce deschizi aplicația
   }
 })();
 </script>
