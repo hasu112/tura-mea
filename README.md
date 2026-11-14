@@ -170,3 +170,4 @@ Fila **Dulap** ține evidența produselor din dulapul comun (ulei, zahăr, cafea
 - Fiecare coleg apasă „Particip” și „Aduc eu” la ingredientul pe care îl aduce; cu „Renunț” îl eliberează. Un ingredient îl aduce un singur om.
 - Ingredientele neacoperite au dungă roșie, cele acoperite dungă verde.
 - Mesele trecute dispar din listă a doua zi. Datele stau tot în `data/dulap.json`.
+- Când cineva pune o masă, ceilalți văd la deschiderea aplicației un anunț pe prima pagină („Particip”, „Nu particip”, „Vezi ingredientele”) și un ceaun mic pe fila Dulap, până răspund. „Nu particip” se ține minte doar pe telefonul respectiv.
