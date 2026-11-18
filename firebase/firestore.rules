@@ -33,6 +33,9 @@ service cloud.firestore {
       allow read: if membru(e);
       allow create: if semnat() && nou().creatDe == eu() && nou().keys().hasOnly(['nume', 'creatDe', 'creatLa', 'cod', 'codCreare']) && adminDupa(e) && (proprietar() || (nou().codCreare is string && get(/databases/$(database)/documents/coduriCreare/$(nou().codCreare)).data.folosit == null && getAfter(/databases/$(database)/documents/coduriCreare/$(nou().codCreare)).data.folosit == e));
       allow update: if admin(e) && schimba().hasOnly(['nume', 'cod']);
+      match /dulap/{doc} {
+        allow read, write: if membru(e);
+      }
       match /membri/{uid} {
         allow read: if membru(e) || (semnat() && uid == eu());
         allow create: if semnat() && uid == eu() && nou().stare == 'activ' && ((nou().rol == 'membru' && nou().cod is string && get(/databases/$(database)/documents/invitatii/$(nou().cod)).data.echipa == e) || (nou().rol == 'admin' && !exists(/databases/$(database)/documents/echipe/$(e)) && getAfter(/databases/$(database)/documents/echipe/$(e)).data.creatDe == eu()));
