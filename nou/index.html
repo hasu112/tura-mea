@@ -525,6 +525,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       </div>
       <ul class="stoc" id="dulLista"></ul>
       <div class="rand" id="dulRespRand" hidden><button class="btn" id="dulNou">Produs nou</button></div>
+      <div class="rand" id="dulImpRand" hidden><button class="ghost" id="dulImp">Importă dulapul din GitHub</button></div>
       <p class="hint" id="dulHint"></p>
     </div>
     <div class="card" id="gatCard" hidden>
@@ -539,7 +540,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
     </div>
     <div class="card" id="dulAdmCard" hidden>
       <h3>Responsabili de dulap</h3>
-      <p class="hint">Doar administratorul vede această listă. Responsabilul poate adăuga în stoc, poate crea, modifica și șterge produse. Administratorul are mereu aceste drepturi.</p>
+      <p class="hint">Doar administratorul vede această listă (varianta cu GitHub). Responsabilul poate adăuga în stoc, poate crea, modifica și șterge produse. Administratorul are mereu aceste drepturi.</p>
       <ol class="urm adm" id="dulRespLista"></ol>
     </div>
   </section>
@@ -550,7 +551,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       <h3>Contul meu</h3>
       <p class="rez" id="contInfo"></p>
       <p class="gh-st" id="contSync"></p>
-      <p class="hint">Aceasta e versiunea de probă cu cont. Turele, echipa și rolurile sunt în cont și se văd pe orice telefon pe care intri. Doar dulapul mai merge prin GitHub, până la etapa următoare.</p>
+      <p class="hint">Aceasta e versiunea de probă cu cont. Turele, echipa, rolurile, dulapul și mesele sunt în cont și se văd pe orice telefon pe care intri.</p>
       <div class="rand"><button class="ghost pericol" id="contIes">Ieși din cont</button></div>
     </div>
     <div class="card" id="propPanou" hidden>
@@ -1482,9 +1483,24 @@ function dulRecalc() {
 }
 dulRecalc();
 
-const dulCheie = () => slug(gh.nume);
-const esteResp = () => esteAdmin() || (!!dulCheie() && dulap.responsabili.includes(dulCheie()));
-const dulAcces = () => ghGata() && !esteScos();
+// Cu echipa din cont, dulapul stă în baza de date a echipei; altfel, ca înainte, în GitHub.
+const dulCheie = () => contActiv() ? window.contFB.uid : slug(gh.nume);
+const dulNume = () => contActiv() ? window.contFB.numeMeu() : gh.nume;
+const dulAdmin = () => contActiv() ? window.contFB.rolMeu() === 'admin' : esteAdmin();
+const esteResp = () => contActiv() ? ['admin', 'resp'].includes(window.contFB.rolMeu()) : (esteAdmin() || (!!dulCheie() && dulap.responsabili.includes(dulCheie())));
+const dulAcces = () => contActiv() || (ghGata() && !esteScos());
+const CHEIE_DULE = 'tura-mea-dulap-echipa';
+// Telefonul trece pe dulapul altei echipe (sau din GitHub în cont): nu păstrăm nimic din cel vechi.
+window.dulPentruEchipa = eid => {
+  if (localStorage.getItem(CHEIE_DULE) === eid) return;
+  dulServer = dulGol(); dulCoada = []; dulScrieLocal(); dulRecalc();
+  try { localStorage.setItem(CHEIE_DULE, eid); } catch (e) {}
+  randeazaDulap();
+};
+window.dulDinCont = (date, dinMemorie) => {
+  dulServer = normalizeazaDulap(date); dulIncarcat = true; dulScrieLocal(); dulRecalc(); randeazaDulap();
+  if (!dulTrimite.merge && !dulCoada.length) dulStare(dinMemorie ? 'Fără internet: arăt ultima variantă de pe telefon.' : `Actualizat la ${new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}.`, dinMemorie ? '' : 'ok');
+};
 function dulStare(m, cls) { const e = $('dulSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
 const dulId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
@@ -1493,7 +1509,7 @@ function dulOp(op) {
   if (!dulAcces()) { toast('Leagă întâi aplicația de GitHub din Setări'); return; }
   const ultim = dulCoada[dulCoada.length - 1];
   if (!dulTrimite.merge && ultim && (op.tip === 'scos' || op.tip === 'adaugat') && ultim.tip === op.tip && ultim.pid === op.pid && ultim.cheie === dulCheie()) ultim.cant += op.cant;
-  else dulCoada.push(Object.assign({ id: dulId(), t: new Date().toISOString(), cine: gh.nume, cheie: dulCheie() }, op));
+  else dulCoada.push(Object.assign({ id: dulId(), t: new Date().toISOString(), cine: dulNume(), cheie: dulCheie() }, op));
   dulScrieLocal(); dulRecalc(); randeazaDulap();
   clearTimeout(dulOp.t); dulOp.t = setTimeout(dulTrimite, 900);
 }
@@ -1512,6 +1528,21 @@ async function dulTrimite() {
   if (dulTrimite.merge) { dulTrimite.iar = true; return; }
   if (!dulCoada.length || !dulAcces()) return;
   dulTrimite.merge = true; dulStare('Se salvează…');
+  if (contActiv()) {
+    try {
+      const lot = dulCoada.slice();
+      const date = await window.contFB.dulapTranzactie(cur => { const x = normalizeazaDulap(cur); lot.forEach(op => dulAplica(x, op)); return JSON.parse(JSON.stringify(x)); });
+      dulServer = normalizeazaDulap(date); dulCoada = dulCoada.filter(o => !lot.includes(o));
+      dulIncarcat = true; dulScrieLocal(); dulRecalc();
+      dulStare(`Salvat la ${new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}.`, 'ok');
+    } catch (e) {
+      if (e.code === 'unavailable' || !navigator.onLine) dulStare('Salvat pe telefon. Se trimite singur când ai internet.', '');
+      else dulStare(e.code === 'permission-denied' ? 'Baza de date a refuzat salvarea dulapului (regulile de acces).' : (e.message || String(e)), 'err');
+    }
+    dulTrimite.merge = false; randeazaDulap();
+    if (dulTrimite.iar) { dulTrimite.iar = false; dulTrimite(); }
+    return;
+  }
   try {
     let gata = false;
     for (let i = 0; i < 5 && !gata; i++) {
@@ -1535,6 +1566,7 @@ async function dulTrimite() {
   if (dulTrimite.iar) { dulTrimite.iar = false; dulTrimite(); }
 }
 async function incarcaDulap() {
+  if (contActiv()) { if (dulCoada.length) return dulTrimite(); randeazaDulap(); return; }
   citesteCampuriGh();
   if (!ghGata()) { dulStare('Leagă întâi aplicația de GitHub din Setări. Dulapul se ține în același repository cu turele.', 'err'); randeazaDulap(); return; }
   if (esteAdmin() && !incarcaEchipa.facut) { incarcaEchipa.facut = true; incarcaEchipa(); }
@@ -1584,6 +1616,7 @@ function randeazaDulap() {
   $('dulBani').textContent = fmtLei(dulap.bani);
   $('dulBaniScot').disabled = !acces || dulap.bani <= 0; $('dulBaniAdaug').disabled = !acces;
   $('dulRespRand').hidden = !resp;
+  $('dulImpRand').hidden = !(contActiv() && dulAdmin() && ghGata() && !dulap.produse.length && !dulap.jurnal.length);
   $('dulLista').innerHTML = dulap.produse.length ? dulap.produse.map(p => {
     const putin = p.cant <= p.prag, sub = `${esc(p.um)}${p.cant === 0 ? ' · terminat' : putin ? ' · stoc mic' : ''}`;
     const nume = `<b>${esc(p.nume)}</b><small>${sub}</small>`;
@@ -1607,7 +1640,7 @@ function randeazaDulap() {
   randeazaDulResp(); randeazaGatit();
 }
 function randeazaDulResp() {
-  const card = $('dulAdmCard'); card.hidden = !(esteAdmin() && dulAcces()); if (card.hidden) return;
+  const card = $('dulAdmCard'); card.hidden = contActiv() || !(esteAdmin() && dulAcces()); if (card.hidden) return;
   const colegi = membri().filter(m => !m.eu).map(m => ({ cheie: m.cheie, nume: m.nume }));
   dulap.responsabili.forEach(c => { if (c !== dulCheie() && !colegi.some(x => x.cheie === c)) colegi.push({ cheie: c, nume: cap(c.replace(/-/g, ' ')) }); });
   $('dulRespLista').innerHTML = colegi.length ? colegi.map(c => {
@@ -1691,7 +1724,24 @@ $('dulRespLista').addEventListener('click', e => {
   dulOp({ tip: 'resp', cheieCol: b.dataset.resp, numeCol: b.dataset.nume, da: b.dataset.da === '1' });
 });
 $('dulRef').onclick = incarcaDulap;
+$('dulImp').onclick = async () => {
+  const b = $('dulImp');
+  if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Se copiază produsele, banii, jurnalul și mesele'; return; }
+  delete b.dataset.conf; b.textContent = 'Importă dulapul din GitHub'; b.disabled = true; dulStare('Se importă din GitHub…');
+  try {
+    const { date } = await dulCiteste();
+    await window.contFB.dulapTranzactie(cur => {
+      const c = normalizeazaDulap(cur);
+      if (c.produse.length || c.jurnal.length) throw new Error('Dulapul din cont nu mai e gol, așa că nu am importat nimic.');
+      return JSON.parse(JSON.stringify(Object.assign(normalizeazaDulap(date), { responsabili: [] })));
+    });
+    dulStare(`Am importat ${date.produse.length} produse, ${fmtLei(date.bani)} și ${date.jurnal.length} mișcări.`, 'ok');
+  } catch (e) { dulStare(e.message === 'Failed to fetch' ? 'Nu am internet.' : (e.message || String(e)), 'err'); }
+  b.disabled = false;
+};
 window.addEventListener('online', () => { if (dulCoada.length && dulAcces()) dulTrimite(); });
+window.dulCoadaNetrimisa = () => dulCoada.length > 0 && !dulTrimite.merge;
+window.dulTrimite = dulTrimite;
 
 /* ---------- Gătit pe tură (ceaunul) ---------- */
 // Mesele stau tot în data/dulap.json (câmpul „mese”) și folosesc aceeași coadă de mișcări ca dulapul, dar nu intră în jurnal.
@@ -1751,7 +1801,7 @@ function randeazaGatit() {
   $('gatCard').hidden = !gatDeschis; if (!gatDeschis) return;
   $('gatNou').disabled = !acces;
   $('gatLista').innerHTML = mese.length ? mese.map(m => {
-    const n = dinIso(m.data), sef = acces && (m.sef.cheie === eu || esteAdmin()), particip = m.participanti.some(p => p.cheie === eu);
+    const n = dinIso(m.data), sef = acces && (m.sef.cheie === eu || dulAdmin()), particip = m.participanti.some(p => p.cheie === eu);
     const lipsa = m.ingrediente.filter(i => !i.cine).length;
     let h = `<div class="masa${n === azi() ? ' azi' : ''}" data-mid="${esc(m.id)}"><div class="cap"><div><b>${esc(m.ce || 'Gătit pe tură')}</b>`
       + `<small>${esc(cap(scrie(n)))} · ${inCate(n)}</small><small>Bucătar: ${esc(m.sef.nume || '?')}${m.sef.cheie === eu ? ' (tu)' : ''}</small></div>`
@@ -1820,7 +1870,7 @@ $('gatLista').addEventListener('keydown', e => { if (e.key === 'Enter' && e.targ
 </script>
 <script type="module">
 /* ---------- Cont (Firebase Authentication) ---------- */
-// Etapele 1–3 din planul de trecere: cont, echipă și turele în cont. Dulapul încă merge prin GitHub.
+// Etapele 1–5 din planul de trecere: cont, echipă, turele, dulapul și mesele în cont.
 const FB = 'https://www.gstatic.com/firebasejs/13.4.0/';
 const configurare = {
   apiKey: 'AIzaSyDqBeY7UBR7WS4rFPoYX_NDOhFgIL4T-E8',
@@ -1938,9 +1988,9 @@ if (fb) {
 
   /* ---------- Echipe și roluri (etapa 2) ---------- */
   const F = fb.fs;
-  window.contFB = { activ: false, membri: [], uid: null, salveazaTure: () => {} };
+  window.contFB = { activ: false, membri: [], uid: null, salveazaTure: () => {}, rolMeu: () => (eu ? eu.rol : ''), numeMeu: () => (eu ? eu.nume : (user && user.email) || '') };
   let db;
-  try { db = F.initializeFirestore(fb.app.getApp(), { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
+  try { db = F.initializeFirestore(fb.app.getApp(), { ignoreUndefinedProperties: true, localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
   catch (e) { db = F.getFirestore(); }
   const ROL = { admin: 'administrator', resp: 'responsabil dulap', membru: 'membru' };
   const LITERE = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -2014,11 +2064,16 @@ if (fb) {
       window.contFB.membri = membri; window.contFB.uid = user.uid; window.contFB.activ = true;
       sincronizeazaTure(q.metadata && q.metadata.fromCache);
       randeazaEchipaCont();
-      window.randeazaEchipa();
+      window.randeazaEchipa(); window.randeazaDulap();
+      if (window.dulCoadaNetrimisa && window.dulCoadaNetrimisa()) window.dulTrimite();
     }, e => {
       if (e.code === 'permission-denied') { opresteTot(); echipaId = null; salveazaCont(); laCont(user); }
       else st('ceSt', trDb(e), 'err');
     }));
+    // Dulapul echipei (etapa 4): un singur document, schimbat prin tranzacții
+    window.dulPentruEchipa(eid);
+    opriri.push(F.onSnapshot(d('echipe', eid, 'dulap', 'stare'), s => window.dulDinCont(s.exists() ? s.data() : {}, s.metadata && s.metadata.fromCache),
+      e => { if (e.code !== 'permission-denied') $('dulSt').textContent = trDb(e); }));
     if (suntProprietar()) pornestePanouProprietar();
     ascundeSetariGitHub();
   }
@@ -2047,12 +2102,16 @@ if (fb) {
       .catch(e => stareSync(trDb(e), 'err'));
   }
   window.contFB.salveazaTure = salveazaTure;
+  window.contFB.dulapTranzactie = fn => F.runTransaction(db, async t => {
+    const r = d('echipe', echipaId, 'dulap', 'stare'), x = await t.get(r);
+    const nou = fn(x.exists() ? x.data() : null); t.set(r, nou); return nou;
+  });
   function ascundeSetariGitHub() {
     ['gIes', 'admActiv'].forEach(id => { const c = $(id) && $(id).closest('.card'); if (c) c.hidden = true; });
     const g = $('gSalv') && $('gSalv').closest('.card');
     if (g && !g.querySelector('.nota-cont')) {
       const n = document.createElement('p'); n.className = 'hint nota-cont';
-      n.textContent = 'Turele și echipa sunt acum în cont. GitHub mai e folosit doar de fila Dulap, până la etapa următoare.';
+      n.textContent = 'Turele, echipa și dulapul sunt acum în cont. GitHub mai e folosit doar pentru importul dulapului vechi (fila Dulap, de către administrator).';
       g.insertBefore(n, g.children[1]);
     }
   }
