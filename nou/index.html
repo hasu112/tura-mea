@@ -369,7 +369,7 @@ ol.anunturi { list-style:none; margin:0; padding:0; display:grid; gap:8px }
         <h3>Creează o echipă nouă</h3>
         <p class="hint" id="cHint">Ca să creezi o tură nouă îți trebuie un cod de creare de la proprietarul aplicației.</p>
         <div class="camp" id="cCodCamp"><label for="cCod">Cod de creare</label><input type="text" id="cCod" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="P4R8TW"></div>
-        <div class="camp"><label for="cEchipa">Numele echipei</label><input type="text" id="cEchipa" autocomplete="off" maxlength="40" placeholder="Tura 2"></div>
+        <div class="camp"><label for="cEchipa">Numele echipei</label><input type="text" id="cEchipa" autocomplete="off" maxlength="40" placeholder="Vulturii de noapte"></div>
         <div class="camp"><label for="cNume">Numele tău în echipă</label><input type="text" id="cNume" autocomplete="name" maxlength="30" placeholder="Alexandru B."></div>
         <p class="gh-st err" id="cErr" role="alert"></p>
         <button type="submit" class="btn mare" id="cTrimite">Creează echipa</button>
@@ -517,7 +517,7 @@ ol.anunturi { list-style:none; margin:0; padding:0; display:grid; gap:8px }
       <h2>Anunțuri</h2>
       <form class="an-form" id="anForm" novalidate>
         <label class="ascuns" for="anText">Textul anunțului</label>
-        <textarea id="anText" maxlength="500" placeholder="Mâine vine controlul la 10:00"></textarea>
+        <textarea id="anText" maxlength="500" placeholder="Cine a uitat iaurtul în frigider din martie? A prins viață."></textarea>
         <fieldset class="niveluri"><legend class="ascuns">Cât de important e</legend>
           <label class="nv niv-verde"><input type="radio" name="anNivel" value="verde" checked><span class="bulina" aria-hidden="true"></span>Neimportant</label>
           <label class="nv niv-galben"><input type="radio" name="anNivel" value="galben"><span class="bulina" aria-hidden="true"></span>Important</label>
@@ -606,7 +606,7 @@ ol.anunturi { list-style:none; margin:0; padding:0; display:grid; gap:8px }
     <div class="card" id="propPanou" hidden>
       <h3>Proprietarul aplicației</h3>
       <p class="hint">Doar tu vezi acest panou. Un cod de creare îi permite cuiva să facă o singură echipă nouă. Scrie pentru cine e, ca să știi pe cine ai lăsat să intre.</p>
-      <div class="campuri"><div class="camp"><label for="ccNota">Pentru cine</label><input type="text" id="ccNota" maxlength="40" autocomplete="off" placeholder="Tura 3, Ion P."></div></div>
+      <div class="campuri"><div class="camp"><label for="ccNota">Pentru cine</label><input type="text" id="ccNota" maxlength="40" autocomplete="off" placeholder="Ion P., cel cu mustața"></div></div>
       <div class="rand"><button class="btn" id="ccNou">Fă un cod de creare</button></div>
       <ol class="urm adm" id="ccLista"></ol>
       <p class="gh-st" id="ccSt"></p>
@@ -630,9 +630,9 @@ ol.anunturi { list-style:none; margin:0; padding:0; display:grid; gap:8px }
       <div class="campuri">
         <div class="camp"><label for="pDe">De la</label><input type="date" id="pDe"></div>
         <div class="camp"><label for="pPana">Până la</label><input type="date" id="pPana"></div>
-        <div class="camp" id="pEtCamp" hidden><label for="pEt">Notă</label><input type="text" id="pEt" maxlength="24" autocomplete="off" placeholder="ex. Ambulanță"></div>
+        <div class="camp" id="pEtCamp" hidden><label for="pEt">Notă</label><input type="text" id="pEt" maxlength="24" autocomplete="off" placeholder="ex. Pescuit la Mureș"></div>
         <div class="camp"><label for="pTip">Ce pui</label>
-          <select id="pTip"><option value="CO">Concediu de odihnă (CO)</option><option value="COS">COS</option><option value="CM">Concediu medical (CM)</option><option value="L">Liber cerut</option><option value="RS">Recuperare ore suplimentare (RS)</option><option value="CURS">Curs</option><option value="ET">Doar notă (ex. Ambulanță)</option><option value="sterge">Șterge ce era pus</option></select></div>
+          <select id="pTip"><option value="CO">Concediu de odihnă (CO)</option><option value="COS">COS</option><option value="CM">Concediu medical (CM)</option><option value="L">Liber cerut</option><option value="RS">Recuperare ore suplimentare (RS)</option><option value="CURS">Curs</option><option value="ET">Doar notă (ex. Pescuit)</option><option value="sterge">Șterge ce era pus</option></select></div>
       </div>
       <label class="chk"><input type="checkbox" id="pDoarTura" checked> Doar în zilele de tură</label>
       <div class="rand"><button class="btn" id="pAplica">Aplică perioada</button></div>
@@ -704,7 +704,7 @@ ol.anunturi { list-style:none; margin:0; padding:0; display:grid; gap:8px }
     <div class="camp" id="shCCCamp" hidden><label for="shCCore">Ore la creșterea capacității</label><input type="text" id="shCCore" inputmode="decimal" autocomplete="off" placeholder="ex. 8 sau 4,5"></div>
     <div class="camp" id="shCuCamp" hidden><label for="shCu">Schimb cu</label><input type="text" id="shCu" autocomplete="off" placeholder="ex. Andrei">
       <p class="hint">Într-o zi de tură înseamnă că îți dai tura colegului. Într-o zi liberă înseamnă că lucrezi tu în locul lui.</p></div>
-    <div class="camp"><label for="shNota">Notă (apare în calendar)</label><textarea id="shNota" placeholder="ex. Ambulanță"></textarea></div>
+    <div class="camp"><label for="shNota">Notă (apare în calendar)</label><textarea id="shNota" placeholder="ex. Ziua lui Mihai, aduce tort (sperăm)"></textarea></div>
     <div class="rand"><button class="btn" id="shSalv">Salvează</button><button class="ghost" id="shAnul">Anulează</button></div>
   </div>
 </div>
@@ -1068,7 +1068,7 @@ $('pTip').addEventListener('change', () => { $('pEtCamp').hidden = $('pTip').val
 $('pAplica').onclick = () => {
   const a = $('pDe').value, b = $('pPana').value, tip = $('pTip').value, doarTura = $('pDoarTura').checked;
   if (!a || !b) return toast('Alege data de început și de sfârșit');
-  const pEt = $('pEt').value.trim(); if (tip === 'ET' && !pEt) return toast('Scrie nota, de exemplu Ambulanță');
+  const pEt = $('pEt').value.trim(); if (tip === 'ET' && !pEt) return toast('Scrie nota, de exemplu Pescuit la Mureș');
   let x = dinIso(a), y = dinIso(b); if (y < x) [x, y] = [y, x];
   if (y - x > 400) return toast('Perioada e prea lungă (maxim 400 de zile)');
   let nr = 0;
@@ -1725,7 +1725,7 @@ $('dulShSterge').onclick = () => {
   dulShSterge(); dulInchide();
 };
 function dulBani(tip) {
-  dulSheet(tip === 'bani-' ? 'Scot bani' : 'Adaug bani', [{ id: 'dulSuma', label: 'Suma în lei', num: true, ph: '20' }, { id: 'dulNota', label: 'Pentru ce (opțional)', ph: tip === 'bani-' ? 'pâine' : 'contribuție', max: 40 }], () => {
+  dulSheet(tip === 'bani-' ? 'Scot bani' : 'Adaug bani', [{ id: 'dulSuma', label: 'Suma în lei', num: true, ph: '20' }, { id: 'dulNota', label: 'Pentru ce (opțional)', ph: tip === 'bani-' ? 'pizza de la miezul nopții' : 'am pierdut pariul', max: 40 }], () => {
     const s = rot2(dulNr($('dulSuma').value));
     if (!(s > 0)) return 'Scrie o sumă mai mare decât zero.';
     if (tip === 'bani-' && s > dulap.bani) return `În dulap sunt doar ${fmtLei(dulap.bani)}.`;
@@ -1742,7 +1742,7 @@ function dulCitesteProdus() {
 }
 $('dulNou').onclick = () => {
   if (!esteResp()) return;
-  dulSheet('Produs nou', [{ id: 'dulPNume', label: 'Nume', ph: 'Cafea' }, { id: 'dulPUm', label: 'Unitate', ph: 'pachete', max: 12 },
+  dulSheet('Produs nou', [{ id: 'dulPNume', label: 'Nume', ph: 'Cafea (multă)' }, { id: 'dulPUm', label: 'Unitate', ph: 'pachete', max: 12 },
     { id: 'dulPCant', label: 'Câte sunt acum în dulap', num: true, ph: '3', max: 5 }, { id: 'dulPPrag', label: 'Stoc mic de la (avertizare)', num: true, val: 1, max: 5 }], () => {
     const p = dulCitesteProdus(); if (p.er) return p.er;
     const cant = dulIntreg($('dulPCant').value || '0'); if (isNaN(cant)) return 'Cantitatea trebuie să fie un număr întreg.';
@@ -1907,13 +1907,13 @@ function randeazaGatit() {
         + (!i.cine ? `<button class="btn mic" data-aduc="1"${acces ? '' : ' disabled'}>Aduc eu</button>` : al ? '<button class="ghost mic" data-aduc="">Renunț</button>' : '')
         + (sef ? `<button class="ghost mic pericol" data-sterg-ingr="1" aria-label="Șterge ${esc(i.nume)}">×</button>` : '') + '</li>';
     }).join('') : `<li><span class="n"><small>${sef ? 'Scrie mai jos ce îți trebuie.' : 'Bucătarul nu a pus încă ingredientele.'}</small></span></li>`) + '</ul>';
-    if (sef) h += '<div class="rand"><input type="text" data-ingr="1" maxlength="120" autocomplete="off" placeholder="ceapă, cartofi, 2 kg carne" aria-label="Ingrediente noi"><button class="ghost" data-adauga="1">Adaugă</button></div>';
+    if (sef) h += '<div class="rand"><input type="text" data-ingr="1" maxlength="120" autocomplete="off" placeholder="ceapă, cartofi, răbdare, mult usturoi" aria-label="Ingrediente noi"><button class="ghost" data-adauga="1">Adaugă</button></div>';
     return h + '</div>';
   }).join('') : '<p class="hint">Nu e nicio masă programată. Apasă „Gătit nou”: cine o pune devine bucătar.</p>';
 }
 $('gatBtn').onclick = () => { gatDeschis = !gatDeschis; randeazaGatit(); if (gatDeschis) $('gatCard').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
 function gatSheet(m) {
-  dulSheet(m ? 'Modifică masa' : 'Gătit nou', [{ id: 'gatData', label: 'Data', tip: 'date', val: m ? m.data : iso(azi()) }, { id: 'gatCe', label: 'Ce gătim', ph: 'Tocăniță la ceaun', val: m ? m.ce : '', max: 40 }], () => {
+  dulSheet(m ? 'Modifică masa' : 'Gătit nou', [{ id: 'gatData', label: 'Data', tip: 'date', val: m ? m.data : iso(azi()) }, { id: 'gatCe', label: 'Ce gătim', ph: 'Tochitura legendară a lui Mihai', val: m ? m.ce : '', max: 40 }], () => {
     const data = $('gatData').value, ce = $('gatCe').value.trim();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return 'Alege data.';
     if (!m && data < iso(azi())) return 'Data a trecut deja.';
