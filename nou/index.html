@@ -1623,7 +1623,7 @@ function randeazaDulap() {
   $('dulBani').textContent = fmtLei(dulap.bani);
   $('dulBaniScot').disabled = !acces || dulap.bani <= 0; $('dulBaniAdaug').disabled = !acces;
   $('dulRespRand').hidden = !resp;
-  $('dulImpRand').hidden = !(contActiv() && dulAdmin() && ghGata() && !dulap.produse.length && !dulap.jurnal.length);
+  $('dulImpRand').hidden = !(contActiv() && dulAdmin() && !dulap.produse.length && !dulap.jurnal.length);
   $('dulZeroRand').hidden = !(contActiv() && dulAdmin() && (dulap.produse.length || dulap.jurnal.length || dulap.mese.length || dulap.bani));
   $('dulLista').innerHTML = dulap.produse.length ? dulap.produse.map(p => {
     const putin = p.cant <= p.prag, sub = `${esc(p.um)}${p.cant === 0 ? ' · terminat' : putin ? ' · stoc mic' : ''}`;
@@ -1741,12 +1741,27 @@ $('dulZero').onclick = async () => {
   catch (e) { dulStare(e.code === 'permission-denied' ? 'Baza de date a refuzat golirea.' : (e.message || String(e)), 'err'); }
   b.disabled = false;
 };
-$('dulImp').onclick = async () => {
-  const b = $('dulImp');
-  if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Se copiază produsele, banii, jurnalul și mesele'; return; }
-  delete b.dataset.conf; b.textContent = 'Importă dulapul din GitHub'; b.disabled = true; dulStare('Se importă din GitHub…');
+// Importul cere datele de acces la GitHub. Dacă telefonul nu le are (de exemplu aplicația e instalată separat),
+// le cerem o singură dată, doar pentru import; nu se salvează pe telefon.
+$('dulImp').onclick = () => {
+  if (ghGata()) return importaDulap();
+  dulSheet('Import din GitHub', [
+    { id: 'impOwner', label: 'Utilizatorul GitHub (proprietarul)', val: gh.owner || 'hasu112' },
+    { id: 'impRepo', label: 'Repository-ul cu date', val: gh.repo || 'tura-mea-date' },
+    { id: 'impToken', label: 'Token de acces (github_pat_…)', val: '', max: 200 }
+  ], () => {
+    const owner = $('impOwner').value.trim(), repo = $('impRepo').value.trim(), token = $('impToken').value.trim();
+    if (!owner || !repo || !token) return 'Completează toate cele trei câmpuri.';
+    importaDulap({ owner, repo, token });
+  });
+};
+async function importaDulap(acces) {
+  const b = $('dulImp'), vechi = { owner: gh.owner, repo: gh.repo, token: gh.token, branch: gh.branch, nume: gh.nume };
+  b.disabled = true; dulStare('Se importă din GitHub…');
   try {
+    if (acces) Object.assign(gh, acces, { branch: gh.branch || 'main', nume: gh.nume || 'import' });
     const { date } = await dulCiteste();
+    if (!date.produse.length && !date.jurnal.length) throw new Error('În GitHub dulapul e gol, nu am ce importa.');
     await window.contFB.dulapTranzactie(cur => {
       const c = normalizeazaDulap(cur);
       if (c.produse.length || c.jurnal.length) throw new Error('Dulapul din cont nu mai e gol, așa că nu am importat nimic.');
@@ -1754,8 +1769,9 @@ $('dulImp').onclick = async () => {
     });
     dulStare(`Am importat ${date.produse.length} produse, ${fmtLei(date.bani)} și ${date.jurnal.length} mișcări.`, 'ok');
   } catch (e) { dulStare(e.message === 'Failed to fetch' ? 'Nu am internet.' : (e.message || String(e)), 'err'); }
+  if (acces) Object.assign(gh, vechi); // nu păstrăm tokenul introdus doar pentru import
   b.disabled = false;
-};
+}
 window.addEventListener('online', () => { if (dulCoada.length && dulAcces()) dulTrimite(); });
 window.dulCoadaNetrimisa = () => dulCoada.length > 0 && !dulTrimite.merge;
 window.dulTrimite = dulTrimite;
