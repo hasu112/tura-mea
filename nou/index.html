@@ -451,7 +451,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
   <section id="tab-ech" hidden>
     <div class="card" id="contEchCard" hidden>
       <div class="cal-head"><h2 id="ceNume">Echipa</h2><span class="pastila-rol" id="ceRolMeu"></span></div>
-      <p class="hint">Echipa din cont (versiunea de probă). Tabelul cu ture de mai jos vine încă din GitHub; turele trec în cont la etapa următoare.</p>
+      <p class="hint">Echipa din cont (versiunea de probă). Tabelul cu turele colegilor, de mai jos, se actualizează singur.</p>
       <div class="cod-inv" id="ceCodBox" hidden>
         <div><span class="k">Codul de invitație</span><span class="v num" id="ceCod"></span></div>
         <div class="rand"><button class="ghost mic" id="ceCopiaza">Copiază</button><button class="ghost mic" id="ceCodNou">Cod nou</button></div>
@@ -484,7 +484,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
         <span style="--c:var(--curs)"><i></i>Curs</span>
         <span style="--c:transparent"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>SCH · schimb</span>
       </div>
-      <p class="hint">Un coleg apare aici după ce își salvează datele în GitHub cu numele lui. Apasă „Reîncarcă” ca să vezi ultimele schimbări. Tabelul se derulează spre dreapta.</p>
+      <p class="hint">Colegii apar aici după ce intră în echipă și își pun programul în Setări. Tabelul se actualizează singur. Tabelul se derulează spre dreapta.</p>
     </div>
     <div class="card">
       <h3>Cine e în tură într-o zi</h3>
@@ -549,7 +549,8 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
     <div class="card">
       <h3>Contul meu</h3>
       <p class="rez" id="contInfo"></p>
-      <p class="hint">Aceasta e versiunea de probă cu cont. Echipa și rolurile sunt deja în cont; turele, tabelul echipei și dulapul merg deocamdată tot prin GitHub, cu aceleași date de pe acest telefon.</p>
+      <p class="gh-st" id="contSync"></p>
+      <p class="hint">Aceasta e versiunea de probă cu cont. Turele, echipa și rolurile sunt în cont și se văd pe orice telefon pe care intri. Doar dulapul mai merge prin GitHub, până la etapa următoare.</p>
       <div class="rand"><button class="ghost pericol" id="contIes">Ieși din cont</button></div>
     </div>
     <div class="card" id="propPanou" hidden>
@@ -721,11 +722,26 @@ function scrieLocal() { try { localStorage.setItem(CHEIE, JSON.stringify(st)); }
 function citesteGh() { try { const r = localStorage.getItem(CHEIE_GH); if (r) Object.assign(gh, JSON.parse(r)); } catch (e) {} }
 function scrieGh() { try { localStorage.setItem(CHEIE_GH, JSON.stringify(gh)); } catch (e) {} }
 
+const CHEIE_MOD = 'tura-mea-modificat';
+const contActiv = () => !!(window.contFB && window.contFB.activ);
 function salveaza() {
+  try { localStorage.setItem(CHEIE_MOD, String(Date.now())); } catch (e) {}
   scrieLocal();
   randeazaTot();
+  if (contActiv()) { clearTimeout(salveaza.t); salveaza.t = setTimeout(() => window.contFB.salveazaTure(), 800); return; }
   if (gh.auto && ghGata()) { clearTimeout(salveaza.t); salveaza.t = setTimeout(() => ghSalveaza(true), 1500); }
 }
+// Folosite de partea cu contul (modulul Firebase de la sfârșit)
+const CHEIE_POSESOR = 'tura-mea-ture-cont';
+window.tureLocale = () => ({ setari: st.setari, exceptii: st.exceptii, modificat: Number(localStorage.getItem(CHEIE_MOD) || 0), posesor: localStorage.getItem(CHEIE_POSESOR) || '' });
+window.turePosesor = uid => { try { localStorage.setItem(CHEIE_POSESOR, uid); } catch (e) {} };
+// Alt cont intră pe același telefon: turele de pe telefon nu sunt ale lui, deci pornește de la zero (ale lui vin din cont).
+window.tureGoale = () => { st = implicit(); scrieLocal(); try { localStorage.setItem(CHEIE_MOD, '0'); } catch (e) {} randeazaTot(); };
+window.tureDinCont = (date, modificat) => {
+  st = normalizeaza({ setari: date.setari, exceptii: date.exceptii || {}, nume: st.nume, github: st.github });
+  scrieLocal(); try { localStorage.setItem(CHEIE_MOD, String(modificat || 0)); } catch (e) {}
+  randeazaTot();
+};
 
 /* ---------- Logica turelor ---------- */
 function infoZiPt(d, n) {
@@ -1120,6 +1136,7 @@ let echipa = [], echVedere = null;
 function echStare(m, cls) { const e = $('echSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
 const ghFisierUrl = cale => `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${cale}?ref=${encodeURIComponent(gh.branch)}`;
 async function incarcaEchipa() {
+  if (contActiv()) { echStare(`${membri().length} în echipă · se actualizează singur.`, 'ok'); randeazaEchipa(); return; }
   citesteCampuriGh();
   if (!ghGata()) { echStare('Leagă întâi aplicația de GitHub din Setări. Echipa se citește din același repository.', 'err'); randeazaEchipa(); return; }
   echStare('Se încarcă echipa…'); $('echRef').disabled = true;
@@ -1148,6 +1165,14 @@ async function incarcaEchipa() {
   randeazaEchipa();
 }
 function membri() {
+  if (contActiv()) {
+    const c = window.contFB;
+    return c.membri.filter(m => m.stare === 'activ' && (m.uid === c.uid || m.setari))
+      .map(m => m.uid === c.uid
+        ? { cheie: slug(m.nume || 'eu'), uid: m.uid, nume: m.nume || 'Eu', date: st, eu: true }
+        : { cheie: slug(m.nume || m.uid), uid: m.uid, nume: m.nume || '?', date: normalizeaza({ setari: m.setari, exceptii: m.exceptii || {}, nume: m.nume }), eu: false })
+      .sort((a, b) => (b.eu - a.eu) || a.nume.localeCompare(b.nume, 'ro'));
+  }
   const eu = slug(gh.nume) || 'eu';
   const lista = echipa.filter(m => m.cheie !== eu && !scosi.some(s => s.cheie === m.cheie))
     .map(m => ({ cheie: m.cheie, nume: m.date.nume || cap(m.cheie.replace(/-/g, ' ')), date: m.date, eu: false }))
@@ -1255,7 +1280,7 @@ $('admDez').onclick = () => { gh.admin = false; scrieGh(); admCodStare('Modul ad
 const repoApi = () => `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}`;
 function admStare(m, cls) { const e = $('admSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
 function randeazaAdmin() {
-  const card = $('admCard'); card.hidden = !esteAdmin(); if (card.hidden) return;
+  const card = $('admCard'); card.hidden = contActiv() || !esteAdmin(); if (card.hidden) return;
   const altii = membri().filter(m => !m.eu);
   $('admLista').innerHTML = altii.length
     ? altii.map(m => `<li><span>${esc(m.nume)}${m.date.github ? ` <span class="login">@${esc(m.date.github)}</span>` : ''}</span><button class="ghost mic pericol" data-cheie="${esc(m.cheie)}">Scoate</button></li>`).join('')
@@ -1795,7 +1820,7 @@ $('gatLista').addEventListener('keydown', e => { if (e.key === 'Enter' && e.targ
 </script>
 <script type="module">
 /* ---------- Cont (Firebase Authentication) ---------- */
-// Etapele 1–2 din planul de trecere: aplicația cere un cont și o echipă. Turele și dulapul încă merg prin GitHub.
+// Etapele 1–3 din planul de trecere: cont, echipă și turele în cont. Dulapul încă merge prin GitHub.
 const FB = 'https://www.gstatic.com/firebasejs/13.4.0/';
 const configurare = {
   apiKey: 'AIzaSyDqBeY7UBR7WS4rFPoYX_NDOhFgIL4T-E8',
@@ -1913,7 +1938,10 @@ if (fb) {
 
   /* ---------- Echipe și roluri (etapa 2) ---------- */
   const F = fb.fs;
-  const db = F.getFirestore();
+  window.contFB = { activ: false, membri: [], uid: null, salveazaTure: () => {} };
+  let db;
+  try { db = F.initializeFirestore(fb.app.getApp(), { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
+  catch (e) { db = F.getFirestore(); }
   const ROL = { admin: 'administrator', resp: 'responsabil dulap', membru: 'membru' };
   const LITERE = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const codNou = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), x => LITERE[x % LITERE.length]).join('');
@@ -1982,13 +2010,51 @@ if (fb) {
     opriri.push(F.onSnapshot(F.collection(db, 'echipe', eid, 'membri'), q => {
       membri = q.docs.map(x => Object.assign({ uid: x.id }, x.data())).sort((a, b) => (a.nume || '').localeCompare(b.nume || '', 'ro'));
       eu = membri.find(x => x.uid === user.uid) || null;
-      if (eu && eu.stare !== 'activ') { opresteTot(); echipaId = null; salveazaCont(); return aratăPoartaEchipa('Administratorul te-a scos din echipă.'); }
+      if (eu && eu.stare !== 'activ') { opresteTot(); echipaId = null; salveazaCont(); window.contFB.activ = false; return aratăPoartaEchipa('Administratorul te-a scos din echipă.'); }
+      window.contFB.membri = membri; window.contFB.uid = user.uid; window.contFB.activ = true;
+      sincronizeazaTure(q.metadata && q.metadata.fromCache);
       randeazaEchipaCont();
+      window.randeazaEchipa();
     }, e => {
       if (e.code === 'permission-denied') { opresteTot(); echipaId = null; salveazaCont(); laCont(user); }
       else st('ceSt', trDb(e), 'err');
     }));
     if (suntProprietar()) pornestePanouProprietar();
+    ascundeSetariGitHub();
+  }
+
+  /* ---------- Turele în cont (etapa 3) ---------- */
+  // Turele fiecăruia stau în fișa lui de membru. Câștigă varianta modificată cel mai recent (pe telefon sau în cont).
+  let primaSincronizare = true;
+  function sincronizeazaTure(dinMemorie) {
+    if (!eu) return;
+    let loc = window.tureLocale();
+    if (loc.posesor && loc.posesor !== user.uid) { window.tureGoale(); loc = window.tureLocale(); }
+    window.turePosesor(user.uid);
+    const cont = eu.tureModificat || 0;
+    if (eu.setari && cont > loc.modificat) { window.tureDinCont(eu, cont); stareSync('Turele au fost aduse din cont.', 'ok'); }
+    else if (primaSincronizare && !dinMemorie && (!eu.setari || loc.modificat > cont)) salveazaTure();
+    else if (primaSincronizare) stareSync(dinMemorie ? 'Fără internet: arăt ultima variantă de pe telefon.' : 'Turele sunt salvate în cont.', dinMemorie ? '' : 'ok');
+    if (!dinMemorie) primaSincronizare = false;
+  }
+  function stareSync(m, cls) { const x = $('contSync'); if (x) { x.textContent = m; x.className = 'gh-st ' + (cls || ''); } }
+  function salveazaTure() {
+    if (!echipaId || !user) return;
+    const t = window.tureLocale(), mod = t.modificat || Date.now();
+    stareSync(navigator.onLine ? 'Se salvează în cont…' : 'Salvat pe telefon. Se trimite în cont când ai internet.');
+    F.updateDoc(d('echipe', echipaId, 'membri', user.uid), { setari: t.setari, exceptii: t.exceptii, tureModificat: mod })
+      .then(() => stareSync(`Salvat în cont la ${new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}.`, 'ok'))
+      .catch(e => stareSync(trDb(e), 'err'));
+  }
+  window.contFB.salveazaTure = salveazaTure;
+  function ascundeSetariGitHub() {
+    ['gIes', 'admActiv'].forEach(id => { const c = $(id) && $(id).closest('.card'); if (c) c.hidden = true; });
+    const g = $('gSalv') && $('gSalv').closest('.card');
+    if (g && !g.querySelector('.nota-cont')) {
+      const n = document.createElement('p'); n.className = 'hint nota-cont';
+      n.textContent = 'Turele și echipa sunt acum în cont. GitHub mai e folosit doar de fila Dulap, până la etapa următoare.';
+      g.insertBefore(n, g.children[1]);
+    }
   }
 
   const activi = () => membri.filter(x => x.stare === 'activ');
@@ -2117,7 +2183,7 @@ if (fb) {
     try {
       const bt = F.writeBatch(db);
       bt.delete(d('echipe', echipaId, 'membri', user.uid)); bt.set(d('utilizatori', user.uid), { echipa: null });
-      await bt.commit(); opresteTot(); echipaId = null; echipa = null; salveazaCont(); aratăPoartaEchipa();
+      await bt.commit(); opresteTot(); echipaId = null; echipa = null; window.contFB.activ = false; primaSincronizare = true; salveazaCont(); aratăPoartaEchipa();
     } catch (e) { st('ceSt', trDb(e), 'err'); }
   };
 
@@ -2143,7 +2209,8 @@ if (fb) {
   A.onAuthStateChanged(auth, u => {
     if (u) laCont(u);
     else {
-      opresteTot(); user = null; echipaId = null; echipa = null; membri = []; eu = null;
+      opresteTot(); user = null; echipaId = null; echipa = null; membri = []; eu = null; primaSincronizare = true;
+      window.contFB.activ = false; window.contFB.membri = [];
       $('contEchCard').hidden = true; $('propPanou').hidden = true;
       try { localStorage.removeItem(CHEIE_CONT); } catch (e) {}
       $('pParola').value = ''; $('pParola2').value = '';
