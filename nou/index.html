@@ -555,7 +555,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       <h3>Contul meu</h3>
       <p class="rez" id="contInfo"></p>
       <p class="gh-st" id="contSync"></p>
-      <p class="hint">Aceasta e versiunea de probă cu cont. Turele, echipa, rolurile, dulapul și mesele sunt în cont și se văd pe orice telefon pe care intri.</p>
+      <p class="hint">Aceasta e versiunea de probă cu cont. Turele, echipa, rolurile, dulapul și mesele sunt în cont și se văd pe orice telefon pe care intri. Versiunea aceasta nu mai trimite nimic în GitHub.</p>
       <div class="rand"><button class="ghost pericol" id="contIes">Ieși din cont</button></div>
     </div>
     <div class="card" id="propPanou" hidden>
@@ -593,7 +593,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       <div class="rand"><button class="btn" id="pAplica">Aplică perioada</button></div>
     </div>
 
-    <div class="card">
+    <div class="card" hidden>
       <h3>Baza de date în GitHub</h3>
       <p class="hint">Datele se salvează pe telefon. Dacă completezi câmpurile de mai jos, se salvează și în GitHub, în fișierul <code>data/ture-NUMELE.json</code>. Fiecare coleg are fișierul lui în același repository. Fără internet, salvarea se face singură când revine semnalul. Tokenul rămâne doar pe acest dispozitiv.</p>
       <div class="campuri">
@@ -611,7 +611,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       <p class="gh-st" id="gSt">Nu e conectat la GitHub.</p>
     </div>
 
-    <div class="card">
+    <div class="card" hidden>
       <h3>Eu în echipă</h3>
       <div class="campuri"><div class="camp"><label for="gNumeNou">Nume nou</label><input type="text" id="gNumeNou" autocomplete="off" placeholder="ex. Alexandru B."></div></div>
       <div class="rand"><button class="ghost" id="gInloc">Înlocuiește-mă cu numele nou</button><button class="ghost pericol" id="gIes">Ieși din echipă</button></div>
@@ -619,7 +619,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       <p class="gh-st" id="euSt"></p>
     </div>
 
-    <div class="card">
+    <div class="card" hidden>
       <h3>Administrator</h3>
       <p class="hint" id="admInfo"></p>
       <div class="campuri"><div class="camp"><label for="admCod">Cod administrator</label><input type="password" id="admCod" autocomplete="off" placeholder="minim 6 caractere"></div></div>
@@ -733,8 +733,8 @@ function salveaza() {
   try { localStorage.setItem(CHEIE_MOD, String(Date.now())); } catch (e) {}
   scrieLocal();
   randeazaTot();
-  if (contActiv()) { clearTimeout(salveaza.t); salveaza.t = setTimeout(() => window.contFB.salveazaTure(), 800); return; }
-  if (gh.auto && ghGata()) { clearTimeout(salveaza.t); salveaza.t = setTimeout(() => ghSalveaza(true), 1500); }
+  // Versiunea cu cont nu mai trimite nimic în GitHub: fără cont, turele rămân doar pe telefon.
+  if (contActiv()) { clearTimeout(salveaza.t); salveaza.t = setTimeout(() => window.contFB.salveazaTure(), 800); }
 }
 // Folosite de partea cu contul (modulul Firebase de la sfârșit)
 const CHEIE_POSESOR = 'tura-mea-ture-cont';
@@ -1108,7 +1108,6 @@ async function ghIncarca() {
   } catch (e) { ghStare(e.message === 'Failed to fetch' ? 'Nu am internet sau GitHub nu răspunde.' : e.message, 'err'); }
 }
 $('gSalv').onclick = () => ghSalveaza(false);
-window.addEventListener('online', () => { if (gh.inAsteptare && ghGata()) ghSalveaza(true); });
 $('gInc').onclick = ghIncarca;
 
 // copie de siguranță
@@ -1142,6 +1141,7 @@ function echStare(m, cls) { const e = $('echSt'); e.textContent = m; e.className
 const ghFisierUrl = cale => `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${cale}?ref=${encodeURIComponent(gh.branch)}`;
 async function incarcaEchipa() {
   if (contActiv()) { echStare(`${membri().length} în echipă · se actualizează singur.`, 'ok'); randeazaEchipa(); return; }
+  echStare('Echipa se încarcă din cont…'); randeazaEchipa(); return;
   citesteCampuriGh();
   if (!ghGata()) { echStare('Leagă întâi aplicația de GitHub din Setări. Echipa se citește din același repository.', 'err'); randeazaEchipa(); return; }
   echStare('Se încarcă echipa…'); $('echRef').disabled = true;
@@ -1178,6 +1178,7 @@ function membri() {
         : { cheie: slug(m.nume || m.uid), uid: m.uid, nume: m.nume || '?', date: normalizeaza({ setari: m.setari, exceptii: m.exceptii || {}, nume: m.nume }), eu: false })
       .sort((a, b) => (b.eu - a.eu) || a.nume.localeCompare(b.nume, 'ro'));
   }
+  return [{ cheie: 'eu', nume: 'Eu', date: st, eu: true }];
   const eu = slug(gh.nume) || 'eu';
   const lista = echipa.filter(m => m.cheie !== eu && !scosi.some(s => s.cheie === m.cheie))
     .map(m => ({ cheie: m.cheie, nume: m.date.nume || cap(m.cheie.replace(/-/g, ' ')), date: m.date, eu: false }))
@@ -1306,7 +1307,7 @@ $('admLista').addEventListener('click', async e => {
 });
 const CHEIE_SC = 'tura-mea-scosi';
 let scosi = [];
-const esteScos = () => !!gh.nume && !esteAdmin() && scosi.some(x => x.cheie === slug(gh.nume));
+const esteScos = () => false; // scoaterea din echipă se face acum în cont
 function salvScosiLocal() { try { localStorage.setItem(CHEIE_SC, JSON.stringify(scosi)); } catch (e) {} }
 async function citesteScosi() {
   const r = await fetch(ghFisierUrl('data/scosi.json'), { headers: ghHead(), cache: 'no-store' });
@@ -1493,7 +1494,7 @@ const dulCheie = () => contActiv() ? window.contFB.uid : slug(gh.nume);
 const dulNume = () => contActiv() ? window.contFB.numeMeu() : gh.nume;
 const dulAdmin = () => contActiv() ? window.contFB.rolMeu() === 'admin' : esteAdmin();
 const esteResp = () => contActiv() ? ['admin', 'resp'].includes(window.contFB.rolMeu()) : (esteAdmin() || (!!dulCheie() && dulap.responsabili.includes(dulCheie())));
-const dulAcces = () => contActiv() || (ghGata() && !esteScos());
+const dulAcces = () => contActiv();
 const CHEIE_DULE = 'tura-mea-dulap-echipa';
 // Telefonul trece pe dulapul altei echipe (sau din GitHub în cont): nu păstrăm nimic din cel vechi.
 window.dulPentruEchipa = eid => {
@@ -1511,7 +1512,7 @@ const dulId = () => Date.now().toString(36) + Math.random().toString(36).slice(2
 
 // Pune o mișcare în coadă, o arată imediat pe ecran și o trimite în GitHub.
 function dulOp(op) {
-  if (!dulAcces()) { toast('Leagă întâi aplicația de GitHub din Setări'); return; }
+  if (!dulAcces()) { toast('Dulapul se încarcă din cont. Încearcă din nou peste câteva secunde.'); return; }
   const ultim = dulCoada[dulCoada.length - 1];
   if (!dulTrimite.merge && ultim && (op.tip === 'scos' || op.tip === 'adaugat') && ultim.tip === op.tip && ultim.pid === op.pid && ultim.cheie === dulCheie()) ultim.cant += op.cant;
   else dulCoada.push(Object.assign({ id: dulId(), t: new Date().toISOString(), cine: dulNume(), cheie: dulCheie() }, op));
@@ -1572,6 +1573,7 @@ async function dulTrimite() {
 }
 async function incarcaDulap() {
   if (contActiv()) { if (dulCoada.length) return dulTrimite(); randeazaDulap(); return; }
+  dulStare('Dulapul se încarcă din cont…'); randeazaDulap(); return;
   citesteCampuriGh();
   if (!ghGata()) { dulStare('Leagă întâi aplicația de GitHub din Setări. Dulapul se ține în același repository cu turele.', 'err'); randeazaDulap(); return; }
   if (esteAdmin() && !incarcaEchipa.facut) { incarcaEchipa.facut = true; incarcaEchipa(); }
@@ -1881,9 +1883,7 @@ $('gatLista').addEventListener('keydown', e => { if (e.key === 'Enter' && e.targ
 (async function porneste() {
   citesteGh();
   if (!gh.fisSalvat && gh.nume && gh.owner && gh.repo) { gh.fisSalvat = cheieFis(); scrieGh(); }
-  try { const c = JSON.parse(localStorage.getItem(CHEIE_ECH) || 'null'); if (Array.isArray(c)) echipa = c.map(m => ({ cheie: m.cheie, path: m.path, sha: m.sha, date: normalizeaza(m.date) })); } catch (e) {}
   $('echZi').value = iso(azi());
-  try { scosi = JSON.parse(localStorage.getItem(CHEIE_SC) || '[]') || []; } catch (e) {}
   const local = citesteLocal();
   if (local) st = local;
   else {
@@ -1891,11 +1891,6 @@ $('gatLista').addEventListener('keydown', e => { if (e.key === 'Enter' && e.targ
   }
   $('verif').value = iso(azi() + 7);
   randeazaTot();
-  if (ghGata()) {
-    ghStare(`Conectat la ${gh.owner}/${gh.repo}, fișierul ${ghCale()}.`, 'ok');
-    citesteScosi().then(() => { randeazaTot(); if (gh.inAsteptare && navigator.onLine) ghSalveaza(true); }).catch(() => {});
-    incarcaDulap(); // ca anunțul de gătit și punctul de stoc mic să apară imediat ce deschizi aplicația
-  }
 })();
 </script>
 <script type="module">
@@ -2147,7 +2142,7 @@ if (fb) {
   });
   function ascundeSetariGitHub() {
     ['gIes', 'admActiv'].forEach(id => { const c = $(id) && $(id).closest('.card'); if (c) c.hidden = true; });
-    const g = $('gSalv') && $('gSalv').closest('.card');
+    const g = null;
     if (g && !g.querySelector('.nota-cont')) {
       const n = document.createElement('p'); n.className = 'hint nota-cont';
       n.textContent = 'Turele, echipa și dulapul sunt acum în cont. GitHub mai e folosit doar pentru importul dulapului vechi (fila Dulap, de către administrator).';
