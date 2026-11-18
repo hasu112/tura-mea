@@ -290,6 +290,19 @@ html.fara-cont .poarta { display:flex; min-height:100vh; min-height:100dvh; alig
 .sau { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:14px }
 .sau::before, .sau::after { content:""; flex:1; border-top:1px solid var(--line) }
 
+/* Echipa din cont */
+#echPoarta { display:grid; gap:14px }
+.echf { display:grid; gap:10px }
+.echf h3 { color:var(--ink) }
+.scos-card { border-color:var(--accent) } .scos-card .rez { color:var(--accent) }
+.pastila-rol { font-size:13px; font-weight:600; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:2px 10px; white-space:nowrap }
+.cod-inv { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; background:var(--soft); border-radius:10px; padding:12px }
+.cod-inv .k { display:block; font-size:13px; color:var(--muted) }
+.cod-inv .v { font-family:var(--f-disp); font-weight:700; font-size:30px; letter-spacing:.12em }
+ol.membri li { flex-wrap:wrap }
+ol.membri li .rand { gap:6px }
+ol.membri li.scos > span:first-child { color:var(--muted) }
+
 .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:30; background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:9px; font-weight:500; max-width:calc(100% - 32px) }
 @media (max-width:520px) { .tabs { width:100% } .tabs button { flex:1; padding:6px 2px; font-size:13px } }
 @media (max-width:420px) { .zi .d { font-size:14px } .zi .t { font-size:11px } }
@@ -314,6 +327,34 @@ html.fara-cont .poarta { display:flex; min-height:100vh; min-height:100dvh; alig
       <div class="sau"><span>sau</span></div>
       <button type="button" class="ghost mare" id="pGoogle">Continuă cu Google</button>
     </form>
+    <div id="echPoarta" hidden>
+      <p class="rez" id="echPoartaCine"></p>
+      <div class="card scos-card" id="echScosInfo" hidden><p class="rez" id="echScosText"></p></div>
+      <form class="echf" id="fIntra" novalidate>
+        <h3>Intră într-o echipă</h3>
+        <p class="hint">Codul de invitație îl primești de la administratorul turei tale.</p>
+        <div class="camp"><label for="iCod">Codul echipei</label><input type="text" id="iCod" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="K7M2QX"></div>
+        <div class="camp"><label for="iNume">Numele tău în echipă</label><input type="text" id="iNume" autocomplete="name" maxlength="30" placeholder="Alexandru B."></div>
+        <p class="gh-st err" id="iErr" role="alert"></p>
+        <button type="submit" class="btn mare" id="iTrimite">Intră în echipă</button>
+      </form>
+      <div class="sau"><span>sau</span></div>
+      <form class="echf" id="fCreeaza" novalidate>
+        <h3>Creează o echipă nouă</h3>
+        <p class="hint" id="cHint">Ca să creezi o tură nouă îți trebuie un cod de creare de la proprietarul aplicației.</p>
+        <div class="camp" id="cCodCamp"><label for="cCod">Cod de creare</label><input type="text" id="cCod" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="P4R8TW"></div>
+        <div class="camp"><label for="cEchipa">Numele echipei</label><input type="text" id="cEchipa" autocomplete="off" maxlength="40" placeholder="Tura 2"></div>
+        <div class="camp"><label for="cNume">Numele tău în echipă</label><input type="text" id="cNume" autocomplete="name" maxlength="30" placeholder="Alexandru B."></div>
+        <p class="gh-st err" id="cErr" role="alert"></p>
+        <button type="submit" class="btn mare" id="cTrimite">Creează echipa</button>
+      </form>
+      <div class="card" id="propCard" hidden>
+        <p class="hint">Aplicația nu are încă proprietar. Proprietarul face coduri pentru echipe noi și își poate crea echipa fără cod. Apasă doar dacă tu ești cel care a făcut aplicația.</p>
+        <button type="button" class="ghost" id="propDevin">Eu sunt proprietarul aplicației</button>
+        <p class="gh-st" id="propSt"></p>
+      </div>
+      <button type="button" class="ghost" id="echPoartaIes">Ieși din cont</button>
+    </div>
   </div>
 </div>
 
@@ -408,6 +449,18 @@ html.fara-cont .poarta { display:flex; min-height:100vh; min-height:100dvh; alig
 
   <!-- ECHIPA -->
   <section id="tab-ech" hidden>
+    <div class="card" id="contEchCard" hidden>
+      <div class="cal-head"><h2 id="ceNume">Echipa</h2><span class="pastila-rol" id="ceRolMeu"></span></div>
+      <p class="hint">Echipa din cont (versiunea de probă). Tabelul cu ture de mai jos vine încă din GitHub; turele trec în cont la etapa următoare.</p>
+      <div class="cod-inv" id="ceCodBox" hidden>
+        <div><span class="k">Codul de invitație</span><span class="v num" id="ceCod"></span></div>
+        <div class="rand"><button class="ghost mic" id="ceCopiaza">Copiază</button><button class="ghost mic" id="ceCodNou">Cod nou</button></div>
+      </div>
+      <ol class="urm adm membri" id="ceMembri"></ol>
+      <p class="gh-st" id="ceSt"></p>
+      <div class="campuri"><div class="camp"><label for="ceNumeMeu">Numele meu în echipă</label><input type="text" id="ceNumeMeu" maxlength="30" autocomplete="off"></div></div>
+      <div class="rand"><button class="ghost" id="ceSalvNume">Schimbă numele</button><button class="ghost pericol" id="ceIes">Ieși din echipă</button></div>
+    </div>
     <div class="card">
       <div class="cal-head">
         <h2 id="echLuna"></h2>
@@ -496,8 +549,16 @@ html.fara-cont .poarta { display:flex; min-height:100vh; min-height:100dvh; alig
     <div class="card">
       <h3>Contul meu</h3>
       <p class="rez" id="contInfo"></p>
-      <p class="hint">Aceasta e versiunea de probă cu cont. Turele, echipa și dulapul merg deocamdată tot prin GitHub, la fel ca în aplicația principală, și folosesc aceleași date de pe acest telefon.</p>
+      <p class="hint">Aceasta e versiunea de probă cu cont. Echipa și rolurile sunt deja în cont; turele, tabelul echipei și dulapul merg deocamdată tot prin GitHub, cu aceleași date de pe acest telefon.</p>
       <div class="rand"><button class="ghost pericol" id="contIes">Ieși din cont</button></div>
+    </div>
+    <div class="card" id="propPanou" hidden>
+      <h3>Proprietarul aplicației</h3>
+      <p class="hint">Doar tu vezi acest panou. Un cod de creare îi permite cuiva să facă o singură echipă nouă. Scrie pentru cine e, ca să știi pe cine ai lăsat să intre.</p>
+      <div class="campuri"><div class="camp"><label for="ccNota">Pentru cine</label><input type="text" id="ccNota" maxlength="40" autocomplete="off" placeholder="Tura 3, Ion P."></div></div>
+      <div class="rand"><button class="btn" id="ccNou">Fă un cod de creare</button></div>
+      <ol class="urm adm" id="ccLista"></ol>
+      <p class="gh-st" id="ccSt"></p>
     </div>
     <div class="card">
       <h3>Programul tău</h3>
@@ -1734,7 +1795,7 @@ $('gatLista').addEventListener('keydown', e => { if (e.key === 'Enter' && e.targ
 </script>
 <script type="module">
 /* ---------- Cont (Firebase Authentication) ---------- */
-// Etapa 1 din planul de trecere: aplicația cere un cont. Datele încă merg prin GitHub, ca în versiunea principală.
+// Etapele 1–2 din planul de trecere: aplicația cere un cont și o echipă. Turele și dulapul încă merg prin GitHub.
 const FB = 'https://www.gstatic.com/firebasejs/13.4.0/';
 const configurare = {
   apiKey: 'AIzaSyDqBeY7UBR7WS4rFPoYX_NDOhFgIL4T-E8',
@@ -1755,13 +1816,13 @@ function deschideAplicatia(email, offline) {
 }
 function aratăPoarta() {
   document.documentElement.classList.add('fara-cont');
-  stare(''); $('poartaForm').hidden = false; window.scrollTo(0, 0);
+  stare(''); $('poartaForm').hidden = false; $('echPoarta').hidden = true; window.scrollTo(0, 0);
 }
 
 let fb;
 try {
-  const [app, auth] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-auth.js')]);
-  fb = { app, auth };
+  const [app, auth, fs] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-auth.js'), import(FB + 'firebase-firestore.js')]);
+  fb = { app, auth, fs };
 } catch (e) {
   // Fără internet la prima pornire sau Firebase nu se poate încărca.
   const c = contSalvat();
@@ -1849,12 +1910,241 @@ if (fb) {
     await A.signOut(auth);
   };
 
+
+  /* ---------- Echipe și roluri (etapa 2) ---------- */
+  const F = fb.fs;
+  const db = F.getFirestore();
+  const ROL = { admin: 'administrator', resp: 'responsabil dulap', membru: 'membru' };
+  const LITERE = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const codNou = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), x => LITERE[x % LITERE.length]).join('');
+  const curataCod = s => s.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const escH = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const d = (...p) => F.doc(db, ...p);
+  const MESAJE_DB = {
+    'permission-denied': 'Baza de date a refuzat operația (regulile de acces). Dacă repetă, trimite-i mesajul proprietarului aplicației.',
+    'unavailable': 'Nu am internet sau baza de date nu răspunde. Încearcă din nou.',
+    'not-found': 'Nu am găsit ce căutai în baza de date.',
+    'failed-precondition': 'Baza de date nu e pregătită (verifică dacă Firestore e creat în consola Firebase).'
+  };
+  const trDb = e => MESAJE_DB[e && e.code] || `Nu a mers (${(e && (e.code || e.message)) || e}).`;
+  const st = (id, m, cls) => { const x = $(id); x.textContent = m || ''; x.className = 'gh-st ' + (cls || ''); };
+
+  let user = null, proprietar = null, echipaId = null, echipa = null, membri = [], eu = null, opriri = [];
+  const opresteTot = () => { opriri.forEach(f => { try { f(); } catch (e) {} }); opriri = []; };
+  const salveazaCont = () => { try { localStorage.setItem(CHEIE_CONT, JSON.stringify({ uid: user.uid, email: user.email || '', echipa: echipaId })); } catch (e) {} };
+
+  async function citesteProprietar() {
+    try { const s = await F.getDoc(d('config', 'proprietar')); proprietar = s.exists() ? s.data().uid : ''; }
+    catch (e) { proprietar = null; }
+  }
+  const suntProprietar = () => !!user && proprietar === user.uid;
+
+  // Poarta pentru cine are cont, dar nu e în nicio echipă
+  function aratăPoartaEchipa(mesajScos) {
+    document.documentElement.classList.add('fara-cont');
+    stare(''); $('poartaForm').hidden = true; $('echPoarta').hidden = false;
+    $('echPoartaCine').textContent = `Intrat ca ${user.email || user.displayName || ''}. Alege echipa.`;
+    $('echScosInfo').hidden = !mesajScos; $('echScosText').textContent = mesajScos || '';
+    $('propCard').hidden = proprietar !== '';
+    $('cCodCamp').hidden = suntProprietar();
+    $('cHint').textContent = suntProprietar() ? 'Ești proprietarul aplicației, deci nu ai nevoie de cod de creare.' : 'Ca să creezi o tură nouă îți trebuie un cod de creare de la proprietarul aplicației.';
+    if (!$('iNume').value && user.displayName) $('iNume').value = $('cNume').value = user.displayName;
+  }
+
+  async function laCont(u) {
+    user = u; opresteTot(); echipaId = null;
+    const salvat = contSalvat();
+    try { localStorage.setItem(CHEIE_CONT, JSON.stringify({ uid: u.uid, email: u.email || '', echipa: salvat && salvat.uid === u.uid ? salvat.echipa : null })); } catch (e) {}
+    stare('Se încarcă echipa…'); $('poartaForm').hidden = true; $('echPoarta').hidden = true;
+    await citesteProprietar();
+    let ut;
+    try { ut = await F.getDoc(d('utilizatori', u.uid)); }
+    catch (e) {
+      // Fără internet: deschidem cu echipa ținută minte pe telefon.
+      if (salvat && salvat.uid === u.uid && salvat.echipa) { echipaId = salvat.echipa; deschideAplicatia(u.email || '', true); return; }
+      stare(trDb(e), 'err'); return;
+    }
+    const eid = ut.exists() ? ut.data().echipa : null;
+    if (!eid) return aratăPoartaEchipa();
+    let m;
+    try { m = await F.getDoc(d('echipe', eid, 'membri', u.uid)); } catch (e) { stare(trDb(e), 'err'); return; }
+    if (!m.exists()) return aratăPoartaEchipa();
+    if (m.data().stare !== 'activ') return aratăPoartaEchipa('Administratorul te-a scos din echipa ta. Poți intra în altă echipă cu codul ei. Dacă a fost o greșeală, cere-i să te readauge.');
+    intraInEchipa(eid);
+  }
+
+  function intraInEchipa(eid) {
+    echipaId = eid; salveazaCont(); opresteTot();
+    $('echPoarta').hidden = true; $('poartaForm').hidden = true;
+    deschideAplicatia(user.email || user.displayName || '', false);
+    opriri.push(F.onSnapshot(d('echipe', eid), s => { echipa = s.exists() ? Object.assign({ id: s.id }, s.data()) : null; randeazaEchipaCont(); },
+      e => st('ceSt', trDb(e), 'err')));
+    opriri.push(F.onSnapshot(F.collection(db, 'echipe', eid, 'membri'), q => {
+      membri = q.docs.map(x => Object.assign({ uid: x.id }, x.data())).sort((a, b) => (a.nume || '').localeCompare(b.nume || '', 'ro'));
+      eu = membri.find(x => x.uid === user.uid) || null;
+      if (eu && eu.stare !== 'activ') { opresteTot(); echipaId = null; salveazaCont(); return aratăPoartaEchipa('Administratorul te-a scos din echipă.'); }
+      randeazaEchipaCont();
+    }, e => {
+      if (e.code === 'permission-denied') { opresteTot(); echipaId = null; salveazaCont(); laCont(user); }
+      else st('ceSt', trDb(e), 'err');
+    }));
+    if (suntProprietar()) pornestePanouProprietar();
+  }
+
+  const activi = () => membri.filter(x => x.stare === 'activ');
+  const suntAdmin = () => !!eu && eu.stare === 'activ' && eu.rol === 'admin';
+  function randeazaEchipaCont() {
+    $('contEchCard').hidden = !echipa;
+    if (!echipa || !eu) return;
+    $('ceNume').textContent = echipa.nume || 'Echipa';
+    $('ceRolMeu').textContent = ROL[eu.rol] || eu.rol;
+    if (document.activeElement !== $('ceNumeMeu')) $('ceNumeMeu').value = eu.nume || '';
+    $('ceCodBox').hidden = !suntAdmin(); $('ceCod').textContent = echipa.cod || '';
+    const admin = suntAdmin();
+    const lista = activi().concat(admin ? membri.filter(x => x.stare !== 'activ') : []);
+    $('ceMembri').innerHTML = lista.map(x => {
+      const euSunt = x.uid === user.uid, scos = x.stare !== 'activ';
+      let b = '';
+      if (admin && !euSunt && !scos) {
+        if (x.rol !== 'resp') b += `<button class="ghost mic" data-act="resp" data-uid="${escH(x.uid)}">Fă responsabil</button>`;
+        if (x.rol !== 'admin') b += `<button class="ghost mic" data-act="admin" data-uid="${escH(x.uid)}">Fă administrator</button>`;
+        if (x.rol !== 'membru') b += `<button class="ghost mic" data-act="membru" data-uid="${escH(x.uid)}">Retrage rolul</button>`;
+        b += `<button class="ghost mic pericol" data-act="scoate" data-uid="${escH(x.uid)}">Scoate</button>`;
+      }
+      if (admin && scos) b += `<button class="ghost mic" data-act="readauga" data-uid="${escH(x.uid)}">Readaugă</button>`;
+      return `<li class="${scos ? 'scos' : ''}"><span><b>${escH(x.nume || '?')}</b>${euSunt ? ' (tu)' : ''} <span class="login">· ${scos ? 'scos din echipă' : ROL[x.rol] || x.rol}</span></span><span class="rand">${b}</span></li>`;
+    }).join('') || '<li><span>Nu sunt membri.</span></li>';
+  }
+
+  // Intră într-o echipă cu codul de invitație
+  $('fIntra').addEventListener('submit', async ev => {
+    ev.preventDefault(); st('iErr', '');
+    const cod = curataCod($('iCod').value), nume = $('iNume').value.trim();
+    if (cod.length < 4) return st('iErr', 'Scrie codul echipei.', 'err');
+    if (!nume) return st('iErr', 'Scrie numele cu care apari în echipă.', 'err');
+    $('iTrimite').disabled = true;
+    try {
+      const inv = await F.getDoc(d('invitatii', cod));
+      if (!inv.exists()) throw { mesaj: 'Codul nu e bun. Verifică-l cu administratorul echipei (poate a fost schimbat).' };
+      const eid = inv.data().echipa;
+      const vechi = await F.getDoc(d('echipe', eid, 'membri', user.uid));
+      if (vechi.exists() && vechi.data().stare !== 'activ') throw { mesaj: 'Ai fost scos din această echipă. Cere administratorului să te readauge.' };
+      const b = F.writeBatch(db);
+      if (!vechi.exists()) b.set(d('echipe', eid, 'membri', user.uid), { nume, email: user.email || '', rol: 'membru', stare: 'activ', cod, intrat: F.serverTimestamp() });
+      b.set(d('utilizatori', user.uid), { echipa: eid });
+      await b.commit();
+      intraInEchipa(eid); toast('Ai intrat în echipă');
+    } catch (e) { st('iErr', e.mesaj || trDb(e), 'err'); }
+    $('iTrimite').disabled = false;
+  });
+
+  // Creează o echipă nouă
+  $('fCreeaza').addEventListener('submit', async ev => {
+    ev.preventDefault(); st('cErr', '');
+    const prop = suntProprietar(), cc = curataCod($('cCod').value), numeE = $('cEchipa').value.trim(), nume = $('cNume').value.trim();
+    if (!prop && cc.length < 4) return st('cErr', 'Scrie codul de creare primit de la proprietarul aplicației.', 'err');
+    if (!numeE) return st('cErr', 'Scrie numele echipei.', 'err');
+    if (!nume) return st('cErr', 'Scrie numele cu care apari în echipă.', 'err');
+    $('cTrimite').disabled = true;
+    try {
+      if (!prop) {
+        const c = await F.getDoc(d('coduriCreare', cc));
+        if (!c.exists()) throw { mesaj: 'Codul de creare nu e bun.' };
+        if (c.data().folosit) throw { mesaj: 'Codul de creare a fost deja folosit. Cere altul proprietarului aplicației.' };
+      }
+      const eid = F.doc(F.collection(db, 'echipe')).id;
+      let gata = false;
+      for (let i = 0; i < 3 && !gata; i++) {
+        const inv = codNou(), b = F.writeBatch(db);
+        b.set(d('echipe', eid), { nume: numeE, creatDe: user.uid, creatLa: F.serverTimestamp(), cod: inv, codCreare: prop ? null : cc });
+        b.set(d('echipe', eid, 'membri', user.uid), { nume, email: user.email || '', rol: 'admin', stare: 'activ', cod: inv, intrat: F.serverTimestamp() });
+        b.set(d('invitatii', inv), { echipa: eid });
+        if (!prop) b.update(d('coduriCreare', cc), { folosit: eid });
+        b.set(d('utilizatori', user.uid), { echipa: eid });
+        try { await b.commit(); gata = true; } catch (e) { if (e.code !== 'permission-denied' || i === 2) throw e; } // cod de invitație deja luat: încă o dată
+      }
+      intraInEchipa(eid); toast('Echipa a fost creată. Ești administratorul ei.');
+    } catch (e) { st('cErr', e.mesaj || trDb(e), 'err'); }
+    $('cTrimite').disabled = false;
+  });
+
+  $('propDevin').onclick = async () => {
+    const b = $('propDevin');
+    if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Doar proprietarul apasă. Apasă din nou'; return; }
+    b.disabled = true;
+    try {
+      await F.setDoc(d('config', 'proprietar'), { uid: user.uid, email: user.email || '', la: F.serverTimestamp() });
+      proprietar = user.uid; st('propSt', 'Ești proprietarul aplicației. Poți crea echipa fără cod.', 'ok'); aratăPoartaEchipa();
+    } catch (e) { st('propSt', e.code === 'permission-denied' ? 'Aplicația are deja proprietar.' : trDb(e), 'err'); await citesteProprietar(); }
+    b.disabled = false;
+  };
+  $('echPoartaIes').onclick = () => A.signOut(auth);
+
+  // Acțiunile administratorului asupra colegilor
+  $('ceMembri').addEventListener('click', async e => {
+    const b = e.target.closest('button[data-act]'); if (!b || !suntAdmin()) return;
+    const x = membri.find(m => m.uid === b.dataset.uid); if (!x) return;
+    const act = b.dataset.act;
+    if (act === 'scoate' && !b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Apasă din nou'; return; }
+    b.disabled = true; st('ceSt', '');
+    const sch = act === 'scoate' ? { stare: 'scos' } : act === 'readauga' ? { stare: 'activ', rol: 'membru' } : { rol: act };
+    try {
+      await F.updateDoc(d('echipe', echipaId, 'membri', x.uid), sch);
+      st('ceSt', act === 'scoate' ? `${x.nume} a fost scos din echipă și nu mai vede nimic.` : act === 'readauga' ? `${x.nume} e din nou în echipă.` : `${x.nume} este acum ${ROL[act]}.`, 'ok');
+    } catch (er) { b.disabled = false; st('ceSt', trDb(er), 'err'); }
+  });
+  $('ceCopiaza').onclick = async () => { try { await navigator.clipboard.writeText(echipa.cod); toast('Codul a fost copiat'); } catch (e) { toast('Codul: ' + echipa.cod); } };
+  $('ceCodNou').onclick = async () => {
+    const b = $('ceCodNou');
+    if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Codul vechi nu mai merge'; setTimeout(() => { delete b.dataset.conf; b.textContent = 'Cod nou'; }, 4000); return; }
+    delete b.dataset.conf; b.textContent = 'Cod nou'; b.disabled = true;
+    try {
+      const nou = codNou(), bt = F.writeBatch(db);
+      bt.delete(d('invitatii', echipa.cod)); bt.set(d('invitatii', nou), { echipa: echipaId }); bt.update(d('echipe', echipaId), { cod: nou });
+      await bt.commit(); st('ceSt', 'Codul de invitație a fost schimbat. Cine are codul vechi nu mai poate intra.', 'ok');
+    } catch (e) { st('ceSt', trDb(e), 'err'); }
+    b.disabled = false;
+  };
+  $('ceSalvNume').onclick = async () => {
+    const n = $('ceNumeMeu').value.trim(); if (!n) return st('ceSt', 'Scrie numele.', 'err');
+    try { await F.updateDoc(d('echipe', echipaId, 'membri', user.uid), { nume: n }); st('ceSt', 'Numele a fost schimbat.', 'ok'); } catch (e) { st('ceSt', trDb(e), 'err'); }
+  };
+  $('ceIes').onclick = async () => {
+    const b = $('ceIes');
+    if (suntAdmin() && activi().length > 1 && activi().filter(x => x.rol === 'admin').length === 1) return st('ceSt', 'Ești singurul administrator. Numește întâi alt administrator, apoi poți ieși.', 'err');
+    if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Apasă din nou'; setTimeout(() => { delete b.dataset.conf; b.textContent = 'Ieși din echipă'; }, 4000); return; }
+    delete b.dataset.conf; b.textContent = 'Ieși din echipă';
+    try {
+      const bt = F.writeBatch(db);
+      bt.delete(d('echipe', echipaId, 'membri', user.uid)); bt.set(d('utilizatori', user.uid), { echipa: null });
+      await bt.commit(); opresteTot(); echipaId = null; echipa = null; salveazaCont(); aratăPoartaEchipa();
+    } catch (e) { st('ceSt', trDb(e), 'err'); }
+  };
+
+  // Panoul proprietarului: coduri pentru echipe noi
+  let coduri = [];
+  function pornestePanouProprietar() {
+    $('propPanou').hidden = false;
+    opriri.push(F.onSnapshot(F.collection(db, 'coduriCreare'), q => {
+      coduri = q.docs.map(x => Object.assign({ cod: x.id }, x.data())).sort((a, b) => (b.creat || '').localeCompare(a.creat || ''));
+      $('ccLista').innerHTML = coduri.length ? coduri.map(c => `<li><span><b class="num">${escH(c.cod)}</b> <span class="login">· ${escH(c.nota || 'fără notă')} · ${c.folosit ? 'folosit' : 'nefolosit'}</span></span>${c.folosit ? '' : `<button class="ghost mic pericol" data-sterge="${escH(c.cod)}">Șterge</button>`}</li>`).join('') : '<li><span>Nu ai făcut încă niciun cod.</span></li>';
+    }, e => st('ccSt', trDb(e), 'err')));
+  }
+  $('ccNou').onclick = async () => {
+    const cod = codNou();
+    try { await F.setDoc(d('coduriCreare', cod), { nota: $('ccNota').value.trim(), creat: new Date().toISOString(), folosit: null }); $('ccNota').value = ''; st('ccSt', `Cod nou: ${cod}. Dă-l omului care face echipa.`, 'ok'); }
+    catch (e) { st('ccSt', trDb(e), 'err'); }
+  };
+  $('ccLista').addEventListener('click', async e => {
+    const b = e.target.closest('button[data-sterge]'); if (!b) return;
+    try { await F.deleteDoc(d('coduriCreare', b.dataset.sterge)); } catch (er) { st('ccSt', trDb(er), 'err'); }
+  });
+
   A.onAuthStateChanged(auth, u => {
-    if (u) {
-      const email = u.email || u.displayName || 'cont fără e-mail';
-      try { localStorage.setItem(CHEIE_CONT, JSON.stringify({ uid: u.uid, email })); } catch (e) {}
-      deschideAplicatia(email, false);
-    } else {
+    if (u) laCont(u);
+    else {
+      opresteTot(); user = null; echipaId = null; echipa = null; membri = []; eu = null;
+      $('contEchCard').hidden = true; $('propPanou').hidden = true;
       try { localStorage.removeItem(CHEIE_CONT); } catch (e) {}
       $('pParola').value = ''; $('pParola2').value = '';
       aratăPoarta();
