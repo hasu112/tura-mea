@@ -595,6 +595,11 @@ ol.anunturi { list-style:none; margin:0; padding:0; display:grid; gap:8px }
       <h3>Contul meu</h3>
       <p class="rez" id="contInfo"></p>
       <p class="gh-st" id="contSync"></p>
+      <div id="bulinaBox" hidden>
+        <p class="hint">Pe telefoanele care permit, iconița aplicației arată câte anunțuri noi ai. Pe iPhone trebuie să permiți notificările aplicației.</p>
+        <div class="rand"><button class="ghost" id="bulinaPorneste">Arată anunțurile noi pe iconiță</button></div>
+        <p class="gh-st" id="bulinaSt"></p>
+      </div>
       <p class="hint">Aceasta e versiunea de probă cu cont. Turele, echipa, rolurile, dulapul și mesele sunt în cont și se văd pe orice telefon pe care intri. Versiunea aceasta nu mai trimite nimic în GitHub.</p>
       <div class="rand"><button class="ghost pericol" id="contIes">Ieși din cont</button></div>
     </div>
@@ -2195,6 +2200,7 @@ if (fb) {
     }).join('') : '<li class="an gol"><div class="an-txt"><p>Nu e niciun anunț.</p></div></li>';
     // Punct pe fila Echipa pentru anunțurile necitite; cele urgente din ultimele 7 zile apar și pe prima pagină.
     const necitite = anunturi.filter(a => a.la > vazut && a.autor !== user.uid).length;
+    puneBulina(peEchipa ? 0 : necitite);
     document.querySelector('.tabs button[data-tab="ech"]').classList.toggle('atentie', necitite > 0 && !peEchipa);
     const urgente = anunturi.filter(a => a.nivel === 'rosu' && a.la > Date.now() - 7 * 86400000);
     $('anUrgent').hidden = !urgente.length;
@@ -2202,10 +2208,29 @@ if (fb) {
       + '<div class="rand"><button class="ghost mic" id="anVezi">Toate anunțurile</button></div>';
     if (peEchipa) marcheazaCitite();
   }
+  // Bulina de pe iconița aplicației (Badging API): merge unde telefonul o permite, altfel nu face nimic.
+  const bulinaPosibila = 'setAppBadge' in navigator;
+  function puneBulina(n) {
+    if (!bulinaPosibila) return;
+    try { (n > 0 ? navigator.setAppBadge(n) : navigator.clearAppBadge()).catch(() => {}); } catch (e) {}
+  }
+  if (bulinaPosibila) {
+    $('bulinaBox').hidden = false;
+    const areNotif = 'Notification' in window;
+    const stareBulina = () => {
+      const p = areNotif ? Notification.permission : 'granted';
+      $('bulinaPorneste').hidden = p === 'granted';
+      $('bulinaSt').textContent = p === 'granted' ? 'Pornit: iconița arată câte anunțuri noi ai, după ce deschizi aplicația o dată.' : p === 'denied' ? 'Notificările sunt blocate pentru aplicație. Le poți permite din setările telefonului.' : '';
+      $('bulinaSt').className = 'gh-st ' + (p === 'granted' ? 'ok' : '');
+    };
+    stareBulina();
+    $('bulinaPorneste').onclick = async () => { try { if (areNotif) await Notification.requestPermission(); } catch (e) {} stareBulina(); randeazaAnunturi(); };
+  }
   function marcheazaCitite() {
     const max = anunturi.reduce((m, a) => Math.max(m, a.la || 0), 0);
     if (max > anVazut()) { try { localStorage.setItem(cheieAnv(), String(max)); } catch (e) {} }
     document.querySelector('.tabs button[data-tab="ech"]').classList.remove('atentie');
+    puneBulina(0);
   }
   document.querySelector('.tabs button[data-tab="ech"]').addEventListener('click', () => setTimeout(() => { if (echipaId) randeazaAnunturi(); }, 0));
   $('anUrgent').addEventListener('click', e => { if (e.target.id === 'anVezi') document.querySelector('.tabs button[data-tab="ech"]').click(); });
@@ -2418,7 +2443,7 @@ if (fb) {
     else {
       opresteTot(); user = null; echipaId = null; echipa = null; membri = []; eu = null; primaSincronizare = true;
       window.contFB.activ = false; window.contFB.membri = [];
-      $('contEchCard').hidden = true; $('propPanou').hidden = true; $('anUrgent').hidden = true; anunturi = []; $('anLista').innerHTML = '';
+      $('contEchCard').hidden = true; $('propPanou').hidden = true; $('anUrgent').hidden = true; anunturi = []; $('anLista').innerHTML = ''; puneBulina(0);
       try { localStorage.removeItem(CHEIE_CONT); } catch (e) {}
       $('pParola').value = ''; $('pParola2').value = ''; $('pArata').checked = false; arataParola(false);
       aratăPoarta();
