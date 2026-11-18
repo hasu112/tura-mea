@@ -305,6 +305,29 @@ ol.membri li { flex-wrap:wrap }
 ol.membri li .rand { gap:6px }
 ol.membri li.scos > span:first-child { color:var(--muted) }
 
+/* Panoul de anunțuri */
+:root { --an-verde:#1E7A46; --an-galben:#C99400; --an-rosu:#C42B1C }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --an-verde:#5DC894; --an-galben:#F2C744; --an-rosu:#FF6A58 } }
+.ascuns { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap }
+.an-form { display:grid; gap:10px }
+.niveluri { border:0; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px }
+.nv { display:flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border:1px solid var(--line); border-radius:999px; font-size:15px; font-weight:500; cursor:pointer }
+.nv input { position:absolute; opacity:0; pointer-events:none }
+.nv:has(input:checked) { border-color:var(--c); box-shadow:inset 0 0 0 1px var(--c) }
+.nv:has(input:focus-visible) { outline:2px solid var(--accent); outline-offset:2px }
+.niv-verde { --c:var(--an-verde) } .niv-galben { --c:var(--an-galben) } .niv-rosu { --c:var(--an-rosu) }
+.bulina { width:14px; height:14px; border-radius:50%; background:var(--c); flex:none }
+ol.anunturi { list-style:none; margin:0; padding:0; display:grid; gap:8px }
+.an { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:8px; background:var(--soft) }
+.an .bulina { margin-top:4px }
+.an-txt { flex:1; min-width:0 }
+.an-txt p { margin:0; white-space:pre-wrap; overflow-wrap:anywhere }
+.an-txt small { color:var(--muted); font-size:13px }
+.an.nou { box-shadow:inset 0 0 0 1.5px var(--c) }
+.an.niv-rosu .an-txt p { font-weight:600 }
+.an.gol { color:var(--muted) }
+.anunt-urgent { border-color:var(--an-rosu); box-shadow:inset 0 0 0 1px var(--an-rosu) }
+
 .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:30; background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:9px; font-weight:500; max-width:calc(100% - 32px) }
 @media (max-width:520px) { .tabs { width:100% } .tabs button { flex:1; padding:6px 2px; font-size:13px } }
 @media (max-width:420px) { .zi .d { font-size:14px } .zi .t { font-size:11px } }
@@ -383,6 +406,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       <p class="hint">Administratorul te-a scos din echipă. Turele tale rămân pe acest telefon și poți folosi calendarul în continuare, dar nu se mai salvează în GitHub și nu mai vezi echipa.</p>
     </div>
     <div class="status" id="status"></div>
+    <div class="card anunt-urgent" id="anUrgent" hidden></div>
     <div class="card anunt" id="gatAnunt" hidden></div>
 
     <div class="card">
@@ -489,7 +513,23 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       </div>
       <p class="hint">Colegii apar aici după ce intră în echipă și își pun programul în Setări. Tabelul se actualizează singur. Tabelul se derulează spre dreapta.</p>
     </div>
-    <div class="card">
+    <div class="card" id="anCard">
+      <h2>Anunțuri</h2>
+      <form class="an-form" id="anForm" novalidate>
+        <label class="ascuns" for="anText">Textul anunțului</label>
+        <textarea id="anText" maxlength="500" placeholder="Mâine vine controlul la 10:00"></textarea>
+        <fieldset class="niveluri"><legend class="ascuns">Cât de important e</legend>
+          <label class="nv niv-verde"><input type="radio" name="anNivel" value="verde" checked><span class="bulina" aria-hidden="true"></span>Neimportant</label>
+          <label class="nv niv-galben"><input type="radio" name="anNivel" value="galben"><span class="bulina" aria-hidden="true"></span>Important</label>
+          <label class="nv niv-rosu"><input type="radio" name="anNivel" value="rosu"><span class="bulina" aria-hidden="true"></span>Urgent</label>
+        </fieldset>
+        <div class="rand"><button class="btn" type="submit" id="anTrimite">Publică</button></div>
+        <p class="gh-st" id="anSt"></p>
+      </form>
+      <ol class="anunturi" id="anLista"></ol>
+      <p class="hint">Oricine din echipă poate scrie un anunț. Îl șterge cel care l-a scris sau administratorul. Anunțurile urgente apar și pe prima pagină timp de 7 zile.</p>
+    </div>
+    <div class="card" hidden>
       <h3>Cine e în tură într-o zi</h3>
       <div class="rand"><input type="date" id="echZi" aria-label="Ziua"></div>
       <div class="ech-zi" id="echZiRez"></div>
@@ -2120,6 +2160,7 @@ if (fb) {
       if (e.code === 'permission-denied') { opresteTot(); echipaId = null; salveazaCont(); laCont(user); }
       else st('ceSt', trDb(e), 'err');
     }));
+    pornesteAnunturi(eid);
     // Dulapul echipei (etapa 4): un singur document, schimbat prin tranzacții
     window.dulPentruEchipa(eid);
     opriri.push(F.onSnapshot(d('echipe', eid, 'dulap', 'stare'), s => window.dulDinCont(s.exists() ? s.data() : {}, s.metadata && s.metadata.fromCache),
@@ -2127,6 +2168,63 @@ if (fb) {
     if (suntProprietar()) pornestePanouProprietar();
     ascundeSetariGitHub();
   }
+
+
+  /* ---------- Panoul de anunțuri ---------- */
+  // Fiecare anunț e un document în echipe/{eid}/anunturi. Oricine din echipă scrie; autorul și administratorul șterg.
+  const NIVEL = { verde: 'Neimportant', galben: 'Important', rosu: 'Urgent' };
+  const CHEIE_ANV = 'tura-mea-anunturi-vazut';
+  let anunturi = [];
+  const cheieAnv = () => CHEIE_ANV + ':' + (user ? user.uid : '');
+  const anVazut = () => Number(localStorage.getItem(cheieAnv()) || 0);
+  const anCand = ms => { const x = new Date(ms); if (isNaN(x)) return ''; const zi = Math.round((new Date().setHours(0, 0, 0, 0) - new Date(ms).setHours(0, 0, 0, 0)) / 86400000), ora = x.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }); return zi === 0 ? `azi ${ora}` : zi === 1 ? `ieri ${ora}` : `${x.getDate()} ${['ian', 'feb', 'mar', 'apr', 'mai', 'iun', 'iul', 'aug', 'sep', 'oct', 'noi', 'dec'][x.getMonth()]} ${ora}`; };
+  function pornesteAnunturi(eid) {
+    opriri.push(F.onSnapshot(F.collection(db, 'echipe', eid, 'anunturi'), q => {
+      const limita = Date.now() - 60 * 86400000;
+      anunturi = q.docs.map(x => Object.assign({ id: x.id }, x.data())).filter(a => (a.la || 0) > limita).sort((a, b) => (b.la || 0) - (a.la || 0));
+      randeazaAnunturi();
+    }, e => st('anSt', trDb(e), 'err')));
+  }
+  function randeazaAnunturi() {
+    const admin = suntAdmin(), vazut = anVazut(), peEchipa = !$('tab-ech').hidden;
+    $('anLista').innerHTML = anunturi.length ? anunturi.map(a => {
+      const nou = a.la > vazut && a.autor !== user.uid, poateSterge = a.autor === user.uid || admin;
+      return `<li class="an niv-${escH(a.nivel)}${nou ? ' nou' : ''}"><span class="bulina" role="img" aria-label="${escH(NIVEL[a.nivel] || '')}"></span>`
+        + `<div class="an-txt"><p>${escH(a.text)}</p><small>${escH(NIVEL[a.nivel] || '')} · ${escH(a.nume || '?')} · ${escH(anCand(a.la))}${nou ? ' · nou' : ''}</small></div>`
+        + (poateSterge ? `<button class="ghost mic" data-anid="${escH(a.id)}" aria-label="Șterge anunțul">Șterge</button>` : '') + '</li>';
+    }).join('') : '<li class="an gol"><div class="an-txt"><p>Nu e niciun anunț.</p></div></li>';
+    // Punct pe fila Echipa pentru anunțurile necitite; cele urgente din ultimele 7 zile apar și pe prima pagină.
+    const necitite = anunturi.filter(a => a.la > vazut && a.autor !== user.uid).length;
+    document.querySelector('.tabs button[data-tab="ech"]').classList.toggle('atentie', necitite > 0 && !peEchipa);
+    const urgente = anunturi.filter(a => a.nivel === 'rosu' && a.la > Date.now() - 7 * 86400000);
+    $('anUrgent').hidden = !urgente.length;
+    $('anUrgent').innerHTML = urgente.map(a => `<div class="an niv-rosu"><span class="bulina" role="img" aria-label="Urgent"></span><div class="an-txt"><p>${escH(a.text)}</p><small>Urgent · ${escH(a.nume || '?')} · ${escH(anCand(a.la))}</small></div></div>`).join('')
+      + '<div class="rand"><button class="ghost mic" id="anVezi">Toate anunțurile</button></div>';
+    if (peEchipa) marcheazaCitite();
+  }
+  function marcheazaCitite() {
+    const max = anunturi.reduce((m, a) => Math.max(m, a.la || 0), 0);
+    if (max > anVazut()) { try { localStorage.setItem(cheieAnv(), String(max)); } catch (e) {} }
+    document.querySelector('.tabs button[data-tab="ech"]').classList.remove('atentie');
+  }
+  document.querySelector('.tabs button[data-tab="ech"]').addEventListener('click', () => setTimeout(() => { if (echipaId) randeazaAnunturi(); }, 0));
+  $('anUrgent').addEventListener('click', e => { if (e.target.id === 'anVezi') document.querySelector('.tabs button[data-tab="ech"]').click(); });
+  $('anForm').addEventListener('submit', async ev => {
+    ev.preventDefault(); st('anSt', '');
+    const text = $('anText').value.trim(), nivel = (document.querySelector('input[name="anNivel"]:checked') || {}).value || 'verde';
+    if (!text) return st('anSt', 'Scrie textul anunțului.', 'err');
+    if (!echipaId || !eu) return st('anSt', 'Echipa se încarcă. Încearcă din nou.', 'err');
+    $('anTrimite').disabled = true;
+    const r = F.doc(F.collection(db, 'echipe', echipaId, 'anunturi'));
+    F.setDoc(r, { text: text.slice(0, 500), nivel, autor: user.uid, nume: eu.nume || '', la: Date.now() })
+      .then(() => st('anSt', 'Anunțul a fost publicat.', 'ok')).catch(e => st('anSt', trDb(e), 'err'));
+    $('anText').value = ''; $('anTrimite').disabled = false;
+  });
+  $('anLista').addEventListener('click', async e => {
+    const b = e.target.closest('button[data-anid]'); if (!b) return;
+    if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur?'; setTimeout(() => { if (b.isConnected) { delete b.dataset.conf; b.textContent = 'Șterge'; } }, 4000); return; }
+    try { await F.deleteDoc(F.doc(db, 'echipe', echipaId, 'anunturi', b.dataset.anid)); } catch (er) { st('anSt', trDb(er), 'err'); }
+  });
 
   /* ---------- Turele în cont (etapa 3) ---------- */
   // Turele fiecăruia stau în fișa lui de membru. Câștigă varianta modificată cel mai recent (pe telefon sau în cont).
@@ -2320,7 +2418,7 @@ if (fb) {
     else {
       opresteTot(); user = null; echipaId = null; echipa = null; membri = []; eu = null; primaSincronizare = true;
       window.contFB.activ = false; window.contFB.membri = [];
-      $('contEchCard').hidden = true; $('propPanou').hidden = true;
+      $('contEchCard').hidden = true; $('propPanou').hidden = true; $('anUrgent').hidden = true; anunturi = []; $('anLista').innerHTML = '';
       try { localStorage.removeItem(CHEIE_CONT); } catch (e) {}
       $('pParola').value = ''; $('pParola2').value = ''; $('pArata').checked = false; arataParola(false);
       aratăPoarta();

@@ -38,6 +38,11 @@ service cloud.firestore {
         allow read, create: if membru(e);
         allow update: if membru(e) && (get(md(e)).data.rol in ['admin', 'resp'] || (nou().produse.size() == resource.data.produse.size() && (nou().jurnal.size() >= resource.data.jurnal.size() || nou().jurnal.size() >= 300)));
       }
+      match /anunturi/{a} {
+        allow read: if membru(e);
+        allow create: if membru(e) && nou().autor == eu() && nou().keys().hasOnly(['text', 'nivel', 'autor', 'nume', 'la']) && nou().text is string && nou().text.size() <= 500 && nou().nivel in ['verde', 'galben', 'rosu'];
+        allow delete: if membru(e) && (resource.data.autor == eu() || admin(e));
+      }
       match /membri/{uid} {
         allow read: if membru(e) || (semnat() && uid == eu());
         allow create: if semnat() && uid == eu() && nou().stare == 'activ' && ((nou().rol == 'membru' && nou().cod is string && get(/databases/$(database)/documents/invitatii/$(nou().cod)).data.echipa == e) || (nou().rol == 'admin' && !exists(/databases/$(database)/documents/echipe/$(e)) && getAfter(/databases/$(database)/documents/echipe/$(e)).data.creatDe == eu()));
