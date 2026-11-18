@@ -1,0 +1,1865 @@
+<!doctype html>
+<html lang="ro" class="fara-cont">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tura Mea · probă</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Calendarul turelor 24/48: zile de tură, libere, CO, CM și statistici.">
+<meta name="theme-color" content="#C42B1C">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: o singură coloană îngustă, ca un carnet de tură; antet lipicios cu file, calendarul e piesa centrală. */
+:root {
+  --bg:#EDF0F3; --surface:#FFFFFF; --ink:#141B22; --muted:#5A6570; --line:#D3D9DF; --soft:#F5F7F9;
+  --accent:#C42B1C; --ok:#1E7A46;
+  --tura:#13693A; --tura-bg:#B5E6C7; --iesire:#A86A12; --iesire-bg:#F9EDD6;
+  --co:#2A5FB0; --co-bg:#DCE7F8; --cm:#B42318; --cm-bg:#FBE1DD; --lib:#6A5896; --lib-bg:#EAE4F5;
+  --rs:#A3306C; --rs-bg:#F7E0EC; --curs:#0B7285; --curs-bg:#D5F0F4; --cos:#4338A8; --cos-bg:#E2E0F7; --perm:#7A5F00; --perm-bg:#FFF0A0; --cc:#E8590C;
+  --on-accent:#FFFFFF;
+  --f-disp:"Barlow Condensed","Avenir Next Condensed","Roboto Condensed","sans-serif-condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#0E1317; --surface:#172027; --ink:#E7ECF0; --muted:#94A1AD; --line:#29343D; --soft:#1C262E;
+  --accent:#FF6A58; --ok:#5DC894;
+  --tura:#6FDBA4; --tura-bg:#1B4A31; --iesire:#E7A84A; --iesire-bg:#352711;
+  --co:#7BA9EA; --co-bg:#15253A; --cm:#FF7A6B; --cm-bg:#3B1A16; --lib:#B3A1E4; --lib-bg:#251E37;
+  --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A; --cos:#A9A3F5; --cos-bg:#252248; --perm:#F2D45C; --perm-bg:#3B3412; --cc:#FF8F57;
+  --on-accent:#0B1A12; color-scheme:dark } }
+:root[data-theme="dark"] {
+  --bg:#0E1317; --surface:#172027; --ink:#E7ECF0; --muted:#94A1AD; --line:#29343D; --soft:#1C262E;
+  --accent:#FF6A58; --ok:#5DC894;
+  --tura:#6FDBA4; --tura-bg:#1B4A31; --iesire:#E7A84A; --iesire-bg:#352711;
+  --co:#7BA9EA; --co-bg:#15253A; --cm:#FF7A6B; --cm-bg:#3B1A16; --lib:#B3A1E4; --lib-bg:#251E37;
+  --rs:#F08BC0; --rs-bg:#3A1A2B; --curs:#5CC8D8; --curs-bg:#10303A; --cos:#A9A3F5; --cos-bg:#252248; --perm:#F2D45C; --perm-bg:#3B3412; --cc:#FF8F57;
+  --on-accent:#0B1A12; color-scheme:dark }
+
+* { box-sizing:border-box }
+[hidden] { display:none !important }
+html { -webkit-text-size-adjust:100% }
+body { background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.45; margin:0 }
+body::before { content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--surface) }
+.wrap { max-width:720px; margin:0 auto; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)) }
+button, input, select, textarea { font:inherit; color:inherit }
+button { cursor:pointer }
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px }
+.num { font-variant-numeric:tabular-nums }
+
+/* Antet */
+.top { position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--surface); border-bottom:1px solid var(--line) }
+.top .wrap { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding-block:10px }
+.brand { display:flex; align-items:center; gap:10px; font-family:var(--f-disp); font-weight:700; font-size:22px; letter-spacing:.02em; text-transform:uppercase; margin-right:auto }
+.logo { width:30px; height:30px; display:grid; place-items:center; border-radius:7px; background:var(--accent); color:#fff; font-size:17px }
+.cyc { font-size:13px; font-weight:600; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:1px 6px; letter-spacing:.06em }
+.tabs { display:flex; gap:2px; background:var(--soft); border:1px solid var(--line); border-radius:9px; padding:3px }
+.tabs button { border:0; background:none; padding:6px 12px; border-radius:6px; font-weight:600; font-size:14px; color:var(--muted) }
+.tabs button[aria-selected="true"] { background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.12) }
+#instal { border:1px solid var(--accent); color:var(--accent); background:none; border-radius:7px; padding:5px 10px; font-weight:600; font-size:14px }
+
+main.wrap { padding-block:18px 48px; display:grid; gap:18px }
+section { display:grid; gap:18px; min-width:0 }
+h2, h3 { font-family:var(--f-disp); font-weight:700; text-transform:uppercase; letter-spacing:.03em; margin:0; text-wrap:balance }
+h3 { font-size:17px; color:var(--muted) }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px; display:grid; gap:12px; min-width:0 }
+.hint { color:var(--muted); font-size:14px; margin:0 }
+
+/* Starea de azi */
+.status { --c:var(--muted); --cb:var(--soft); background:var(--surface); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:grid; grid-template-columns:8px 1fr }
+.status::before { content:""; background:var(--c) }
+.status .in { padding:16px 18px; display:grid; gap:4px }
+.status .eti { font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted) }
+.status .tit { font-family:var(--f-disp); font-weight:700; font-size:clamp(30px,8vw,42px); line-height:1; text-transform:uppercase; color:var(--c) }
+.status .det { color:var(--ink); font-size:15px }
+.status .urm { margin-top:6px; padding-top:10px; border-top:1px dashed var(--line); font-size:15px }
+.status .urm b { font-weight:600 }
+.status.tura { --c:var(--tura) } .status.iesire { --c:var(--iesire) } .status.co { --c:var(--co) } .status.cm { --c:var(--cm) } .status.l { --c:var(--lib) } .status.rs { --c:var(--rs) } .status.cos { --c:var(--cos) } .status.perm { --c:var(--perm) } .status.cc { --c:var(--cc) } .status.curs { --c:var(--curs) } .status.liber { --c:var(--ink) }
+
+/* Calendar */
+.cal-head { display:flex; align-items:center; gap:6px }
+.cal-head h2 { font-size:24px; margin-right:auto }
+.btn-ic { width:38px; height:38px; border-radius:8px; border:1px solid var(--line); background:var(--surface); font-size:20px; line-height:1 }
+.btn, .ghost { border-radius:8px; padding:8px 14px; font-weight:600; font-size:15px }
+.btn { border:0; background:var(--accent); color:#fff }
+.ghost { border:1px solid var(--line); background:var(--surface) }
+.btn:disabled, .ghost:disabled { opacity:.5; cursor:default }
+.dow, .grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px }
+.dow span { text-align:center; font-size:12px; font-weight:600; letter-spacing:.08em; color:var(--muted); text-transform:uppercase }
+.zi { --c:var(--muted); --cb:transparent; position:relative; aspect-ratio:1/1.05; min-width:0; border:1px solid var(--line); border-radius:8px; background:var(--cb); padding:4px 5px; display:flex; flex-direction:column; justify-content:space-between; text-align:left }
+.zi .d { font-weight:600; font-size:15px }
+.zi .t { align-self:flex-end; font-family:var(--f-disp); font-weight:700; font-size:13px; letter-spacing:.02em; line-height:1; color:var(--c); text-transform:uppercase }
+.zi.gol { border:0; background:none; pointer-events:none }
+.zi.sarb .d { text-decoration:underline; text-decoration-color:var(--accent); text-underline-offset:3px }
+.zi.weekend .d { color:var(--muted) }
+.zi.azi { outline:2px solid var(--ink); outline-offset:1px }
+.zi.nota::after { content:""; position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%; background:var(--ink) }
+.zi.tura { --c:var(--tura); --cb:var(--tura-bg); border-color:transparent }
+.zi.tura .d { color:var(--tura) }
+.zi.extra { --c:var(--tura); --cb:var(--tura-bg); border:2px dashed var(--tura) }
+.zi.iesire { --c:var(--iesire); --cb:var(--iesire-bg); border-color:transparent }
+.zi.co { --c:var(--co); --cb:var(--co-bg); border-color:transparent }
+.zi.cm { --c:var(--cm); --cb:var(--cm-bg); border-color:transparent }
+.zi.l { --c:var(--lib); --cb:var(--lib-bg); border-color:transparent }
+.zi.perm { --c:var(--perm); --cb:var(--perm-bg); border-color:transparent }
+.zi.cc { --c:var(--on-accent); --cb:var(--cc); border-color:transparent }
+.zi.cc .d { color:var(--on-accent) }
+.zi.cos { --c:var(--cos); --cb:var(--cos-bg); border-color:transparent }
+.zi.rs { --c:var(--rs); --cb:var(--rs-bg); border-color:transparent }
+.zi.curs { --c:var(--curs); --cb:var(--curs-bg); border-color:transparent }
+.zi.sch-luat { --c:var(--tura); --cb:var(--tura-bg); border:2px solid var(--tura) }
+.zi.sch-luat .d { color:var(--tura) }
+.zi.sch-dat { --c:var(--tura); border:2px dashed var(--tura) }
+/* Ture în weekend: nuanță plină, ca să iasă în evidență */
+.zi.tura.weekend, .zi.extra.weekend, .zi.sch-luat.weekend { --c:var(--on-accent); --cb:var(--tura) }
+.zi.tura.weekend .d, .zi.extra.weekend .d, .zi.sch-luat.weekend .d { color:var(--on-accent); text-decoration-color:var(--on-accent) }
+.zi.extra.weekend, .zi.sch-luat.weekend { border-color:var(--ink) }
+.zi.tura.weekend.nota::after, .zi.extra.weekend.nota::after { background:var(--on-accent) }
+.legend { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; color:var(--muted) }
+.legend i { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:-1px; background:var(--c) }
+.luna-sum { display:flex; flex-wrap:wrap; gap:6px 18px; padding-top:10px; border-top:1px solid var(--line); font-size:15px }
+.we-rand { flex-basis:100% }
+.we-det { flex-basis:100%; font-size:15px }
+.we-det summary { cursor:pointer; color:var(--muted); font-weight:600; padding:4px 0 }
+.we-det ol { margin-top:6px }
+.luna-sum b { font-family:var(--f-disp); font-size:20px; margin-right:3px }
+.plus { color:var(--ok) } .minus { color:var(--accent) }
+
+.rand { display:flex; flex-wrap:wrap; gap:10px; align-items:center }
+input[type=date], input[type=time], input[type=number], input[type=text], input[type=password], select, textarea {
+  background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:8px 10px; min-width:0; max-width:100% }
+textarea { width:100%; min-height:64px; resize:vertical }
+.rez { font-size:16px; margin:0 }
+.rez b { font-weight:600 }
+ol.urm { list-style:none; margin:0; padding:0; display:grid; gap:6px }
+ol.urm li { display:flex; justify-content:space-between; gap:12px; padding:8px 10px; border-radius:8px; background:var(--soft) }
+ol.urm li span:last-child { color:var(--muted); font-size:14px; white-space:nowrap }
+ol.urm li { align-items:center }
+.mic { padding:4px 12px; font-size:14px }
+.pericol { color:var(--accent); border-color:var(--accent) }
+.adm li > span:first-child { min-width:0; overflow-wrap:anywhere }
+.adm .login { color:var(--muted); font-size:14px }
+
+/* Statistici */
+.tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px }
+.tile { background:var(--soft); border-radius:10px; padding:12px; display:grid; gap:2px }
+.tile .v { font-family:var(--f-disp); font-weight:700; font-size:32px; line-height:1.05 }
+.tile .k { font-size:13px; color:var(--muted) }
+.chart svg { width:100%; height:auto; display:block }
+.chart .bar { fill:var(--tura) } .chart .bar.viit { fill:var(--tura-bg); stroke:var(--tura); stroke-dasharray:3 2 }
+.chart .norma { stroke:var(--ink); stroke-width:2.5 }
+.chart .grid-l { stroke:var(--line) } .chart text { fill:var(--muted); font-size:12px; font-family:var(--f-body) }
+.tabel { overflow-x:auto }
+table { width:100%; border-collapse:collapse; font-size:14px; font-variant-numeric:tabular-nums }
+th, td { padding:7px 8px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap }
+th:first-child, td:first-child { text-align:left }
+th { font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); font-weight:600 }
+tr.viit td { color:var(--muted) }
+
+/* Coleg scos din echipă */
+#scosBanner { border-color:var(--accent) }
+#scosBanner h3 { color:var(--accent) }
+.adm li.sep { background:none; padding:10px 0 0 }
+
+/* Post / etichetă pe zi */
+.zi .et { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:var(--f-disp); font-size:11px; line-height:1.2; font-weight:600; letter-spacing:.01em; color:var(--ink); background:var(--surface); border-radius:3px; padding:0 2px; align-self:flex-start }
+.zi.weekend.tura .et, .zi.weekend.sch-luat .et, .zi.weekend.extra .et { background:rgba(255,255,255,.88); color:#0B3D22 }
+.zi .et .lung { display:none }
+@media (min-width:600px) { .zi .et .lung { display:inline } .zi .et .scurt { display:none } }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px }
+.chip { border:1px solid var(--line); background:var(--soft); border-radius:999px; padding:3px 11px; font-size:14px }
+.chip:hover { border-color:var(--tura) }
+
+/* Echipa */
+.echipa table { border-collapse:separate; border-spacing:2px; width:auto }
+.echipa th, .echipa td { padding:0; border:0; text-align:center; white-space:nowrap }
+.echipa .nume { position:sticky; left:0; z-index:1; background:var(--surface); text-align:left; padding-right:8px; font-weight:600; font-size:14px; max-width:120px; overflow:hidden; text-overflow:ellipsis }
+.echipa tr.eu .nume { color:var(--accent) }
+.echipa .zh { width:30px; min-width:30px; font-size:11px; line-height:1.15; letter-spacing:0; text-transform:none; padding-bottom:4px }
+.echipa .zh.we { color:var(--accent) }
+.echipa .zh.azi { color:var(--ink); font-weight:700; text-decoration:underline }
+.echipa td.c { --c:var(--muted); width:30px; min-width:30px; height:30px; border-radius:5px; background:var(--soft); color:var(--c); font-family:var(--f-disp); font-weight:700; font-size:10px; letter-spacing:0 }
+.echipa td.c.azi { outline:2px solid var(--ink); outline-offset:-1px }
+.echipa td.c.tura, .echipa td.c.extra, .echipa td.c.sch-luat { --c:var(--tura); background:var(--tura-bg) }
+.echipa td.c.tura.we, .echipa td.c.extra.we, .echipa td.c.sch-luat.we { --c:var(--on-accent); background:var(--tura) }
+.echipa td.c.extra { box-shadow:inset 0 0 0 1.5px var(--ink) }
+.echipa td.c.iesire { background:var(--iesire-bg) }
+.echipa td.c.co { --c:var(--on-accent); background:var(--co) }
+.echipa td.c.cm { --c:var(--on-accent); background:var(--cm) }
+.echipa td.c.l { --c:var(--on-accent); background:var(--lib) }
+.echipa td.c.perm { --c:var(--perm); background:var(--perm-bg) }
+.echipa td.c.cc { --c:var(--on-accent); background:var(--cc); font-size:9px }
+.echipa td.c.cos { --c:var(--on-accent); background:var(--cos) }
+.echipa td.c.rs { --c:var(--on-accent); background:var(--rs) }
+.echipa td.c.curs { --c:var(--on-accent); background:var(--curs) }
+.echipa td.c.sch-dat { --c:var(--tura); background:none; box-shadow:inset 0 0 0 1.5px var(--tura) }
+.ech-zi { display:grid; gap:8px }
+.ech-gr { --c:var(--muted); display:grid; gap:2px; padding:8px 12px; background:var(--soft); border-left:4px solid var(--c); border-radius:0 8px 8px 0 }
+.ech-gr .eti { font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--c) }
+.ech-gr.tura { --c:var(--tura) } .ech-gr.perm { --c:var(--perm) } .ech-gr.liber { --c:var(--ink) } .ech-gr.iesire { --c:var(--iesire) } .ech-gr.co { --c:var(--co) }
+
+/* Setări */
+.camp { display:grid; gap:4px; min-width:0 }
+.camp label { font-size:14px; font-weight:600 }
+.campuri { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px }
+.chk { display:flex; gap:8px; align-items:center; font-size:15px }
+.gh-st { font-size:14px; color:var(--muted); margin:0 }
+.gh-st.ok { color:var(--ok) } .gh-st.err { color:var(--accent) }
+
+/* Fereastra unei zile */
+.sheet-bg { position:fixed; inset:0; z-index:20; background:rgba(8,12,16,.45); display:flex; align-items:flex-end; justify-content:center }
+.sheet { background:var(--surface); width:100%; max-width:520px; border-radius:16px 16px 0 0; padding:18px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px)); display:grid; gap:12px; max-height:90vh; overflow:auto }
+@media (min-width:600px) { .sheet-bg { align-items:center } .sheet { border-radius:16px } }
+.sheet h2 { font-size:24px }
+.optiuni { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px }
+.optiuni label { --c:var(--muted); display:flex; gap:8px; align-items:center; border:1px solid var(--line); border-radius:8px; padding:10px; font-weight:500 }
+.optiuni label:has(input:checked) { border-color:var(--c); box-shadow:inset 0 0 0 1px var(--c) }
+.optiuni input { accent-color:var(--c) }
+
+/* Dulap: stocuri și bani */
+.tabs button.atentie::after { content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent); margin-left:5px; vertical-align:2px }
+.pastila { font-size:13px; font-weight:600; color:var(--accent); border:1px solid var(--accent); border-radius:999px; padding:2px 10px; white-space:nowrap }
+.bani { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; background:var(--soft); border-radius:10px; padding:12px }
+.bani .k { display:block; font-size:13px; color:var(--muted) }
+.bani .v { font-family:var(--f-disp); font-weight:700; font-size:32px; line-height:1.05 }
+ul.stoc { list-style:none; margin:0; padding:0; display:grid }
+ul.stoc li { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line) }
+ul.stoc li:last-child { border-bottom:0 }
+ul.stoc .ico { font-size:22px; width:28px; text-align:center }
+ul.stoc .pn { flex:1; min-width:0; display:grid; gap:1px; text-align:left; border:0; background:none; padding:0 }
+ul.stoc .pn b { font-weight:600; overflow-wrap:anywhere }
+ul.stoc .pn small { font-size:13px; color:var(--muted) }
+ul.stoc .pm { width:46px; height:46px; flex:none; border-radius:10px; border:1px solid var(--line); background:var(--surface); font-size:24px; line-height:1; font-weight:600 }
+ul.stoc .pm:disabled { opacity:.35; cursor:default }
+ul.stoc .cant { min-width:44px; text-align:center; font-family:var(--f-disp); font-weight:700; font-size:28px; line-height:1 }
+ul.stoc li.putin .cant, ul.stoc li.putin .pn small { color:var(--accent) }
+ul.stoc li.gol { color:var(--muted); font-size:15px }
+ol.jurnal { list-style:none; margin:0; padding:0; display:grid; gap:6px }
+ol.jurnal li { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border-radius:8px; background:var(--soft); font-size:15px }
+ol.jurnal li > span:first-child { min-width:0; overflow-wrap:anywhere }
+ol.jurnal .cand { display:block; font-size:13px; color:var(--muted) }
+ol.jurnal li.anulat .ce { text-decoration:line-through; color:var(--muted) }
+ol.jurnal li.anulare { border-left:4px solid var(--iesire); border-radius:0 8px 8px 0 }
+ol.jurnal .eti-an { font-size:12px; font-weight:600; color:var(--iesire); margin-left:6px; text-decoration:none; display:inline-block }
+
+/* Gătit pe tură */
+.tabs button.ceaun::before { content:""; display:inline-block; width:15px; height:15px; margin-right:4px; vertical-align:-2px; background:var(--cc); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Cpath d='M11 22C11 10 45 10 45 22' fill='none' stroke='%23000' stroke-width='4'/%3E%3Cpath d='M9 24h38v5a19 17 0 0 1-38 0z'/%3E%3Crect x='6' y='20' width='44' height='5' rx='2.5'/%3E%3Cpath d='M17 43l-3 8M39 43l3 8' stroke='%23000' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'%3E%3Cpath d='M11 22C11 10 45 10 45 22' fill='none' stroke='%23000' stroke-width='4'/%3E%3Cpath d='M9 24h38v5a19 17 0 0 1-38 0z'/%3E%3Crect x='6' y='20' width='44' height='5' rx='2.5'/%3E%3Cpath d='M17 43l-3 8M39 43l3 8' stroke='%23000' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat }
+.anunt { border-color:var(--cc); box-shadow:inset 0 0 0 1px var(--cc) }
+.anunt .rd { display:grid; gap:8px }
+.anunt .rd + .rd { padding-top:12px; border-top:1px dashed var(--line) }
+.anunt .cap { display:flex; align-items:center; gap:12px }
+.anunt .cap svg { width:40px; height:40px; flex:none }
+.anunt .cap b { display:block; font-family:var(--f-disp); font-weight:700; font-size:20px; text-transform:uppercase; letter-spacing:.02em; line-height:1.1; overflow-wrap:anywhere }
+.anunt .cap small { display:block; font-size:14px; color:var(--muted) }
+.ceaun-btn { display:flex; align-items:center; gap:14px; width:100%; text-align:left; border:1px solid var(--line); background:var(--soft); border-radius:12px; padding:10px 14px }
+.ceaun-btn[aria-expanded="true"] { border-color:var(--iesire); box-shadow:inset 0 0 0 1px var(--iesire) }
+.ceaun-btn svg { width:56px; height:56px; flex:none }
+.ceaun-btn .txt { display:grid; gap:1px; min-width:0 }
+.ceaun-btn b { font-family:var(--f-disp); font-weight:700; font-size:21px; letter-spacing:.03em; text-transform:uppercase; line-height:1.1 }
+.ceaun-btn small { font-size:14px; color:var(--muted) }
+.mese { display:grid; gap:12px }
+.masa { border:1px solid var(--line); border-radius:10px; padding:12px; display:grid; gap:10px; min-width:0 }
+.masa.azi { border-color:var(--tura); box-shadow:inset 0 0 0 1px var(--tura) }
+.masa .cap { display:flex; justify-content:space-between; align-items:flex-start; gap:8px }
+.masa .cap b { display:block; font-family:var(--f-disp); font-weight:700; font-size:22px; text-transform:uppercase; letter-spacing:.02em; line-height:1.1; overflow-wrap:anywhere }
+.masa .cap small { display:block; font-size:14px; color:var(--muted) }
+.masa .part { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; font-size:15px }
+.masa .part b { font-weight:600 }
+.ingr-tit { font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--muted) }
+ul.ingr { list-style:none; margin:0; padding:0; display:grid; gap:6px }
+ul.ingr li { display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:8px; background:var(--soft); border-left:4px solid var(--accent) }
+ul.ingr li.luat { border-left-color:var(--tura) }
+ul.ingr li:not([data-iid]) { border-left-color:transparent }
+ul.ingr .n { flex:1; min-width:0; overflow-wrap:anywhere; font-weight:500 }
+ul.ingr .n small { display:block; font-size:13px; font-weight:400; color:var(--muted) }
+.masa .rand input { flex:1 }
+
+/* Poarta de intrare în cont */
+html.fara-cont .top, html.fara-cont main.wrap { display:none }
+.poarta { display:none }
+html.fara-cont .poarta { display:flex; min-height:100vh; min-height:100dvh; align-items:center; justify-content:center; padding:24px 16px }
+.poarta-in { width:100%; max-width:400px; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:24px 20px; display:grid; gap:16px }
+.poarta-in .brand { margin:0 }
+.poarta form { display:grid; gap:12px }
+.poarta .tabs { width:100% } .poarta .tabs button { flex:1 }
+.poarta input { width:100%; font-size:16px; padding:11px 12px }
+.btn.mare, .ghost.mare { min-height:48px; font-size:16px }
+.sau { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:14px }
+.sau::before, .sau::after { content:""; flex:1; border-top:1px solid var(--line) }
+
+.toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:30; background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:9px; font-weight:500; max-width:calc(100% - 32px) }
+@media (max-width:520px) { .tabs { width:100% } .tabs button { flex:1; padding:6px 2px; font-size:13px } }
+@media (max-width:420px) { .zi .d { font-size:14px } .zi .t { font-size:11px } }
+@media (prefers-reduced-motion: no-preference) { .zi { transition:transform .12s } .zi:active { transform:scale(.96) } }
+</style>
+
+<div class="poarta" id="poarta">
+  <div class="poarta-in">
+    <div class="brand"><span class="logo" aria-hidden="true">T</span>Tura Mea <span class="cyc">probă</span></div>
+    <p class="gh-st" id="poartaSt" role="status">Se verifică contul…</p>
+    <form id="poartaForm" hidden novalidate>
+      <div class="tabs" role="tablist" aria-label="Intrare sau cont nou">
+        <button type="button" role="tab" data-mod="intra" aria-selected="true">Intră</button>
+        <button type="button" role="tab" data-mod="nou" aria-selected="false">Cont nou</button>
+      </div>
+      <div class="camp"><label for="pEmail">E-mail</label><input type="email" id="pEmail" autocomplete="email" inputmode="email" placeholder="nume@gmail.com"></div>
+      <div class="camp"><label for="pParola">Parolă</label><input type="password" id="pParola" autocomplete="current-password" placeholder="minim 6 caractere"></div>
+      <div class="camp" id="pParola2Camp" hidden><label for="pParola2">Scrie parola din nou</label><input type="password" id="pParola2" autocomplete="new-password"></div>
+      <p class="gh-st err" id="poartaErr" role="alert"></p>
+      <button type="submit" class="btn mare" id="pTrimite">Intră</button>
+      <button type="button" class="ghost" id="pUitat">Am uitat parola</button>
+      <div class="sau"><span>sau</span></div>
+      <button type="button" class="ghost mare" id="pGoogle">Continuă cu Google</button>
+    </form>
+  </div>
+</div>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="logo" aria-hidden="true">T</span>Tura Mea <span class="cyc" id="cicluEt">24/48</span> <span class="cyc">probă</span></div>
+    <button id="instal" hidden>Instalează</button>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="cal" aria-selected="true">Calendar</button>
+      <button role="tab" data-tab="stat" aria-selected="false">Statistici</button>
+      <button role="tab" data-tab="ech" aria-selected="false">Echipa</button>
+      <button role="tab" data-tab="dul" aria-selected="false">Dulap</button>
+      <button role="tab" data-tab="set" aria-selected="false">Setări</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- CALENDAR -->
+  <section id="tab-cal">
+    <div class="card" id="scosBanner" hidden>
+      <h3>Ai fost scos din echipă</h3>
+      <p class="hint">Administratorul te-a scos din echipă. Turele tale rămân pe acest telefon și poți folosi calendarul în continuare, dar nu se mai salvează în GitHub și nu mai vezi echipa.</p>
+    </div>
+    <div class="status" id="status"></div>
+    <div class="card anunt" id="gatAnunt" hidden></div>
+
+    <div class="card">
+      <div class="cal-head">
+        <h2 id="luna"></h2>
+        <button class="btn-ic" id="prev" aria-label="Luna anterioară">‹</button>
+        <button class="btn-ic" id="next" aria-label="Luna următoare">›</button>
+        <button class="ghost" id="laAzi">Azi</button>
+      </div>
+      <div class="dow"><span>L</span><span>Ma</span><span>Mi</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div class="grid" id="grid"></div>
+      <div class="legend">
+        <span style="--c:var(--tura-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>TURA</span>
+        <span style="--c:var(--tura)"><i></i>TURA în weekend</span>
+        <span style="--c:var(--iesire)"><i></i>Ieș · ieșire din tură</span>
+        <span style="--c:var(--perm-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--perm)"></i>PERM · permanență</span>
+        <span style="--c:var(--cc)"><i></i>CC · creșterea capacității</span>
+        <span style="--c:var(--co)"><i></i>CO · concediu</span>
+        <span style="--c:var(--cos)"><i></i>COS</span>
+        <span style="--c:var(--cm)"><i></i>CM · medical</span>
+        <span style="--c:var(--lib)"><i></i>L · liber cerut</span>
+        <span style="--c:var(--rs)"><i></i>RS · recuperare ore</span>
+        <span style="--c:var(--curs)"><i></i>CURS</span>
+        <span style="--c:transparent"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>SCH · schimb de tură</span>
+        <span>Data subliniată = sărbătoare legală</span>
+      </div>
+      <div class="luna-sum num" id="lunaSum"></div>
+      <p class="hint">Atinge o zi ca să pui CO, COS, medical, permanență, creșterea capacității, schimb sau o notă.</p>
+    </div>
+
+    <div class="card">
+      <div class="cal-head"><h2 id="luna2"></h2></div>
+      <div class="dow"><span>L</span><span>Ma</span><span>Mi</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div class="grid" id="grid2"></div>
+      <div class="luna-sum num" id="lunaSum2"></div>
+    </div>
+
+    <div class="card">
+      <h3>Verifică o zi</h3>
+      <div class="rand"><input type="date" id="verif" aria-label="Data de verificat"></div>
+      <p class="rez" id="verifRez"></p>
+    </div>
+
+  </section>
+
+  <!-- STATISTICI -->
+  <section id="tab-stat" hidden>
+    <div class="card">
+      <div class="cal-head">
+        <h2 id="anEt"></h2>
+        <button class="btn-ic" id="anPrev" aria-label="Anul anterior">‹</button>
+        <button class="btn-ic" id="anNext" aria-label="Anul următor">›</button>
+      </div>
+      <div class="tiles num" id="tiles"></div>
+      <p class="hint">Normă = zile lucrătoare (luni–vineri, fără sărbători legale) × 8 ore. Ora unei ture de 24 h se numără în ziua în care începe. Lunile viitoare sunt planificate. <span id="statStart"></span></p>
+    </div>
+    <div class="card chart">
+      <h3>Ore lucrate pe lună față de normă</h3>
+      <div id="grafic"></div>
+      <div class="legend"><span style="--c:var(--tura)"><i></i>Ore lucrate</span><span style="--c:var(--ink)"><i style="height:3px;vertical-align:3px"></i>Normă</span></div>
+    </div>
+    <div class="card">
+      <h3>Pe luni</h3>
+      <div class="tabel" id="tabel"></div>
+    </div>
+  </section>
+
+  <!-- ECHIPA -->
+  <section id="tab-ech" hidden>
+    <div class="card">
+      <div class="cal-head">
+        <h2 id="echLuna"></h2>
+        <button class="btn-ic" id="echPrev" aria-label="Luna anterioară">‹</button>
+        <button class="btn-ic" id="echNext" aria-label="Luna următoare">›</button>
+        <button class="ghost" id="echRef">Reîncarcă</button>
+      </div>
+      <p class="gh-st" id="echSt"></p>
+      <div class="tabel echipa" id="echTabel"></div>
+      <div class="legend">
+        <span style="--c:var(--tura-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>TURA</span>
+        <span style="--c:var(--tura)"><i></i>tură în weekend</span>
+        <span style="--c:var(--iesire-bg)"><i></i>ieșire din tură</span>
+        <span style="--c:var(--perm-bg)"><i style="box-shadow:inset 0 0 0 1.5px var(--perm)"></i>PERM</span>
+        <span style="--c:var(--cc)"><i></i>CC</span>
+        <span style="--c:var(--co)"><i></i>CO</span>
+        <span style="--c:var(--cos)"><i></i>COS</span>
+        <span style="--c:var(--cm)"><i></i>CM</span>
+        <span style="--c:var(--lib)"><i></i>L · liber cerut</span>
+        <span style="--c:var(--rs)"><i></i>RS</span>
+        <span style="--c:var(--curs)"><i></i>Curs</span>
+        <span style="--c:transparent"><i style="box-shadow:inset 0 0 0 1.5px var(--tura)"></i>SCH · schimb</span>
+      </div>
+      <p class="hint">Un coleg apare aici după ce își salvează datele în GitHub cu numele lui. Apasă „Reîncarcă” ca să vezi ultimele schimbări. Tabelul se derulează spre dreapta.</p>
+    </div>
+    <div class="card">
+      <h3>Cine e în tură într-o zi</h3>
+      <div class="rand"><input type="date" id="echZi" aria-label="Ziua"></div>
+      <div class="ech-zi" id="echZiRez"></div>
+    </div>
+    <div class="card" id="admCard" hidden>
+      <h3>Administrează echipa</h3>
+      <p class="hint">Panoul apare doar pe dispozitivele unde ai introdus codul de administrator (Setări → Administrator). „Scoate” îi șterge colegului fișierul cu ture din baza de date.</p>
+      <ol class="urm adm" id="admLista"></ol>
+      <p class="gh-st" id="admSt"></p>
+    </div>
+  </section>
+
+  <!-- DULAP -->
+  <section id="tab-dul" hidden>
+    <div class="card">
+      <div class="cal-head">
+        <h2>Dulap</h2>
+        <span class="pastila" id="dulAtentie" hidden></span>
+        <button class="ghost" id="dulRef">Reîncarcă</button>
+      </div>
+      <p class="gh-st" id="dulSt"></p>
+      <button class="ceaun-btn" id="gatBtn" aria-expanded="false" aria-controls="gatCard">
+        <svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 9c-2 2 2 3 0 6M28 6c-2 2 2 4 0 7M36 9c-2 2 2 3 0 6" stroke="var(--muted)" stroke-width="2"/>
+          <path d="M11 22C11 10 45 10 45 22" stroke="var(--ink)" stroke-width="2.5"/>
+          <path d="M9 24h38v5a19 17 0 0 1-38 0z" fill="var(--ink)"/>
+          <rect x="6" y="20" width="44" height="5" rx="2.5" fill="var(--ink)"/>
+          <path d="M17 43l-3 7M39 43l3 7" stroke="var(--ink)" stroke-width="3"/>
+          <path d="M28 46c-3 3-4 5-2 8h4c2-3 1-5-2-8z" fill="var(--cc)"/>
+        </svg>
+        <span class="txt"><b>Gătit pe tură</b><small id="gatSub"></small></span>
+      </button>
+      <div class="bani">
+        <div><span class="k">Bani pentru diverse</span><span class="v num" id="dulBani">0 lei</span></div>
+        <div class="rand"><button class="ghost" id="dulBaniScot">Scot</button><button class="ghost" id="dulBaniAdaug">Adaug</button></div>
+      </div>
+      <ul class="stoc" id="dulLista"></ul>
+      <div class="rand" id="dulRespRand" hidden><button class="btn" id="dulNou">Produs nou</button></div>
+      <p class="hint" id="dulHint"></p>
+    </div>
+    <div class="card" id="gatCard" hidden>
+      <div class="cal-head"><h2>Gătit pe tură</h2><button class="btn" id="gatNou">Gătit nou</button></div>
+      <div class="mese" id="gatLista"></div>
+      <p class="hint">Cine pune masa e bucătarul: el scrie ingredientele. Ceilalți apasă „Particip” și „Aduc eu” la ce pot aduce. Mesele trecute dispar singure din listă.</p>
+    </div>
+    <div class="card">
+      <h3>Ultimele mișcări</h3>
+      <ol class="jurnal" id="dulJurnal"></ol>
+      <div class="rand"><button class="ghost" id="dulMaiMult" hidden>Arată mai multe</button></div>
+    </div>
+    <div class="card" id="dulAdmCard" hidden>
+      <h3>Responsabili de dulap</h3>
+      <p class="hint">Doar administratorul vede această listă. Responsabilul poate adăuga în stoc, poate crea, modifica și șterge produse. Administratorul are mereu aceste drepturi.</p>
+      <ol class="urm adm" id="dulRespLista"></ol>
+    </div>
+  </section>
+
+  <!-- SETĂRI -->
+  <section id="tab-set" hidden>
+    <div class="card">
+      <h3>Contul meu</h3>
+      <p class="rez" id="contInfo"></p>
+      <p class="hint">Aceasta e versiunea de probă cu cont. Turele, echipa și dulapul merg deocamdată tot prin GitHub, la fel ca în aplicația principală, și folosesc aceleași date de pe acest telefon.</p>
+      <div class="rand"><button class="ghost pericol" id="contIes">Ieși din cont</button></div>
+    </div>
+    <div class="card">
+      <h3>Programul tău</h3>
+      <div class="campuri">
+        <div class="camp"><label for="sTip">Tip tură</label>
+          <select id="sTip"><option value="3">24/48 (o zi tură, două libere)</option><option value="4">24/72 (o zi tură, trei libere)</option></select></div>
+        <div class="camp"><label for="sRef">O zi în care ai fost în tură</label><input type="date" id="sRef"></div>
+        <div class="camp"><label for="sOra">Ora intrării în tură</label><input type="time" id="sOra"></div>
+        <div class="camp"><label for="sPerm">Ziua de permanență</label><select id="sPerm"></select></div>
+        <div class="camp"><label for="sStart">Statisticile încep din</label><input type="date" id="sStart"></div>
+        <div class="camp"><label for="sCO">Zile CO pe an</label><input type="number" id="sCO" min="0" max="60"></div>
+      </div>
+      <p class="hint">Aplicația calculează toate turele pornind de la ziua aleasă. Dacă ai greșit-o, schimbi data și calendarul se recalculează.</p>
+    </div>
+
+    <div class="card">
+      <h3>Adaugă o perioadă</h3>
+      <div class="campuri">
+        <div class="camp"><label for="pDe">De la</label><input type="date" id="pDe"></div>
+        <div class="camp"><label for="pPana">Până la</label><input type="date" id="pPana"></div>
+        <div class="camp" id="pEtCamp" hidden><label for="pEt">Notă</label><input type="text" id="pEt" maxlength="24" autocomplete="off" placeholder="ex. Ambulanță"></div>
+        <div class="camp"><label for="pTip">Ce pui</label>
+          <select id="pTip"><option value="CO">Concediu de odihnă (CO)</option><option value="COS">COS</option><option value="CM">Concediu medical (CM)</option><option value="L">Liber cerut</option><option value="RS">Recuperare ore suplimentare (RS)</option><option value="CURS">Curs</option><option value="ET">Doar notă (ex. Ambulanță)</option><option value="sterge">Șterge ce era pus</option></select></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="pDoarTura" checked> Doar în zilele de tură</label>
+      <div class="rand"><button class="btn" id="pAplica">Aplică perioada</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Baza de date în GitHub</h3>
+      <p class="hint">Datele se salvează pe telefon. Dacă completezi câmpurile de mai jos, se salvează și în GitHub, în fișierul <code>data/ture-NUMELE.json</code>. Fiecare coleg are fișierul lui în același repository. Fără internet, salvarea se face singură când revine semnalul. Tokenul rămâne doar pe acest dispozitiv.</p>
+      <div class="campuri">
+        <div class="camp"><label for="gNume">Numele tău</label><input type="text" id="gNume" autocomplete="off" placeholder="ex. alexandru"></div>
+        <div class="camp"><label for="gOwner">Proprietarul repository-ului</label><input type="text" id="gOwner" autocomplete="off" placeholder="ex. borzaalex"></div>
+        <div class="camp"><label for="gRepo">Repository</label><input type="text" id="gRepo" autocomplete="off" placeholder="tura-mea-date"></div>
+        <div class="camp"><label for="gBranch">Ramura</label><input type="text" id="gBranch" autocomplete="off" placeholder="main"></div>
+        <div class="camp"><label for="gToken">Token de acces</label><input type="password" id="gToken" autocomplete="off" placeholder="github_pat_…"></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="gAuto"> Salvează automat în GitHub după fiecare modificare</label>
+      <div class="rand">
+        <button class="btn" id="gSalv">Salvează în GitHub</button>
+        <button class="ghost" id="gInc">Încarcă din GitHub</button>
+      </div>
+      <p class="gh-st" id="gSt">Nu e conectat la GitHub.</p>
+    </div>
+
+    <div class="card">
+      <h3>Eu în echipă</h3>
+      <div class="campuri"><div class="camp"><label for="gNumeNou">Nume nou</label><input type="text" id="gNumeNou" autocomplete="off" placeholder="ex. Alexandru B."></div></div>
+      <div class="rand"><button class="ghost" id="gInloc">Înlocuiește-mă cu numele nou</button><button class="ghost pericol" id="gIes">Ieși din echipă</button></div>
+      <p class="hint">„Înlocuiește” îți mută turele sub numele nou și îl șterge pe cel vechi din echipă. „Ieși” îți scoate turele din baza de date; ele rămân pe acest telefon. Revii oricând apăsând „Salvează în GitHub”.</p>
+      <p class="gh-st" id="euSt"></p>
+    </div>
+
+    <div class="card">
+      <h3>Administrator</h3>
+      <p class="hint" id="admInfo"></p>
+      <div class="campuri"><div class="camp"><label for="admCod">Cod administrator</label><input type="password" id="admCod" autocomplete="off" placeholder="minim 6 caractere"></div></div>
+      <div class="rand"><button class="btn" id="admActiv">Activează</button><button class="ghost" id="admDez" hidden>Dezactivează pe acest dispozitiv</button></div>
+      <p class="gh-st" id="admCodSt"></p>
+    </div>
+
+    <div class="card">
+      <h3>Copie de siguranță</h3>
+      <div class="rand">
+        <button class="ghost" id="exp">Descarcă fișierul cu date</button>
+        <label class="ghost" for="imp" style="display:inline-block">Încarcă un fișier</label>
+        <input type="file" id="imp" accept="application/json,.json" hidden>
+        <button class="ghost" id="sterg">Șterge toate datele</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="sheet-bg" id="sheetBg" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTit">
+    <h2 id="shTit"></h2>
+    <p class="hint" id="shBaza"></p>
+    <div class="optiuni" id="shOpt">
+      <label style="--c:var(--ink)"><input type="radio" name="tip" value=""> Ca în program</label>
+      <label style="--c:var(--co)"><input type="radio" name="tip" value="CO"> CO</label>
+      <label style="--c:var(--cos)"><input type="radio" name="tip" value="COS"> COS</label>
+      <label style="--c:var(--cm)"><input type="radio" name="tip" value="CM"> Medical (CM)</label>
+      <label style="--c:var(--lib)"><input type="radio" name="tip" value="L"> Liber cerut</label>
+      <label style="--c:var(--rs)"><input type="radio" name="tip" value="RS"> RS (recuperare ore)</label>
+      <label style="--c:var(--curs)"><input type="radio" name="tip" value="CURS"> Curs</label>
+      <label style="--c:var(--perm)"><input type="radio" name="tip" value="PERM"> Permanență</label>
+      <label style="--c:var(--cc)"><input type="radio" name="tip" value="CC"> Creșterea capacității</label>
+      <label style="--c:var(--ink)" id="shFaraPerm"><input type="radio" name="tip" value="FARAPERM"> Fără permanență</label>
+      <label style="--c:var(--tura)"><input type="radio" name="tip" value="SCH"> Schimb de tură</label>
+    </div>
+    <div class="camp" id="shCCCamp" hidden><label for="shCCore">Ore la creșterea capacității</label><input type="text" id="shCCore" inputmode="decimal" autocomplete="off" placeholder="ex. 8 sau 4,5"></div>
+    <div class="camp" id="shCuCamp" hidden><label for="shCu">Schimb cu</label><input type="text" id="shCu" autocomplete="off" placeholder="ex. Andrei">
+      <p class="hint">Într-o zi de tură înseamnă că îți dai tura colegului. Într-o zi liberă înseamnă că lucrezi tu în locul lui.</p></div>
+    <div class="camp"><label for="shNota">Notă (apare în calendar)</label><textarea id="shNota" placeholder="ex. Ambulanță"></textarea></div>
+    <div class="rand"><button class="btn" id="shSalv">Salvează</button><button class="ghost" id="shAnul">Anulează</button></div>
+  </div>
+</div>
+<div class="sheet-bg" id="dulBg" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dulShTit">
+    <h2 id="dulShTit"></h2>
+    <div class="campuri" id="dulShCorp"></div>
+    <p class="gh-st err" id="dulShErr"></p>
+    <div class="rand"><button class="btn" id="dulShOk">Salvează</button><button class="ghost" id="dulShAnul">Renunță</button><button class="ghost pericol" id="dulShSterge" hidden>Șterge produsul</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+'use strict';
+/* ---------- Date calendaristice ---------- */
+const ZI = 86400000;
+const dn = (y, m, d) => Math.round(Date.UTC(y, m, d) / ZI);
+const deLa = n => { const t = new Date(n * ZI); return { y: t.getUTCFullYear(), m: t.getUTCMonth(), d: t.getUTCDate(), w: t.getUTCDay() }; };
+const p2 = x => String(x).padStart(2, '0');
+const iso = n => { const o = deLa(n); return `${o.y}-${p2(o.m + 1)}-${p2(o.d)}`; };
+const dinIso = s => { const [y, m, d] = s.split('-').map(Number); return dn(y, m - 1, d); };
+const azi = () => { const t = new Date(); return dn(t.getFullYear(), t.getMonth(), t.getDate()); };
+const LUNI = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
+const LUNI_S = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Noi','Dec'];
+const ZILE = ['duminică','luni','marți','miercuri','joi','vineri','sâmbătă'];
+const scrie = n => { const o = deLa(n); return `${ZILE[o.w]}, ${o.d} ${LUNI[o.m]} ${o.y}`; };
+const scrieScurt = n => { const o = deLa(n); return `${ZILE[o.w]}, ${o.d} ${LUNI[o.m]}`; };
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+/* Paștele ortodox (calendar iulian + 13 zile, valabil 1900–2099) */
+function pasteOrtodox(y) {
+  const a = y % 4, b = y % 7, c = y % 19, d = (19 * c + 15) % 30, e = (2 * a + 4 * b - d + 34) % 7;
+  const luna = Math.floor((d + e + 114) / 31), zi = ((d + e + 114) % 31) + 1;
+  return dn(y, luna - 1, zi) + 13;
+}
+const cacheSarb = {};
+function sarbatori(y) {
+  if (cacheSarb[y]) return cacheSarb[y];
+  const P = pasteOrtodox(y), s = new Map();
+  [[0,1,'Anul Nou'],[0,2,'Anul Nou'],[0,6,'Boboteaza'],[0,7,'Sf. Ioan'],[0,24,'Unirea Principatelor'],
+   [4,1,'Ziua Muncii'],[5,1,'Ziua Copilului'],[7,15,'Adormirea Maicii Domnului'],[10,30,'Sf. Andrei'],
+   [11,1,'Ziua Națională'],[11,25,'Crăciunul'],[11,26,'Crăciunul']].forEach(([m,d,n]) => s.set(dn(y,m,d), n));
+  s.set(P - 2, 'Vinerea Mare'); s.set(P, 'Paștele'); s.set(P + 1, 'Paștele');
+  s.set(P + 49, 'Rusaliile'); s.set(P + 50, 'Rusaliile');
+  return (cacheSarb[y] = s);
+}
+const sarb = n => sarbatori(deLa(n).y).get(n);
+
+/* ---------- Stocare ---------- */
+const CHEIE = 'tura-mea-date', CHEIE_GH = 'tura-mea-github';
+const implicit = () => ({ versiune: 1, setari: { ciclu: 3, dataReferinta: iso(azi()), oraStart: '08:00', oreTura: 24, zileCO: 25, permanenta: 0 }, exceptii: {} });
+let st = implicit();
+let gh = { nume: '', owner: '', repo: '', branch: 'main', token: '', auto: true, inAsteptare: false };
+const slug = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const ghCale = () => `data/ture-${slug(gh.nume) || 'eu'}.json`;
+
+function normalizeaza(d) {
+  if (!d || typeof d !== 'object' || !d.setari || typeof d.exceptii !== 'object') throw new Error('Fișierul nu are formatul aplicației.');
+  const b = implicit();
+  return { versiune: 1, nume: typeof d.nume === 'string' ? d.nume : '', github: typeof d.github === 'string' ? d.github : '', setari: Object.assign(b.setari, d.setari), exceptii: d.exceptii || {} };
+}
+function citesteLocal() { try { const r = localStorage.getItem(CHEIE); return r ? normalizeaza(JSON.parse(r)) : null; } catch (e) { return null; } }
+function scrieLocal() { try { localStorage.setItem(CHEIE, JSON.stringify(st)); } catch (e) {} }
+function citesteGh() { try { const r = localStorage.getItem(CHEIE_GH); if (r) Object.assign(gh, JSON.parse(r)); } catch (e) {} }
+function scrieGh() { try { localStorage.setItem(CHEIE_GH, JSON.stringify(gh)); } catch (e) {} }
+
+function salveaza() {
+  scrieLocal();
+  randeazaTot();
+  if (gh.auto && ghGata()) { clearTimeout(salveaza.t); salveaza.t = setTimeout(() => ghSalveaza(true), 1500); }
+}
+
+/* ---------- Logica turelor ---------- */
+function infoZiPt(d, n) {
+  const s = d.setari, c = Number(s.ciclu) || 3;
+  const poz = (((n - dinIso(s.dataReferinta)) % c) + c) % c;
+  const baza = poz === 0 ? 'tura' : poz === 1 ? 'iesire' : 'liber';
+  const ex = d.exceptii[iso(n)] || null;
+  let lucreaza = baza === 'tura';
+  if (ex && ex.tip === 'extra') lucreaza = true;
+  if (ex && ex.tip === 'SCH') lucreaza = baza !== 'tura';
+  if (ex && ['CO', 'COS', 'CM', 'L', 'RS', 'CURS', 'PERM', 'CC', 'FARAPERM'].includes(ex.tip)) lucreaza = false;
+  const k = Number(s.permanenta) || 0;
+  let perm = !!(ex && ex.tip === 'PERM');
+  if (!perm && k > 0 && k < c && poz === k && !(ex && ex.tip)) {
+    const exTura = d.exceptii[iso(n - k)];
+    perm = !(exTura && ['CO', 'COS', 'CM'].includes(exTura.tip));
+  }
+  return { baza, ex, lucreaza, perm, poz };
+}
+const infoZi = n => infoZiPt(st, n);
+function clasaZiPt(d, n) {
+  const z = infoZiPt(d, n);
+  if (z.ex && z.ex.tip === 'extra') return ['extra', 'T+'];
+  if (z.ex && z.ex.tip === 'CO') return ['co', 'CO'];
+  if (z.ex && z.ex.tip === 'COS') return ['cos', 'COS'];
+  if (z.ex && z.ex.tip === 'CM') return ['cm', 'CM'];
+  if (z.ex && z.ex.tip === 'L') return ['l', 'L'];
+  if (z.ex && z.ex.tip === 'RS') return ['rs', 'RS'];
+  if (z.ex && z.ex.tip === 'CURS') return ['curs', 'CURS'];
+  if (z.ex && z.ex.tip === 'SCH') return z.lucreaza ? ['sch-luat', 'SCH'] : ['sch-dat', 'SCH'];
+  if (z.ex && z.ex.tip === 'CC') return ['cc', 'CC ' + fmtOre(z.ex.ore)];
+  if (z.lucreaza) return ['tura', 'TURA'];
+  if (z.perm) return ['perm', 'PERM'];
+  if (infoZiPt(d, n - 1).lucreaza) return ['iesire', 'Ieș'];
+  return ['liber', ''];
+}
+const clasaZi = n => clasaZiPt(st, n);
+const notaZi = ex => ex ? (ex.nota || ex.eticheta || '') : '';
+const scurtEt = s => { const w = s.trim().split(/\s+/)[0]; return w.length <= 6 ? w : w.slice(0, 4) + '.'; };
+const fmtOre = x => String(Math.round((Number(x) || 0) * 10) / 10).replace('.', ',');
+const DESC = { perm: 'permanență', cc: 'creșterea capacității', cos: 'COS', tura: 'tură', extra: 'tură în plus', 'sch-luat': 'tură la schimb', 'sch-dat': 'tură dată la schimb', iesire: 'iese din tură', co: 'CO', cm: 'CM', l: 'liber cerut', rs: 'RS, recuperare ore', curs: 'curs', liber: 'liber' };
+function urmatoareaTura(dupa) { for (let n = dupa + 1; n < dupa + 800; n++) if (infoZi(n).lucreaza) return n; return null; }
+function inCate(n) { const d = n - azi(); return d === 0 ? 'azi' : d === 1 ? 'mâine' : d === 2 ? 'poimâine' : d > 0 ? `peste ${d} zile` : `acum ${-d} zile`; }
+
+/* Ore de weekend: de sâmbătă 00:00 până duminică 24:00, plus zilele de sărbătoare legală (00:00–24:00).
+   Se numără în luna în care sunt lucrate: tura care trece peste miezul nopții de la sfârșitul lunii se împarte între cele două luni. */
+function oreWeekend(n, panaLa, de = -Infinity, pana = Infinity) {
+  const [hh, mm] = String(st.setari.oraStart || '08:00').split(':').map(Number);
+  const start = n * 24 + (hh || 0) + (mm || 0) / 60;
+  const s = Math.max(start, de);
+  const e = Math.min(start + (Number(st.setari.oreTura) || 24), panaLa == null ? Infinity : panaLa, pana);
+  let h = 0;
+  for (let d = Math.floor(s / 24); d * 24 < e; d++) { const w = deLa(d).w; if (w === 6 || w === 0 || sarb(d)) h += Math.max(0, Math.min(e, d * 24 + 24) - Math.max(s, d * 24)); }
+  return h;
+}
+const acumOre = () => { const t = new Date(); return azi() * 24 + t.getHours() + t.getMinutes() / 60; };
+/* Statisticile pornesc din luna în care ai început să completezi date (sau din data aleasă în Setări). */
+function inceputStat() {
+  const s = st.setari;
+  if (s.inceput) return dinIso(s.inceput);
+  const date = [s.dataReferinta, ...Object.keys(st.exceptii)].filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x || '')).sort();
+  const o = deLa(dinIso(date[0] || iso(azi())));
+  return dn(o.y, o.m, 1);
+}
+function stat(a, b) {
+  a = Math.max(a, inceputStat());
+  const acum = acumOre();
+  const r = { oreWE: 0, oreWEFacute: 0, plan: 0, lucrate: 0, perm: 0, cc: 0, oreCC: 0, curs: 0, co: 0, cos: 0, cm: 0, l: 0, rs: 0, schDat: 0, schLuat: 0, extra: 0, weekend: 0, sarb: 0, norma: 0 };
+  for (let n = a; n <= b; n++) {
+    const z = infoZi(n), o = deLa(n), sb = sarb(n);
+    if (z.baza === 'tura') r.plan++;
+    if (z.ex) { if (z.ex.tip === 'CO') r.co++; else if (z.ex.tip === 'COS') r.cos++; else if (z.ex.tip === 'CM') r.cm++; else if (z.ex.tip === 'L') r.l++; else if (z.ex.tip === 'extra') r.extra++; else if (z.ex.tip === 'RS') r.rs++; else if (z.ex.tip === 'CURS') r.curs++; else if (z.ex.tip === 'SCH') { if (z.lucreaza) r.schLuat++; else r.schDat++; } }
+    if (clasaZi(n)[0] === 'perm') r.perm++;
+    if (z.ex && z.ex.tip === 'CC') { r.cc++; r.oreCC += Number(z.ex.ore) || 0; }
+    if (z.lucreaza) { r.lucrate++; if (o.w === 0 || o.w === 6) r.weekend++; if (sb) r.sarb++; }
+    if (o.w >= 1 && o.w <= 5 && !sb) r.norma += 8;
+  }
+  r.ore = r.lucrate * (Number(st.setari.oreTura) || 24);
+  const lo = a * 24, hi = (b + 1) * 24, peste = Math.ceil((Number(st.setari.oreTura) || 24) / 24);
+  for (let n = a - peste; n <= b; n++) if (infoZi(n).lucreaza) { r.oreWE += oreWeekend(n, null, lo, hi); r.oreWEFacute += oreWeekend(n, acum, lo, hi); }
+  r.dif = r.ore - r.norma;
+  return r;
+}
+const semn = x => (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x);
+
+/* ---------- Randare ---------- */
+const $ = id => document.getElementById(id);
+let vedere = (() => { const o = deLa(azi()); return { y: o.y, m: o.m }; })();
+let anStat = deLa(azi()).y;
+
+function randeazaStatus() {
+  const t = azi(), z = infoZi(t), [cls] = clasaZi(t), ora = st.setari.oraStart;
+  const titluri = { tura: 'În tură', extra: 'Tură în plus', iesire: 'Ieși din tură', co: 'Concediu', cos: 'Concediu (COS)', cm: 'Medical', l: 'Liber cerut', rs: 'Recuperare (RS)', curs: 'Curs', perm: 'Permanență', cc: 'Creșterea capacității', 'sch-luat': 'Tură la schimb', 'sch-dat': 'Liber (schimb)', liber: 'Liber' };
+  let det = '';
+  if (z.lucreaza) det = `Intri la ${ora}, ieși mâine la ${ora}.`;
+  else if (cls === 'iesire') det = `Ieși la ${ora}, după tura de ieri.`;
+  else if (cls === 'co') det = 'Zi de concediu de odihnă.';
+  else if (cls === 'cos') det = 'Zi de COS.';
+  else if (cls === 'cm') det = 'Zi de concediu medical.';
+  else if (cls === 'l') det = 'Zi liberă cerută în locul turei.';
+  else if (cls === 'rs') det = 'Zi de recuperare a orelor suplimentare.';
+  else if (cls === 'curs') det = 'Zi de curs.';
+  else if (cls === 'perm') det = 'Ești de permanență azi.';
+  else if (cls === 'cc') det = `Creșterea capacității: ${fmtOre(z.ex.ore)} ore.`;
+  else if (cls === 'sch-dat') det = 'Ți-ai dat tura la schimb.';
+  else det = 'Nu ai tură azi.';
+  if (z.ex && z.ex.cu) det += ` Schimb cu ${z.ex.cu}.`;
+  if (notaZi(z.ex)) det += ` Notă: ${notaZi(z.ex)}`;
+  const u = urmatoareaTura(t);
+  const el = $('status');
+  el.className = 'status ' + ({ extra: 'tura', 'sch-luat': 'tura', 'sch-dat': 'liber' }[cls] || cls);
+  el.innerHTML = `<div class="in"><span class="eti">Azi · ${esc(scrie(t))}</span><span class="tit">${titluri[cls]}</span><span class="det"></span>
+    ${u ? `<span class="urm">Următoarea tură: <b>${esc(scrieScurt(u))}</b>, ${inCate(u)}, la ${esc(ora)}</span>` : ''}</div>`;
+  el.querySelector('.det').textContent = det;
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+function grila(y, m, idGrid, idLuna, idSum) {
+  $(idLuna).textContent = `${cap(LUNI[m])} ${y}`;
+  const prima = dn(y, m, 1), ultima = dn(y, m + 1, 1) - 1, t = azi();
+  const decalaj = (deLa(prima).w + 6) % 7;
+  let h = '';
+  for (let i = 0; i < decalaj; i++) h += '<div class="zi gol"></div>';
+  for (let n = prima; n <= ultima; n++) {
+    const [cls, tag] = clasaZi(n), o = deLa(n), z = infoZi(n), sb = sarb(n), nt = notaZi(z.ex);
+    const c = [cls, n === t ? 'azi' : '', sb ? 'sarb' : '', (o.w === 0 || o.w === 6) ? 'weekend' : ''].join(' ');
+    const et = `${scrie(n)}${tag ? ', ' + tag : ''}${nt ? ', ' + nt : ''}${sb ? ', ' + sb : ''}`;
+    h += `<button class="zi ${c}" data-n="${n}" aria-label="${esc(et)}"${sb ? ` title="${esc(sb)}"` : ''}><span class="d num">${o.d}</span>`
+      + (nt ? `<span class="et"><span class="lung">${esc(nt)}</span><span class="scurt">${esc(scurtEt(nt))}</span></span>` : '')
+      + `<span class="t">${tag}</span></button>`;
+  }
+  $(idGrid).innerHTML = h;
+  const s = stat(prima, ultima);
+  $(idSum).innerHTML = `<span><b>${s.lucrate}</b>ture</span><span><b>${s.ore}</b>ore</span><span><b>${s.norma}</b>ore normă</span>
+    <span class="${s.dif >= 0 ? 'plus' : 'minus'}"><b>${semn(s.dif)}</b>ore față de normă</span>
+    <span class="we-rand"><b>${fmtOre(s.oreWEFacute)}</b>ore de weekend făcute până azi</span><span class="we-rand"><b>${fmtOre(s.oreWE)}</b>ore de weekend programate în lună</span>` + detaliiWE(prima, ultima);
+}
+function detaliiWE(a, b) {
+  const acum = acumOre(), rand = [], lo = a * 24, hi = (b + 1) * 24, peste = Math.ceil((Number(st.setari.oreTura) || 24) / 24);
+  for (let n = a - peste; n <= b; n++) {
+    if (!infoZi(n).lucreaza) continue;
+    const h = oreWeekend(n, null, lo, hi); if (!h) continue;
+    const f = oreWeekend(n, acum, lo, hi), sb = sarb(n);
+    const cont = n < a ? ' (partea din luna aceasta)' : oreWeekend(n) > h ? ' (restul trece în luna următoare)' : '';
+    rand.push(`<li><span>Tura de ${esc(scrieScurt(n))}${sb ? ' · ' + esc(sb) : ''}${cont}</span><span>${fmtOre(h)} ore${f >= h ? ' · făcute' : f > 0 ? ` · ${fmtOre(f)} făcute` : ''}</span></li>`);
+  }
+  return `<details class="we-det"><summary>Vezi orele de weekend pe fiecare tură</summary>${rand.length ? `<ol class="urm num">${rand.join('')}</ol>` : '<p class="hint">Nicio tură cu ore de weekend în luna aceasta.</p>'}</details>`;
+}
+function randeazaCalendar() {
+  const { y, m } = vedere;
+  grila(y, m, 'grid', 'luna', 'lunaSum');
+  grila(m === 11 ? y + 1 : y, (m + 1) % 12, 'grid2', 'luna2', 'lunaSum2');
+}
+
+function randeazaVerif() {
+  const v = $('verif').value; if (!v) { $('verifRez').textContent = ''; return; }
+  const n = dinIso(v), [cls] = clasaZi(n), z = infoZi(n), sb = sarb(n);
+  const txt = { tura: 'ești în tură', extra: 'ai tură în plus', 'sch-luat': 'lucrezi la schimb', 'sch-dat': 'ești liber, ți-ai dat tura la schimb', curs: 'ai curs', perm: 'ești de permanență', cc: 'ai creșterea capacității', rs: 'ai zi de recuperare ore suplimentare (RS)', iesire: 'ieși din tură', co: 'ești în concediu de odihnă', cos: 'ești în COS', cm: 'ești în concediu medical', l: 'ai liber cerut', liber: 'ești liber' }[cls];
+  let r = `<b>${esc(cap(scrie(n)))}</b>: ${txt}.`;
+  if (cls === 'cc') r += ` Ore: ${fmtOre(z.ex.ore)}.`;
+  if (notaZi(z.ex)) r += ` Notă: ${esc(notaZi(z.ex))}`;
+  if (sb) r += ` E sărbătoare legală (${esc(sb)}).`;
+  if (!z.lucreaza) { const u = urmatoareaTura(n); if (u) r += ` Următoarea tură: ${esc(scrieScurt(u))}.`; }
+  $('verifRez').innerHTML = r;
+}
+
+function randeazaStat() {
+  const y = anStat, t = azi();
+  $('anEt').textContent = `Anul ${y}`;
+  $('statStart').textContent = `Statisticile încep din ${scrie(inceputStat())}; înainte de această dată totul e 0. Data se schimbă din Setări.`;
+  const an = stat(dn(y, 0, 1), dn(y + 1, 0, 1) - 1);
+  const coRam = (Number(st.setari.zileCO) || 0) - an.co;
+  const tiles = [
+    [an.lucrate, 'ture lucrate și planificate'], [an.ore, 'ore lucrate'],
+    [semn(an.dif), 'ore față de normă (' + an.norma + ')'], [`${an.co}/${st.setari.zileCO}`, `zile CO, rămân ${coRam}`], [an.cos, 'zile COS'],
+    [an.cm, 'zile medical'], [an.l, 'zile libere cerute'], [an.rs, `zile RS, ${an.rs * (Number(st.setari.oreTura) || 24)} ore recuperate`], [`${an.schDat} / ${an.schLuat}`, 'schimburi: ture date / luate'], [an.curs, 'zile de curs'], [an.perm, 'zile de permanență'], [fmtOre(an.oreCC), `ore creșterea capacității (${an.cc} ${an.cc === 1 ? 'zi' : 'zile'})`], [an.weekend, 'ture în weekend'], [fmtOre(an.oreWEFacute), 'ore de weekend făcute până azi'], [fmtOre(an.oreWE), 'ore de weekend programate în an'], [an.sarb, 'ture de sărbători']];
+  $('tiles').innerHTML = tiles.map(([v, k]) => `<div class="tile"><span class="v">${esc(v)}</span><span class="k">${esc(k)}</span></div>`).join('');
+
+  const luni = []; for (let m = 0; m < 12; m++) { const a = dn(y, m, 1), b = dn(y, m + 1, 1) - 1; luni.push(Object.assign(stat(a, b), { viit: a > t })); }
+  // grafic
+  const W = 640, H = 230, L = 40, R = 10, T = 12, B = 26, pw = W - L - R, ph = H - T - B;
+  const max = Math.max(50, ...luni.map(l => Math.max(l.ore, l.norma)));
+  const sus = Math.ceil(max / 50) * 50, sy = v => T + ph - (v / sus) * ph, bw = pw / 12;
+  let g = '';
+  for (let k = 0; k <= 4; k++) { const v = (sus / 4) * k, yy = sy(v); g += `<line class="grid-l" x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}"/><text x="${L - 6}" y="${yy + 4}" text-anchor="end">${Math.round(v)}</text>`; }
+  luni.forEach((l, i) => {
+    const x = L + i * bw, bx = x + bw * 0.2, w = bw * 0.6;
+    g += `<rect class="bar${l.viit ? ' viit' : ''}" x="${bx}" y="${sy(l.ore)}" width="${w}" height="${Math.max(0, T + ph - sy(l.ore))}" rx="2"><title>${LUNI_S[i]}: ${l.ore} ore, normă ${l.norma}</title></rect>`;
+    g += `<line class="norma" x1="${x + bw * 0.1}" x2="${x + bw * 0.9}" y1="${sy(l.norma)}" y2="${sy(l.norma)}"/>`;
+    g += `<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle">${LUNI_S[i]}</text>`;
+  });
+  $('grafic').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ore lucrate pe lună în ${y}">${g}</svg>`;
+  // tabel
+  let tb = '<table><thead><tr><th>Luna</th><th>Ture</th><th>Ore</th><th>Normă</th><th>Dif.</th><th>CO</th><th>COS</th><th>CM</th><th>L</th><th>RS</th><th>Curs</th><th>Perm</th><th>CC ore</th><th>Sch.</th><th>Ture WE</th><th>Ore WE făcute</th><th>Ore WE total</th><th>Sărb.</th></tr></thead><tbody>';
+  luni.forEach((l, i) => { tb += `<tr class="${l.viit ? 'viit' : ''}"><td>${cap(LUNI[i])}</td><td>${l.lucrate}</td><td>${l.ore}</td><td>${l.norma}</td><td class="${l.dif >= 0 ? 'plus' : 'minus'}">${semn(l.dif)}</td><td>${l.co}</td><td>${l.cos}</td><td>${l.cm}</td><td>${l.l}</td><td>${l.rs}</td><td>${l.curs}</td><td>${l.perm}</td><td>${fmtOre(l.oreCC)}</td><td>${l.schDat + l.schLuat}</td><td>${l.weekend}</td><td>${fmtOre(l.oreWEFacute)}</td><td>${fmtOre(l.oreWE)}</td><td>${l.sarb}</td></tr>`; });
+  tb += `</tbody><tfoot><tr><th>Total</th><th>${an.lucrate}</th><th>${an.ore}</th><th>${an.norma}</th><th>${semn(an.dif)}</th><th>${an.co}</th><th>${an.cos}</th><th>${an.cm}</th><th>${an.l}</th><th>${an.rs}</th><th>${an.curs}</th><th>${an.perm}</th><th>${fmtOre(an.oreCC)}</th><th>${an.schDat + an.schLuat}</th><th>${an.weekend}</th><th>${fmtOre(an.oreWEFacute)}</th><th>${fmtOre(an.oreWE)}</th><th>${an.sarb}</th></tr></tfoot></table>`;
+  $('tabel').innerHTML = tb;
+}
+
+function randeazaSetari() {
+  const s = st.setari;
+  $('sTip').value = String(s.ciclu); $('sRef').value = s.dataReferinta; $('sOra').value = s.oraStart; $('sCO').value = s.zileCO; $('sStart').value = iso(inceputStat());
+  { const c = Number(s.ciclu) || 3, nume = ['Prima', 'A doua', 'A treia'];
+    $('sPerm').innerHTML = '<option value="0">Fără permanență</option>' + Array.from({ length: c - 1 }, (_, i) => `<option value="${i + 1}">${nume[i]} zi după tură${i === 0 ? ' (ziua de ieșire)' : ''}</option>`).join('');
+    $('sPerm').value = String((Number(s.permanenta) || 0) < c ? (Number(s.permanenta) || 0) : 0); }
+  $('cicluEt').textContent = Number(s.ciclu) === 4 ? '24/72' : '24/48';
+  $('gNume').value = gh.nume; $('gOwner').value = gh.owner; $('gRepo').value = gh.repo; $('gBranch').value = gh.branch; $('gToken').value = gh.token; $('gAuto').checked = gh.auto;
+}
+function randeazaTot() { $('scosBanner').hidden = !esteScos(); randeazaAdmSet(); randeazaEchipa(); randeazaStatus(); randeazaCalendar(); randeazaVerif(); randeazaStat(); randeazaSetari(); randeazaDulap(); }
+
+/* ---------- Interacțiuni ---------- */
+function toast(m) { const t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
+
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  ['cal', 'stat', 'ech', 'dul', 'set'].forEach(k => ($('tab-' + k).hidden = k !== b.dataset.tab));
+  if (b.dataset.tab === 'dul') incarcaDulap();
+  if (b.dataset.tab === 'ech' && !incarcaEchipa.facut) { incarcaEchipa.facut = true; incarcaEchipa(); }
+  window.scrollTo(0, 0);
+}));
+$('prev').onclick = () => { vedere.m--; if (vedere.m < 0) { vedere.m = 11; vedere.y--; } randeazaCalendar(); };
+$('next').onclick = () => { vedere.m++; if (vedere.m > 11) { vedere.m = 0; vedere.y++; } randeazaCalendar(); };
+$('laAzi').onclick = () => { const o = deLa(azi()); vedere = { y: o.y, m: o.m }; randeazaCalendar(); };
+$('anPrev').onclick = () => { anStat--; randeazaStat(); };
+$('anNext').onclick = () => { anStat++; randeazaStat(); };
+$('verif').addEventListener('change', randeazaVerif);
+
+// fereastra unei zile
+let ziDeschisa = null;
+['grid', 'grid2'].forEach(id => $(id).addEventListener('click', e => { const b = e.target.closest('.zi[data-n]'); if (b) deschideZi(Number(b.dataset.n)); }));
+function deschideZi(n) {
+  ziDeschisa = n; const z = infoZi(n), sb = sarb(n);
+  $('shTit').textContent = cap(scrie(n));
+  const permAuto = (Number(st.setari.permanenta) || 0) > 0 && z.poz === Number(st.setari.permanenta);
+  const bazaTxt = z.baza === 'tura' ? 'tură' : permAuto ? 'permanență' : (z.baza === 'iesire' && infoZi(n - 1).baza === 'tura') ? 'ieșire din tură' : 'zi liberă';
+  $('shFaraPerm').hidden = !permAuto;
+  $('shBaza').textContent = `După program: ${bazaTxt}.` + (sb ? ` Sărbătoare legală: ${sb}.` : '');
+  const tip = z.ex ? z.ex.tip : '';
+  document.querySelectorAll('#shOpt input').forEach(i => (i.checked = i.value === tip));
+  $('shCCore').value = z.ex && z.ex.tip === 'CC' ? z.ex.ore : ''; $('shCCCamp').hidden = tip !== 'CC';
+  $('shCu').value = z.ex && z.ex.cu ? z.ex.cu : ''; $('shCuCamp').hidden = tip !== 'SCH';
+  $('shNota').value = notaZi(z.ex);
+  $('sheetBg').hidden = false;
+  $('shSalv').focus();
+}
+function inchideZi() { $('sheetBg').hidden = true; ziDeschisa = null; }
+$('shAnul').onclick = inchideZi;
+$('shOpt').addEventListener('change', () => { const v = (document.querySelector('#shOpt input:checked') || {}).value; $('shCuCamp').hidden = v !== 'SCH'; $('shCCCamp').hidden = v !== 'CC'; if (v === 'CC' && !$('shCCore').value) $('shCCore').focus(); });
+$('sheetBg').addEventListener('click', e => { if (e.target === $('sheetBg')) inchideZi(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheetBg').hidden) inchideZi(); });
+$('shSalv').onclick = () => {
+  const tip = (document.querySelector('#shOpt input:checked') || {}).value || '', nota = $('shNota').value.trim(), k = iso(ziDeschisa);
+  const cu = tip === 'SCH' ? $('shCu').value.trim() : '';
+  const ore = tip === 'CC' ? Number(String($('shCCore').value).replace(',', '.')) : 0;
+  if (tip === 'CC' && !(ore > 0)) { $('shCCore').focus(); return toast('Scrie câte ore ai la creșterea capacității'); }
+  if (!tip && !nota) delete st.exceptii[k];
+  else { const o = { tip, nota }; if (cu) o.cu = cu; if (tip === 'CC') o.ore = ore; st.exceptii[k] = o; }
+  inchideZi(); salveaza(); toast('Ziua a fost salvată');
+};
+
+// setări program
+$('sStart').addEventListener('change', () => { st.setari.inceput = $('sStart').value || ''; salveaza(); });
+function actualizeazaSetari() {
+  const s = st.setari;
+  s.ciclu = Number($('sTip').value); if ($('sRef').value) s.dataReferinta = $('sRef').value;
+  if ($('sOra').value) s.oraStart = $('sOra').value; s.zileCO = Math.max(0, Number($('sCO').value) || 0);
+  s.permanenta = Number($('sPerm').value) || 0; if (s.permanenta >= s.ciclu) s.permanenta = 0;
+  salveaza();
+}
+['sTip', 'sRef', 'sOra', 'sCO', 'sPerm'].forEach(id => $(id).addEventListener('change', actualizeazaSetari));
+
+// perioadă
+$('pTip').addEventListener('change', () => { $('pEtCamp').hidden = $('pTip').value !== 'ET'; });
+$('pAplica').onclick = () => {
+  const a = $('pDe').value, b = $('pPana').value, tip = $('pTip').value, doarTura = $('pDoarTura').checked;
+  if (!a || !b) return toast('Alege data de început și de sfârșit');
+  const pEt = $('pEt').value.trim(); if (tip === 'ET' && !pEt) return toast('Scrie nota, de exemplu Ambulanță');
+  let x = dinIso(a), y = dinIso(b); if (y < x) [x, y] = [y, x];
+  if (y - x > 400) return toast('Perioada e prea lungă (maxim 400 de zile)');
+  let nr = 0;
+  for (let n = x; n <= y; n++) {
+    const k = iso(n);
+    if (tip === 'sterge') { if (st.exceptii[k]) { delete st.exceptii[k]; nr++; } continue; }
+    if (doarTura && infoZi(n).baza !== 'tura') continue;
+    const v = Object.assign({ tip: '', nota: '' }, st.exceptii[k] || {});
+    if (tip === 'ET') { v.nota = pEt; delete v.eticheta; } else v.tip = tip;
+    st.exceptii[k] = v; nr++;
+  }
+  salveaza(); toast(tip === 'sterge' ? `Am șters ${nr} zile` : `Am marcat ${nr} zile`);
+};
+
+// GitHub
+const ghGata = () => gh.nume && gh.owner && gh.repo && gh.token;
+function ghStare(m, cls) { const e = $('gSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+function citesteCampuriGh() {
+  gh.nume = $('gNume').value.trim(); gh.owner = $('gOwner').value.trim(); gh.repo = $('gRepo').value.trim();
+  gh.branch = $('gBranch').value.trim() || 'main'; gh.token = $('gToken').value.trim(); scrieGh();
+}
+function lipsaGh() {
+  citesteCampuriGh();
+  const lipsa = [[gh.nume, 'numele tău'], [gh.owner, 'proprietarul'], [gh.repo, 'repository-ul'], [gh.token, 'tokenul']].filter(x => !x[0]).map(x => x[1]);
+  return lipsa.length ? `Lipsește: ${lipsa.join(', ')}.` : '';
+}
+['gNume', 'gOwner', 'gRepo', 'gBranch', 'gToken'].forEach(id => ['input', 'change', 'blur'].forEach(ev => $(id).addEventListener(ev, citesteCampuriGh)));
+$('gAuto').addEventListener('change', () => { gh.auto = $('gAuto').checked; scrieGh(); });
+const b64enc = s => { const by = new TextEncoder().encode(s); let bin = ''; by.forEach(c => (bin += String.fromCharCode(c))); return btoa(bin); };
+const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), c => c.charCodeAt(0)));
+function ghUrl() { return `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${ghCale()}`; }
+function ghHead() { return { Authorization: `Bearer ${gh.token}`, Accept: 'application/vnd.github+json' }; }
+function ghEroare(r) {
+  if (r.status === 401) return 'Tokenul nu e valid sau a expirat.';
+  if (r.status === 403) return 'Tokenul nu are voie să scrie în repository. Dă-i permisiunea „Contents: Read and write”.';
+  if (r.status === 404) return 'Nu găsesc repository-ul. Verifică numele de utilizator, repository-ul și ramura.';
+  if (r.status === 409) return 'Fișierul s-a schimbat între timp. Încearcă din nou.';
+  return `GitHub a răspuns cu eroarea ${r.status}.`;
+}
+async function ghCiteste() {
+  const r = await fetch(`${ghUrl()}?ref=${encodeURIComponent(gh.branch)}`, { headers: ghHead(), cache: 'no-store' });
+  if (r.status === 404) { const rr = await fetch(`https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}`, { headers: ghHead() }); if (rr.ok) return { sha: null, date: null }; throw new Error(ghEroare(rr)); }
+  if (!r.ok) throw new Error(ghEroare(r));
+  const j = await r.json();
+  return { sha: j.sha, date: JSON.parse(b64dec(j.content)) };
+}
+async function ghSalveaza(automat) {
+  if (automat && gh.inEchipa === false) return false;
+  const lipsa = lipsaGh(); if (lipsa) { ghStare(lipsa, 'err'); return false; }
+  ghStare('Se salvează în GitHub…');
+  try {
+    await citesteScosi();
+    if (esteScos()) { gh.inAsteptare = false; scrieGh(); $('scosBanner').hidden = false; ghStare('Ai fost scos din echipă de administrator. Turele tale rămân doar pe acest telefon.', 'err'); return false; }
+    const { sha } = await ghCiteste();
+    const vechi = fisVechi();
+    if (vechi && sha) throw new Error(`În echipă există deja cineva cu numele „${gh.nume}”. Alege alt nume.`);
+    st.nume = gh.nume;
+    try { st.github = await ghLogin(); } catch (e) {}
+    const corp = { message: `Ture actualizate ${iso(azi())}`, content: b64enc(JSON.stringify(st, null, 2) + '\n'), branch: gh.branch };
+    if (sha) corp.sha = sha;
+    const r = await fetch(ghUrl(), { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify(corp) });
+    if (!r.ok) throw new Error(ghEroare(r));
+    const ora = new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+    let mutat = '';
+    if (vechi) { try { await stergeFisier(vechi, `Nume schimbat în ${gh.nume}`); mutat = ' Numele vechi a fost scos din echipă.'; } catch (e) {} }
+    gh.inAsteptare = false; gh.inEchipa = true; gh.fisSalvat = cheieFis(); scrieGh();
+    ghStare(`Salvat în GitHub (${ghCale()}) la ${ora}.${mutat}`, 'ok'); if (!automat) toast('Salvat în GitHub');
+    return true;
+  } catch (e) {
+    if (e.message === 'Failed to fetch' || !navigator.onLine) { gh.inAsteptare = true; scrieGh(); ghStare('Salvat pe telefon. Se trimite în GitHub când ai internet.', ''); }
+    else ghStare(e.message, 'err');
+    return false;
+  }
+}
+async function ghIncarca() {
+  const lipsa = lipsaGh(); if (lipsa) return ghStare(lipsa, 'err');
+  ghStare('Se încarcă din GitHub…');
+  try {
+    const { date } = await ghCiteste();
+    if (!date) return ghStare(`În repository nu există încă ${ghCale()}. Apasă „Salvează în GitHub” ca să-l creezi.`, 'err');
+    st = normalizeaza(date); scrieLocal(); randeazaTot(); ghStare('Datele au fost încărcate din GitHub.', 'ok'); toast('Încărcat din GitHub');
+  } catch (e) { ghStare(e.message === 'Failed to fetch' ? 'Nu am internet sau GitHub nu răspunde.' : e.message, 'err'); }
+}
+$('gSalv').onclick = () => ghSalveaza(false);
+window.addEventListener('online', () => { if (gh.inAsteptare && ghGata()) ghSalveaza(true); });
+$('gInc').onclick = ghIncarca;
+
+// copie de siguranță
+$('exp').onclick = () => {
+  const blob = new Blob([JSON.stringify(st, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ture-${iso(azi())}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
+$('imp').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { st = normalizeaza(JSON.parse(await f.text())); salveaza(); toast('Datele au fost încărcate'); }
+  catch (err) { toast('Fișierul nu poate fi citit: ' + err.message); }
+  e.target.value = '';
+});
+$('sterg').onclick = () => {
+  const b = $('sterg');
+  if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Apasă din nou ca să ștergi tot'; setTimeout(() => { delete b.dataset.conf; b.textContent = 'Șterge toate datele'; }, 4000); return; }
+  st = implicit(); delete b.dataset.conf; b.textContent = 'Șterge toate datele'; salveaza(); toast('Toate datele au fost șterse');
+};
+
+// instalare ca aplicație
+let promptInstal = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); promptInstal = e; $('instal').hidden = false; });
+$('instal').onclick = async () => { if (!promptInstal) return; promptInstal.prompt(); await promptInstal.userChoice; promptInstal = null; $('instal').hidden = true; };
+try { if ('serviceWorker' in navigator && location.protocol === 'https:' && !/claude/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+
+/* ---------- Echipa ---------- */
+const CHEIE_ECH = 'tura-mea-echipa';
+let echipa = [], echVedere = null;
+function echStare(m, cls) { const e = $('echSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+const ghFisierUrl = cale => `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}/contents/${cale}?ref=${encodeURIComponent(gh.branch)}`;
+async function incarcaEchipa() {
+  citesteCampuriGh();
+  if (!ghGata()) { echStare('Leagă întâi aplicația de GitHub din Setări. Echipa se citește din același repository.', 'err'); randeazaEchipa(); return; }
+  echStare('Se încarcă echipa…'); $('echRef').disabled = true;
+  try {
+    await citesteScosi();
+    if (esteScos()) { echipa = []; $('scosBanner').hidden = false; throw new Error('Ai fost scos din echipă de administrator, așa că nu mai vezi turele colegilor.'); }
+    const r = await fetch(ghFisierUrl('data'), { headers: ghHead(), cache: 'no-store' });
+    if (r.status === 404) throw new Error('În repository nu există încă folderul data. Salvează-ți întâi datele din Setări.');
+    if (!r.ok) throw new Error(ghEroare(r));
+    const lista = (await r.json()).filter(f => f.type === 'file' && /^ture-.+\.json$/.test(f.name));
+    const rez = await Promise.all(lista.map(async f => {
+      try {
+        const x = await fetch(ghFisierUrl(f.path), { headers: ghHead(), cache: 'no-store' });
+        if (!x.ok) return null;
+        const j = await x.json();
+        return { cheie: f.name.slice(5, -5), path: f.path, sha: j.sha, date: normalizeaza(JSON.parse(b64dec(j.content))) };
+      } catch (e) { return null; }
+    }));
+    echipa = rez.filter(Boolean);
+    try { await ghLogin(); } catch (e) {}
+    try { localStorage.setItem(CHEIE_ECH, JSON.stringify(echipa)); } catch (e) {}
+    const ora = new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+    echStare(`${membri().length} în echipă · actualizat la ${ora}.`, 'ok');
+  } catch (e) { echStare(e.message === 'Failed to fetch' ? 'Nu am internet. Arăt ultima variantă salvată pe telefon.' : e.message, 'err'); }
+  $('echRef').disabled = false;
+  randeazaEchipa();
+}
+function membri() {
+  const eu = slug(gh.nume) || 'eu';
+  const lista = echipa.filter(m => m.cheie !== eu && !scosi.some(s => s.cheie === m.cheie))
+    .map(m => ({ cheie: m.cheie, nume: m.date.nume || cap(m.cheie.replace(/-/g, ' ')), date: m.date, eu: false }))
+    .sort((a, b) => a.nume.localeCompare(b.nume, 'ro'));
+  if (gh.inEchipa !== false) lista.unshift({ nume: gh.nume || 'Eu', date: st, eu: true });
+  return lista;
+}
+function randeazaEchipa() {
+  if (!echVedere) { const o = deLa(azi()); echVedere = { y: o.y, m: o.m }; }
+  const { y, m } = echVedere, prima = dn(y, m, 1), ultima = dn(y, m + 1, 1) - 1, t = azi(), ms = membri();
+  const ZS = ['D', 'L', 'Ma', 'Mi', 'J', 'V', 'S'];
+  $('echLuna').textContent = `${cap(LUNI[m])} ${y}`;
+  let h = '<table><thead><tr><th class="nume">Coleg</th>';
+  for (let n = prima; n <= ultima; n++) { const o = deLa(n), we = o.w === 0 || o.w === 6;
+    h += `<th class="zh${we ? ' we' : ''}${n === t ? ' azi' : ''}">${ZS[o.w]}<br>${o.d}</th>`; }
+  h += '</tr></thead><tbody>';
+  ms.forEach(mb => {
+    h += `<tr class="${mb.eu ? 'eu' : ''}"><td class="nume">${esc(mb.nume)}${mb.eu ? ' (tu)' : ''}</td>`;
+    for (let n = prima; n <= ultima; n++) {
+      const [cls, tag] = clasaZiPt(mb.date, n), o = deLa(n), we = o.w === 0 || o.w === 6;
+      const desc = DESC[cls];
+      h += `<td class="c ${cls}${we ? ' we' : ''}${n === t ? ' azi' : ''}" title="${esc(`${mb.nume}, ${scrieScurt(n)}: ${desc}${notaZi(mb.date.exceptii[iso(n)]) ? ' · ' + notaZi(mb.date.exceptii[iso(n)]) : ''}`)}">${tag === 'Ieș' ? '' : tag}</td>`;
+    }
+    h += '</tr>';
+  });
+  $('echTabel').innerHTML = h + '</tbody></table>';
+  const ca = $('echTabel').querySelector('th.azi'); if (ca) $('echTabel').scrollLeft = Math.max(0, ca.offsetLeft - 150);
+  randeazaEchZi();
+  randeazaAdmin();
+}
+function randeazaEchZi() {
+  const v = $('echZi').value; if (!v) { $('echZiRez').innerHTML = ''; return; }
+  const n = dinIso(v), g = { tura: [], perm: [], liber: [], iesire: [], co: [] };
+  membri().forEach(mb => {
+    const [cls] = clasaZiPt(mb.date, n), nm = mb.nume + (mb.eu ? ' (tu)' : '');
+    const exz = mb.date.exceptii[iso(n)], cu = exz && exz.cu ? ' cu ' + exz.cu : '', post = notaZi(exz) ? ' · ' + notaZi(exz) : '';
+    if (cls === 'tura') g.tura.push(nm + post); else if (cls === 'extra') g.tura.push(nm + ' (în plus)' + post);
+    else if (cls === 'sch-luat') g.tura.push(nm + ' (schimb' + cu + ')' + post);
+    else if (cls === 'sch-dat') g.liber.push(nm + ' (a dat tura' + cu + ')');
+    else if (cls === 'perm') g.perm.push(nm + post);
+    else if (cls === 'iesire') g.iesire.push(nm); else if (cls === 'liber') g.liber.push(nm);
+    else g.co.push(nm + ' · ' + (cls === 'cc' ? `CC ${fmtOre(exz.ore)} ore` : { co: 'CO', cos: 'COS', cm: 'CM', l: 'liber cerut', rs: 'RS', curs: 'curs' }[cls]));
+  });
+  const bloc = (t, c, l) => `<div class="ech-gr ${c}"><span class="eti">${t} · ${l.length}</span><span>${l.length ? l.map(esc).join(', ') : 'nimeni'}</span></div>`;
+  $('echZiRez').innerHTML = `<p class="rez"><b>${esc(cap(scrie(n)))}</b>${sarb(n) ? ' · ' + esc(sarb(n)) : ''}</p>`
+    + bloc('În tură', 'tura', g.tura) + bloc('De permanență', 'perm', g.perm) + bloc('Liberi, pot face schimb', 'liber', g.liber)
+    + bloc('Ies din tură', 'iesire', g.iesire) + bloc('Concediu, curs și altele', 'co', g.co);
+}
+$('echPrev').onclick = () => { echVedere.m--; if (echVedere.m < 0) { echVedere.m = 11; echVedere.y--; } randeazaEchipa(); };
+$('echNext').onclick = () => { echVedere.m++; if (echVedere.m > 11) { echVedere.m = 0; echVedere.y++; } randeazaEchipa(); };
+$('echRef').onclick = incarcaEchipa;
+$('echZi').addEventListener('change', randeazaEchZi);
+
+/* ---------- Administrare echipă (doar proprietarul) ---------- */
+async function ghLogin() {
+  if (gh.login && gh.loginPt === gh.token.slice(-6)) return gh.login;
+  const r = await fetch('https://api.github.com/user', { headers: ghHead() });
+  if (!r.ok) return gh.login || '';
+  gh.login = (await r.json()).login || ''; gh.loginPt = gh.token.slice(-6); scrieGh();
+  return gh.login;
+}
+const repoId = () => `${gh.owner}/${gh.repo}`.toLowerCase();
+const esteAdmin = () => gh.admin === true && gh.adminRepo === repoId() && !!gh.owner && !!gh.repo;
+const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+async function derivaCod(cod, saltHex, iter) {
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(cod), 'PBKDF2', false, ['deriveBits']);
+  const salt = Uint8Array.from(saltHex.match(/../g).map(h => parseInt(h, 16)));
+  return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter }, k, 256));
+}
+function admCodStare(m, cls) { const e = $('admCodSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+function randeazaAdmSet() {
+  const a = esteAdmin();
+  $('admInfo').textContent = a
+    ? 'Ești administrator pe acest dispozitiv. Panoul pentru scoaterea colegilor e în fila Echipa, jos.'
+    : 'Doar cine știe codul vede panoul de scoatere a colegilor. Prima persoană care apasă „Activează” stabilește codul, așa că setează-l tu cât mai repede.';
+  $('admActiv').hidden = a; $('admDez').hidden = !a;
+}
+$('admActiv').onclick = async () => {
+  const lipsa = lipsaGh(); if (lipsa) return admCodStare('Leagă întâi aplicația de GitHub (mai sus). ' + lipsa, 'err');
+  const cod = $('admCod').value;
+  if (cod.length < 6) return admCodStare('Codul trebuie să aibă cel puțin 6 caractere.', 'err');
+  if (!(window.crypto && crypto.subtle)) return admCodStare('Browserul nu permite verificarea codului. Deschide aplicația de la adresa https.', 'err');
+  $('admActiv').disabled = true; admCodStare('Se verifică…');
+  try {
+    const r = await fetch(ghFisierUrl('data/admin.json'), { headers: ghHead(), cache: 'no-store' });
+    if (r.status === 404) {
+      const salt = hex(crypto.getRandomValues(new Uint8Array(16))), iter = 150000;
+      const corp = { message: 'Cod administrator setat', branch: gh.branch,
+        content: b64enc(JSON.stringify({ salt, iter, hash: await derivaCod(cod, salt, iter) }, null, 2) + '\n') };
+      const p = await fetch(`${repoApi()}/contents/data/admin.json`, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify(corp) });
+      if (!p.ok) throw new Error(ghEroare(p));
+      admCodStare('Codul a fost setat. Ești administrator pe acest dispozitiv. Pe alt telefon introduci același cod.', 'ok');
+    } else {
+      if (!r.ok) throw new Error(ghEroare(r));
+      const a = JSON.parse(b64dec((await r.json()).content));
+      if (await derivaCod(cod, a.salt, a.iter) !== a.hash) throw new Error('Cod greșit.');
+      admCodStare('Cod corect. Ești administrator pe acest dispozitiv.', 'ok');
+    }
+    gh.admin = true; gh.adminRepo = repoId(); scrieGh(); $('admCod').value = '';
+    randeazaAdmSet(); randeazaEchipa();
+  } catch (e) { admCodStare(e.message === 'Failed to fetch' ? 'Nu am internet.' : e.message, 'err'); }
+  $('admActiv').disabled = false;
+};
+$('admDez').onclick = () => { gh.admin = false; scrieGh(); admCodStare('Modul administrator a fost oprit pe acest dispozitiv.', ''); randeazaAdmSet(); randeazaEchipa(); };
+const repoApi = () => `https://api.github.com/repos/${encodeURIComponent(gh.owner)}/${encodeURIComponent(gh.repo)}`;
+function admStare(m, cls) { const e = $('admSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+function randeazaAdmin() {
+  const card = $('admCard'); card.hidden = !esteAdmin(); if (card.hidden) return;
+  const altii = membri().filter(m => !m.eu);
+  $('admLista').innerHTML = altii.length
+    ? altii.map(m => `<li><span>${esc(m.nume)}${m.date.github ? ` <span class="login">@${esc(m.date.github)}</span>` : ''}</span><button class="ghost mic pericol" data-cheie="${esc(m.cheie)}">Scoate</button></li>`).join('')
+    : '<li><span>Nu ai încă alți colegi în echipă.</span></li>';
+  if (scosi.length) $('admLista').innerHTML += '<li class="sep"><span><b>Scoși din echipă</b></span></li>'
+    + scosi.map(x => `<li><span>${esc(x.nume)}${x.data ? ` <span class="login">din ${esc(scrieScurt(dinIso(x.data)))}</span>` : ''}</span><button class="ghost mic" data-readauga="${esc(x.cheie)}">Readaugă</button></li>`).join('');
+}
+$('admLista').addEventListener('click', async e => {
+  const ra = e.target.closest('button[data-readauga]'); if (ra && !ra.disabled) { ra.disabled = true; return readauga(ra.dataset.readauga); }
+  const b = e.target.closest('button[data-cheie]'); if (!b || b.disabled) return;
+  if (!b.dataset.conf) {
+    b.dataset.conf = '1'; b.textContent = 'Sigur? Apasă din nou';
+    setTimeout(() => { if (b.isConnected && !b.disabled) { delete b.dataset.conf; b.textContent = 'Scoate'; } }, 4000);
+    return;
+  }
+  b.disabled = true; b.textContent = 'Se scoate…';
+  await scoateColeg(b.dataset.cheie);
+});
+const CHEIE_SC = 'tura-mea-scosi';
+let scosi = [];
+const esteScos = () => !!gh.nume && !esteAdmin() && scosi.some(x => x.cheie === slug(gh.nume));
+function salvScosiLocal() { try { localStorage.setItem(CHEIE_SC, JSON.stringify(scosi)); } catch (e) {} }
+async function citesteScosi() {
+  const r = await fetch(ghFisierUrl('data/scosi.json'), { headers: ghHead(), cache: 'no-store' });
+  if (r.status === 404) { scosi = []; salvScosiLocal(); return { sha: null }; }
+  if (!r.ok) throw new Error(ghEroare(r));
+  const j = await r.json(), d = JSON.parse(b64dec(j.content));
+  scosi = Array.isArray(d.scosi) ? d.scosi : []; salvScosiLocal();
+  return { sha: j.sha };
+}
+async function scrieScosi(lista, sha, mesaj) {
+  const corp = { message: mesaj, branch: gh.branch, content: b64enc(JSON.stringify({ scosi: lista }, null, 2) + '\n') };
+  if (sha) corp.sha = sha;
+  const r = await fetch(`${repoApi()}/contents/data/scosi.json`, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify(corp) });
+  if (!r.ok) throw new Error(ghEroare(r));
+  scosi = lista; salvScosiLocal();
+}
+async function readauga(cheie) {
+  if (!esteAdmin()) return;
+  admStare('Se readaugă…');
+  try {
+    const { sha } = await citesteScosi(), x = scosi.find(s => s.cheie === cheie), nume = x ? x.nume : cheie;
+    await scrieScosi(scosi.filter(s => s.cheie !== cheie), sha, `Readăugat în echipă: ${nume}`);
+    randeazaEchipa();
+    admStare(`${nume} poate intra din nou în echipă. Apare în tabel după ce își salvează turele.`, 'ok');
+  } catch (e) { randeazaAdmin(); admStare(e.message === 'Failed to fetch' ? 'Nu am internet. Încearcă din nou.' : e.message, 'err'); }
+}
+async function scoateColeg(cheie) {
+  const m = echipa.find(x => x.cheie === cheie); if (!m || !esteAdmin()) return;
+  const nume = m.date.nume || cap(cheie.replace(/-/g, ' ')), cale = m.path || `data/ture-${cheie}.json`;
+  admStare(`Îl scot pe ${nume}…`);
+  try {
+    const g = await fetch(ghFisierUrl(cale), { headers: ghHead(), cache: 'no-store' });
+    if (g.ok) {
+      const sha = (await g.json()).sha;
+      const d = await fetch(`${repoApi()}/contents/${cale}`, { method: 'DELETE', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()),
+        body: JSON.stringify({ message: `Scos din echipă: ${nume}`, sha, branch: gh.branch }) });
+      if (!d.ok) throw new Error(ghEroare(d));
+    } else if (g.status !== 404) throw new Error(ghEroare(g));
+    const { sha: shaSc } = await citesteScosi();
+    if (!scosi.some(x => x.cheie === cheie)) await scrieScosi([...scosi, { cheie, nume, data: iso(azi()) }], shaSc, `Scos din echipă: ${nume}`);
+    let acces;
+    const login = m.date.github;
+    if (login && login.toLowerCase() !== gh.owner.toLowerCase()) {
+      const c = await fetch(`${repoApi()}/collaborators/${encodeURIComponent(login)}`, { method: 'DELETE', headers: ghHead() });
+      acces = c.status === 204 ? ` Nu mai are acces la ${gh.repo}.`
+        : ` Accesul nu i l-am putut tăia: tokenul tău nu are permisiunea „Administration”. Scoate-l manual din GitHub: ${gh.repo} → Settings → Collaborators.`;
+    } else {
+      acces = ' Nu mai apare în echipă, iar aplicația lui nu mai salvează în GitHub. Va vedea un mesaj că a fost scos.';
+    }
+    echipa = echipa.filter(x => x.cheie !== cheie);
+    try { localStorage.setItem(CHEIE_ECH, JSON.stringify(echipa)); } catch (e) {}
+    randeazaEchipa();
+    admStare(`${nume} a fost scos din echipă.${acces}`, 'ok');
+  } catch (e) {
+    randeazaAdmin();
+    admStare(e.message === 'Failed to fetch' ? 'Nu am internet. Încearcă din nou.' : e.message, 'err');
+  }
+}
+
+/* ---------- Eu în echipă: înlocuire sau ieșire ---------- */
+const cheieFis = () => `${repoId()}|${ghCale()}`;
+function fisVechi() {
+  if (!gh.fisSalvat || gh.fisSalvat === cheieFis()) return '';
+  const [repo, cale] = gh.fisSalvat.split('|');
+  return repo === repoId() ? cale : '';
+}
+async function stergeFisier(cale, mesaj) {
+  const g = await fetch(ghFisierUrl(cale), { headers: ghHead(), cache: 'no-store' });
+  if (g.status === 404) return false;
+  if (!g.ok) throw new Error(ghEroare(g));
+  const sha = (await g.json()).sha;
+  const d = await fetch(`${repoApi()}/contents/${cale}`, { method: 'DELETE', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify({ message: mesaj, sha, branch: gh.branch }) });
+  if (!d.ok) throw new Error(ghEroare(d));
+  return true;
+}
+function euStare(m, cls) { const e = $('euSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+$('gInloc').onclick = async () => {
+  const lipsa = lipsaGh(); if (lipsa) return euStare('Leagă întâi aplicația de GitHub (mai sus). ' + lipsa, 'err');
+  const nou = $('gNumeNou').value.trim(), vechi = gh.nume;
+  if (!slug(nou)) return euStare('Scrie numele nou.', 'err');
+  if (slug(nou) === slug(vechi)) return euStare('Numele nou e același cu cel de acum.', 'err');
+  if (!gh.fisSalvat) gh.fisSalvat = cheieFis();
+  euStare('Se înlocuiește…'); $('gInloc').disabled = true;
+  gh.nume = nou; scrieGh(); $('gNume').value = nou;
+  const ok = await ghSalveaza(false);
+  if (ok) { $('gNumeNou').value = ''; euStare(`Gata. În echipă apari acum ca „${nou}”, iar „${vechi}” a fost scos.`, 'ok'); randeazaTot(); }
+  else { gh.nume = vechi; scrieGh(); $('gNume').value = vechi; euStare($('gSt').textContent || 'Nu am putut înlocui numele.', 'err'); }
+  $('gInloc').disabled = false;
+};
+$('gIes').onclick = async () => {
+  const b = $('gIes');
+  if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Apasă din nou'; setTimeout(() => { if (b.dataset.conf) { delete b.dataset.conf; b.textContent = 'Ieși din echipă'; } }, 4000); return; }
+  delete b.dataset.conf; b.textContent = 'Ieși din echipă';
+  const lipsa = lipsaGh(); if (lipsa) return euStare('Leagă întâi aplicația de GitHub (mai sus). ' + lipsa, 'err');
+  euStare('Se iese din echipă…'); b.disabled = true;
+  try {
+    await stergeFisier(ghCale(), `A ieșit din echipă: ${gh.nume}`);
+    gh.inEchipa = false; gh.auto = false; gh.inAsteptare = false; scrieGh();
+    randeazaTot();
+    euStare('Ai ieșit din echipă. Turele tale rămân pe acest telefon. Ca să revii, apasă „Salvează în GitHub”.', 'ok');
+  } catch (e) { euStare(e.message === 'Failed to fetch' ? 'Nu am internet. Încearcă din nou.' : e.message, 'err'); }
+  b.disabled = false;
+};
+
+/* ---------- Dulap: stocuri și bani ---------- */
+// Toată echipa lucrează pe același fișier, data/dulap.json. Fiecare apăsare e o „mișcare” pusă într-o coadă pe telefon
+// și trimisă în GitHub; fără internet rămâne în coadă și pleacă singură când revine semnalul.
+const CHEIE_DUL = 'tura-mea-dulap', CHEIE_DULQ = 'tura-mea-dulap-coada', DUL_CALE = 'data/dulap.json', DUL_JURNAL_MAX = 300;
+const dulGol = () => ({ versiune: 1, produse: [], bani: 0, responsabili: [], jurnal: [], mese: [] });
+const rot2 = x => Math.round(x * 100) / 100;
+function normalizeazaDulap(d) {
+  const b = dulGol(); if (!d || typeof d !== 'object') return b;
+  b.produse = (Array.isArray(d.produse) ? d.produse : []).filter(p => p && p.id && p.nume)
+    .map(p => ({ id: String(p.id), nume: String(p.nume), um: String(p.um || 'buc'), cant: Math.max(0, Math.round(Number(p.cant) || 0)), prag: Math.max(0, Math.round(Number(p.prag) || 0)) }));
+  b.bani = Math.max(0, rot2(Number(d.bani) || 0));
+  b.responsabili = (Array.isArray(d.responsabili) ? d.responsabili : []).map(String);
+  b.jurnal = (Array.isArray(d.jurnal) ? d.jurnal : []).filter(e => e && e.id && e.tip);
+  const om = o => ({ cheie: String((o && o.cheie) || ''), nume: String((o && o.nume) || '') });
+  b.mese = (Array.isArray(d.mese) ? d.mese : []).filter(m => m && m.id && /^\d{4}-\d{2}-\d{2}$/.test(m.data || ''))
+    .map(m => ({ id: String(m.id), data: m.data, ce: String(m.ce || ''), sef: om(m.sef),
+      ingrediente: (Array.isArray(m.ingrediente) ? m.ingrediente : []).filter(i => i && i.id && i.nume).map(i => ({ id: String(i.id), nume: String(i.nume), cine: i.cine ? om(i.cine) : null })),
+      participanti: (Array.isArray(m.participanti) ? m.participanti : []).map(om).filter(x => x.cheie) }));
+  return b;
+}
+let dulServer = dulGol(), dulCoada = [], dulap = dulGol(), dulArata = 12, dulIncarcat = false;
+try { dulServer = normalizeazaDulap(JSON.parse(localStorage.getItem(CHEIE_DUL) || 'null')); } catch (e) {}
+try { const q = JSON.parse(localStorage.getItem(CHEIE_DULQ) || '[]'); if (Array.isArray(q)) dulCoada = q; } catch (e) {}
+function dulScrieLocal() { try { localStorage.setItem(CHEIE_DUL, JSON.stringify(dulServer)); localStorage.setItem(CHEIE_DULQ, JSON.stringify(dulCoada)); } catch (e) {} }
+
+// Aplică o mișcare peste o stare a dulapului și o trece în jurnal. Aceeași funcție rulează și pe telefon, și înainte de salvarea în GitHub.
+function dulAplica(d, op) {
+  if (/^(masa-|ingr-|particip$)/.test(op.tip)) return gatAplica(d, op);
+  if (d.jurnal.some(e => e.id === op.id)) return;
+  const e = { id: op.id, t: op.t, cine: op.cine, cheie: op.cheie, tip: op.tip };
+  const p = op.pid ? d.produse.find(x => x.id === op.pid) : null;
+  if (op.tip === 'scos') {
+    if (!p) return; const c = Math.min(op.cant, p.cant); if (c <= 0) return;
+    p.cant -= c; Object.assign(e, { pid: p.id, produs: p.nume, cant: c });
+  } else if (op.tip === 'adaugat') {
+    if (!p || !(op.cant > 0)) return;
+    p.cant += op.cant; Object.assign(e, { pid: p.id, produs: p.nume, cant: op.cant });
+  } else if (op.tip === 'bani-') {
+    const s = Math.min(op.suma, d.bani); if (!(s > 0)) return;
+    d.bani = rot2(d.bani - s); Object.assign(e, { suma: s, nota: op.nota || '' });
+  } else if (op.tip === 'bani+') {
+    if (!(op.suma > 0)) return;
+    d.bani = rot2(d.bani + op.suma); Object.assign(e, { suma: op.suma, nota: op.nota || '' });
+  } else if (op.tip === 'produs-nou') {
+    if (d.produse.some(x => x.id === op.produs.id)) return;
+    d.produse.push(Object.assign({}, op.produs)); Object.assign(e, { pid: op.produs.id, produs: op.produs.nume, cant: op.produs.cant });
+  } else if (op.tip === 'produs-mod') {
+    if (!p) return;
+    p.nume = op.nume; p.um = op.um; p.prag = op.prag; Object.assign(e, { pid: p.id, produs: p.nume });
+  } else if (op.tip === 'produs-sters') {
+    if (!p) return;
+    d.produse = d.produse.filter(x => x.id !== p.id); Object.assign(e, { produs: p.nume, cant: p.cant });
+  } else if (op.tip === 'resp') {
+    const are = d.responsabili.includes(op.cheieCol); if (are === op.da) return;
+    d.responsabili = op.da ? [...d.responsabili, op.cheieCol] : d.responsabili.filter(x => x !== op.cheieCol);
+    Object.assign(e, { numeCol: op.numeCol, da: op.da });
+  } else if (op.tip === 'anulare') {
+    const v = d.jurnal.find(x => x.id === op.ref);
+    if (!v || v.anulat || !['scos', 'adaugat', 'bani-', 'bani+'].includes(v.tip)) return;
+    const pv = v.pid ? d.produse.find(x => x.id === v.pid) : null;
+    if (v.tip === 'scos' && pv) pv.cant += v.cant;
+    if (v.tip === 'adaugat' && pv) pv.cant = Math.max(0, pv.cant - v.cant);
+    if (v.tip === 'bani-') d.bani = rot2(d.bani + v.suma);
+    if (v.tip === 'bani+') d.bani = Math.max(0, rot2(d.bani - v.suma));
+    v.anulat = true;
+    Object.assign(e, { ref: v.id, tipRef: v.tip, produs: v.produs, cant: v.cant, suma: v.suma, nota: v.nota, cineRef: v.cine });
+  } else return;
+  d.jurnal.push(e);
+  if (d.jurnal.length > DUL_JURNAL_MAX) d.jurnal = d.jurnal.slice(-DUL_JURNAL_MAX);
+}
+function dulRecalc() {
+  dulap = normalizeazaDulap(JSON.parse(JSON.stringify(dulServer)));
+  dulCoada.forEach(op => dulAplica(dulap, op));
+}
+dulRecalc();
+
+const dulCheie = () => slug(gh.nume);
+const esteResp = () => esteAdmin() || (!!dulCheie() && dulap.responsabili.includes(dulCheie()));
+const dulAcces = () => ghGata() && !esteScos();
+function dulStare(m, cls) { const e = $('dulSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); }
+const dulId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+// Pune o mișcare în coadă, o arată imediat pe ecran și o trimite în GitHub.
+function dulOp(op) {
+  if (!dulAcces()) { toast('Leagă întâi aplicația de GitHub din Setări'); return; }
+  const ultim = dulCoada[dulCoada.length - 1];
+  if (!dulTrimite.merge && ultim && (op.tip === 'scos' || op.tip === 'adaugat') && ultim.tip === op.tip && ultim.pid === op.pid && ultim.cheie === dulCheie()) ultim.cant += op.cant;
+  else dulCoada.push(Object.assign({ id: dulId(), t: new Date().toISOString(), cine: gh.nume, cheie: dulCheie() }, op));
+  dulScrieLocal(); dulRecalc(); randeazaDulap();
+  clearTimeout(dulOp.t); dulOp.t = setTimeout(dulTrimite, 900);
+}
+async function dulCiteste() {
+  const r = await fetch(ghFisierUrl(DUL_CALE), { headers: ghHead(), cache: 'no-store' });
+  if (r.status === 404) {
+    const rr = await fetch(repoApi(), { headers: ghHead() });
+    if (rr.ok) return { sha: null, date: dulGol() };
+    throw new Error(ghEroare(rr));
+  }
+  if (!r.ok) throw new Error(ghEroare(r));
+  const j = await r.json();
+  return { sha: j.sha, date: normalizeazaDulap(JSON.parse(b64dec(j.content))) };
+}
+async function dulTrimite() {
+  if (dulTrimite.merge) { dulTrimite.iar = true; return; }
+  if (!dulCoada.length || !dulAcces()) return;
+  dulTrimite.merge = true; dulStare('Se salvează…');
+  try {
+    let gata = false;
+    for (let i = 0; i < 5 && !gata; i++) {
+      const { sha, date } = await dulCiteste(), lot = dulCoada.slice();
+      lot.forEach(op => dulAplica(date, op));
+      const corp = { message: `Dulap: ${gh.nume} ${iso(azi())}`, branch: gh.branch, content: b64enc(JSON.stringify(date, null, 2) + '\n') };
+      if (sha) corp.sha = sha;
+      const r = await fetch(`${repoApi()}/contents/${DUL_CALE}`, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, ghHead()), body: JSON.stringify(corp) });
+      if (r.status === 409 || r.status === 422) continue; // un coleg a salvat în același timp: citesc din nou și reîncerc
+      if (!r.ok) throw new Error(ghEroare(r));
+      dulServer = date; dulCoada = dulCoada.filter(o => !lot.includes(o)); gata = true;
+    }
+    if (!gata) throw new Error('Dulapul e folosit de mai mulți colegi chiar acum. Apasă „Reîncarcă” peste câteva secunde.');
+    dulIncarcat = true; dulScrieLocal(); dulRecalc();
+    dulStare(`Salvat la ${new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}.`, 'ok');
+  } catch (e) {
+    if (e.message === 'Failed to fetch' || !navigator.onLine) dulStare('Salvat pe telefon. Se trimite singur când ai internet.', '');
+    else dulStare(e.message, 'err');
+  }
+  dulTrimite.merge = false; randeazaDulap();
+  if (dulTrimite.iar) { dulTrimite.iar = false; dulTrimite(); }
+}
+async function incarcaDulap() {
+  citesteCampuriGh();
+  if (!ghGata()) { dulStare('Leagă întâi aplicația de GitHub din Setări. Dulapul se ține în același repository cu turele.', 'err'); randeazaDulap(); return; }
+  if (esteAdmin() && !incarcaEchipa.facut) { incarcaEchipa.facut = true; incarcaEchipa(); }
+  if (dulCoada.length) return dulTrimite();
+  if (incarcaDulap.merge) return;
+  incarcaDulap.merge = true; dulStare('Se încarcă dulapul…'); $('dulRef').disabled = true;
+  try {
+    await citesteScosi();
+    if (esteScos()) throw new Error('Ai fost scos din echipă de administrator, așa că nu mai vezi dulapul.');
+    const { date } = await dulCiteste();
+    dulServer = date; dulIncarcat = true; dulScrieLocal(); dulRecalc();
+    dulStare(`Actualizat la ${new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}.`, 'ok');
+  } catch (e) { dulStare(e.message === 'Failed to fetch' ? 'Nu am internet. Arăt ultima variantă salvată pe telefon.' : e.message, 'err'); }
+  incarcaDulap.merge = false; $('dulRef').disabled = false;
+  randeazaDulap();
+}
+
+const DUL_ICO = [[/ulei/, '🫒'], [/otet/, '🧴'], [/zahar/, '🧂'], [/cafea|cafe|ness/, '☕'], [/ceai/, '🍵'], [/hartie|igienic/, '🧻'], [/servet|prosop/, '🧻'], [/sare/, '🧂'],
+  [/detergent|sapun|burete|clor/, '🧼'], [/apa/, '💧'], [/lapte/, '🥛'], [/pahar/, '🥤'], [/sac|pung/, '🛍️'], [/bec|baterie/, '🔋']];
+const dulIco = nume => { const s = slug(nume); const g = DUL_ICO.find(x => x[0].test(s)); return g ? g[1] : '📦'; };
+const fmtLei = x => `${rot2(x).toLocaleString('ro-RO', { maximumFractionDigits: 2 })} lei`;
+function dulCand(t) {
+  const d = new Date(t); if (isNaN(d)) return '';
+  const n = dn(d.getFullYear(), d.getMonth(), d.getDate()), ora = `${p2(d.getHours())}:${p2(d.getMinutes())}`, dif = azi() - n;
+  return dif === 0 ? `azi ${ora}` : dif === 1 ? `ieri ${ora}` : `${d.getDate()} ${LUNI_S[d.getMonth()].toLowerCase()} ${ora}`;
+}
+function dulCe(tip, e) {
+  if (tip === 'scos') return `a scos ${e.cant} × ${e.produs}`;
+  if (tip === 'adaugat') return `a adăugat ${e.cant} × ${e.produs}`;
+  if (tip === 'bani-') return `a scos ${fmtLei(e.suma)}${e.nota ? ' · ' + e.nota : ''}`;
+  if (tip === 'bani+') return `a pus ${fmtLei(e.suma)}${e.nota ? ' · ' + e.nota : ''}`;
+  if (tip === 'produs-nou') return `a adăugat produsul ${e.produs}${e.cant ? ` (${e.cant} în stoc)` : ''}`;
+  if (tip === 'produs-mod') return `a modificat produsul ${e.produs}`;
+  if (tip === 'produs-sters') return `a șters produsul ${e.produs}`;
+  if (tip === 'resp') return e.da ? `l-a făcut responsabil pe ${e.numeCol}` : `i-a retras lui ${e.numeCol} dreptul de responsabil`;
+  return '';
+}
+function dulText(e) {
+  if (e.tip === 'anulare') return `${e.cine} a anulat: ${e.cineRef && e.cineRef !== e.cine ? e.cineRef + ' ' : ''}${dulCe(e.tipRef, e)}`;
+  return `${e.cine} ${dulCe(e.tip, e)}`;
+}
+function randeazaDulap() {
+  const acces = dulAcces(), resp = acces && esteResp(), eu = dulCheie();
+  const putine = dulap.produse.filter(p => p.cant <= p.prag);
+  document.querySelector('.tabs button[data-tab="dul"]').classList.toggle('atentie', acces && putine.length > 0);
+  $('dulAtentie').hidden = !putine.length; $('dulAtentie').textContent = putine.length === 1 ? '1 pe terminate' : `${putine.length} pe terminate`;
+  $('dulBani').textContent = fmtLei(dulap.bani);
+  $('dulBaniScot').disabled = !acces || dulap.bani <= 0; $('dulBaniAdaug').disabled = !acces;
+  $('dulRespRand').hidden = !resp;
+  $('dulLista').innerHTML = dulap.produse.length ? dulap.produse.map(p => {
+    const putin = p.cant <= p.prag, sub = `${esc(p.um)}${p.cant === 0 ? ' · terminat' : putin ? ' · stoc mic' : ''}`;
+    const nume = `<b>${esc(p.nume)}</b><small>${sub}</small>`;
+    return `<li class="${putin ? 'putin' : ''}"><span class="ico" aria-hidden="true">${dulIco(p.nume)}</span>`
+      + (resp ? `<button class="pn" data-edit="${esc(p.id)}" aria-label="Modifică ${esc(p.nume)}">${nume}</button>` : `<span class="pn">${nume}</span>`)
+      + `<button class="pm" data-minus="${esc(p.id)}" aria-label="Scoate 1 ${esc(p.nume)}"${!acces || p.cant === 0 ? ' disabled' : ''}>−</button>`
+      + `<span class="cant num">${p.cant}</span>`
+      + (resp ? `<button class="pm" data-plus="${esc(p.id)}" aria-label="Adaugă 1 ${esc(p.nume)}">+</button>` : '') + '</li>';
+  }).join('') : `<li class="gol">${resp ? 'Dulapul e gol. Apasă „Produs nou” ca să adaugi primul produs.' : 'Responsabilul nu a adăugat încă produse.'}</li>`;
+  $('dulHint').textContent = !acces ? '' : resp
+    ? 'Ești responsabil: „+” adaugă în stoc, iar o atingere pe numele produsului îți lasă să îl modifici sau să adaugi mai multe bucăți deodată. Colegii văd doar „−”.'
+    : 'Apasă „−” când scoți ceva din dulap. Dacă ai greșit, anulezi mișcarea din lista de mai jos.';
+  const j = dulap.jurnal.slice().reverse(), inCoada = new Set(dulCoada.map(o => o.id));
+  $('dulJurnal').innerHTML = j.length ? j.slice(0, dulArata).map(e => {
+    const potAnula = acces && !e.anulat && ['scos', 'adaugat', 'bani-', 'bani+'].includes(e.tip) && (e.cheie === eu || resp);
+    return `<li class="${e.anulat ? 'anulat' : ''}${e.tip === 'anulare' ? ' anulare' : ''}"><span><span class="ce">${esc(dulText(e))}</span>${e.anulat ? '<span class="eti-an">anulat</span>' : ''}`
+      + `<span class="cand">${esc(dulCand(e.t))}${inCoada.has(e.id) ? ' · se trimite…' : ''}</span></span>`
+      + (potAnula ? `<button class="ghost mic" data-anul="${esc(e.id)}">Anulează</button>` : '') + '</li>';
+  }).join('') : '<li><span>Nicio mișcare încă.</span></li>';
+  $('dulMaiMult').hidden = j.length <= dulArata;
+  randeazaDulResp(); randeazaGatit();
+}
+function randeazaDulResp() {
+  const card = $('dulAdmCard'); card.hidden = !(esteAdmin() && dulAcces()); if (card.hidden) return;
+  const colegi = membri().filter(m => !m.eu).map(m => ({ cheie: m.cheie, nume: m.nume }));
+  dulap.responsabili.forEach(c => { if (c !== dulCheie() && !colegi.some(x => x.cheie === c)) colegi.push({ cheie: c, nume: cap(c.replace(/-/g, ' ')) }); });
+  $('dulRespLista').innerHTML = colegi.length ? colegi.map(c => {
+    const da = dulap.responsabili.includes(c.cheie);
+    return `<li><span>${esc(c.nume)}${da ? ' <span class="login">· responsabil</span>' : ''}</span><button class="ghost mic${da ? ' pericol' : ''}" data-resp="${esc(c.cheie)}" data-nume="${esc(c.nume)}" data-da="${da ? '' : '1'}">${da ? 'Retrage' : 'Fă responsabil'}</button></li>`;
+  }).join('') : '<li><span>Nu văd încă alți colegi. Deschide fila Echipa și apasă „Reîncarcă”.</span></li>';
+}
+
+// Fereastra mică pentru sume și produse
+let dulShOk = null, dulShSterge = null;
+function dulSheet(titlu, campuri, peOk, peSterge, etSterge) {
+  $('dulShTit').textContent = titlu; $('dulShErr').textContent = '';
+  $('dulShCorp').innerHTML = campuri.map(c => `<div class="camp"><label for="${c.id}">${esc(c.label)}</label><input id="${c.id}" type="${c.tip || 'text'}" autocomplete="off"${c.num ? ' inputmode="decimal"' : ''} maxlength="${c.max || 30}" value="${esc(c.val == null ? '' : c.val)}" placeholder="${esc(c.ph || '')}"></div>`).join('');
+  dulShOk = peOk; dulShSterge = peSterge || null;
+  const bs = $('dulShSterge'); bs.hidden = !peSterge; delete bs.dataset.conf; bs.textContent = etSterge || 'Șterge produsul';
+  $('dulBg').hidden = false;
+  const prim = $('dulShCorp').querySelector('input'); if (prim) prim.focus();
+}
+function dulInchide() { $('dulBg').hidden = true; dulShOk = dulShSterge = null; }
+const dulNr = s => { const x = Number(String(s).trim().replace(',', '.')); return isFinite(x) ? x : NaN; };
+const dulIntreg = s => { const x = dulNr(s); return Number.isInteger(x) && x >= 0 ? x : NaN; };
+$('dulShOk').onclick = () => { if (!dulShOk) return; const er = dulShOk(); if (er) $('dulShErr').textContent = er; else dulInchide(); };
+$('dulShAnul').onclick = dulInchide;
+$('dulBg').addEventListener('click', e => { if (e.target === $('dulBg')) dulInchide(); });
+$('dulShCorp').addEventListener('keydown', e => { if (e.key === 'Enter') $('dulShOk').click(); });
+$('dulShSterge').onclick = () => {
+  const b = $('dulShSterge'); if (!dulShSterge) return;
+  if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Apasă din nou'; return; }
+  dulShSterge(); dulInchide();
+};
+function dulBani(tip) {
+  dulSheet(tip === 'bani-' ? 'Scot bani' : 'Adaug bani', [{ id: 'dulSuma', label: 'Suma în lei', num: true, ph: '20' }, { id: 'dulNota', label: 'Pentru ce (opțional)', ph: tip === 'bani-' ? 'pâine' : 'contribuție', max: 40 }], () => {
+    const s = rot2(dulNr($('dulSuma').value));
+    if (!(s > 0)) return 'Scrie o sumă mai mare decât zero.';
+    if (tip === 'bani-' && s > dulap.bani) return `În dulap sunt doar ${fmtLei(dulap.bani)}.`;
+    dulOp({ tip, suma: s, nota: $('dulNota').value.trim() }); toast(tip === 'bani-' ? `Ai scos ${fmtLei(s)}` : `Ai pus ${fmtLei(s)}`);
+  });
+}
+$('dulBaniScot').onclick = () => dulBani('bani-');
+$('dulBaniAdaug').onclick = () => dulBani('bani+');
+function dulCitesteProdus() {
+  const nume = $('dulPNume').value.trim(), um = $('dulPUm').value.trim() || 'buc', prag = dulIntreg($('dulPPrag').value || '0');
+  if (!nume) return { er: 'Scrie numele produsului.' };
+  if (isNaN(prag)) return { er: 'Pragul de stoc mic trebuie să fie un număr întreg.' };
+  return { nume, um, prag };
+}
+$('dulNou').onclick = () => {
+  if (!esteResp()) return;
+  dulSheet('Produs nou', [{ id: 'dulPNume', label: 'Nume', ph: 'Cafea' }, { id: 'dulPUm', label: 'Unitate', ph: 'pachete', max: 12 },
+    { id: 'dulPCant', label: 'Câte sunt acum în dulap', num: true, ph: '3', max: 5 }, { id: 'dulPPrag', label: 'Stoc mic de la (avertizare)', num: true, val: 1, max: 5 }], () => {
+    const p = dulCitesteProdus(); if (p.er) return p.er;
+    const cant = dulIntreg($('dulPCant').value || '0'); if (isNaN(cant)) return 'Cantitatea trebuie să fie un număr întreg.';
+    if (dulap.produse.some(x => slug(x.nume) === slug(p.nume))) return 'Există deja un produs cu acest nume.';
+    dulOp({ tip: 'produs-nou', produs: { id: dulId(), nume: p.nume, um: p.um, cant, prag: p.prag } }); toast(`Am adăugat ${p.nume}`);
+  });
+};
+function dulModifica(pid) {
+  const x = dulap.produse.find(p => p.id === pid); if (!x || !esteResp()) return;
+  dulSheet(x.nume, [{ id: 'dulPPlus', label: 'Adaugă în stoc (bucăți noi)', num: true, ph: '0', max: 5 }, { id: 'dulPNume', label: 'Nume', val: x.nume }, { id: 'dulPUm', label: 'Unitate', val: x.um, max: 12 },
+    { id: 'dulPPrag', label: 'Stoc mic de la (avertizare)', num: true, val: x.prag, max: 5 }], () => {
+    const p = dulCitesteProdus(); if (p.er) return p.er;
+    const plus = dulIntreg($('dulPPlus').value || '0'); if (isNaN(plus)) return 'Cantitatea adăugată trebuie să fie un număr întreg.';
+    if (dulap.produse.some(o => o.id !== pid && slug(o.nume) === slug(p.nume))) return 'Există deja un produs cu acest nume.';
+    if (p.nume !== x.nume || p.um !== x.um || p.prag !== x.prag) dulOp({ tip: 'produs-mod', pid, nume: p.nume, um: p.um, prag: p.prag });
+    if (plus > 0) { dulOp({ tip: 'adaugat', pid, cant: plus }); toast(`Ai adăugat ${plus} × ${p.nume}`); }
+  }, () => { dulOp({ tip: 'produs-sters', pid }); toast(`Am șters ${x.nume}`); });
+}
+$('dulLista').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  if (b.dataset.minus) dulOp({ tip: 'scos', pid: b.dataset.minus, cant: 1 });
+  else if (b.dataset.plus && esteResp()) dulOp({ tip: 'adaugat', pid: b.dataset.plus, cant: 1 });
+  else if (b.dataset.edit) dulModifica(b.dataset.edit);
+});
+$('dulJurnal').addEventListener('click', e => {
+  const b = e.target.closest('button[data-anul]'); if (!b) return;
+  dulOp({ tip: 'anulare', ref: b.dataset.anul }); toast('Mișcarea a fost anulată');
+});
+$('dulMaiMult').onclick = () => { dulArata += 30; randeazaDulap(); };
+$('dulRespLista').addEventListener('click', e => {
+  const b = e.target.closest('button[data-resp]'); if (!b || !esteAdmin()) return;
+  dulOp({ tip: 'resp', cheieCol: b.dataset.resp, numeCol: b.dataset.nume, da: b.dataset.da === '1' });
+});
+$('dulRef').onclick = incarcaDulap;
+window.addEventListener('online', () => { if (dulCoada.length && dulAcces()) dulTrimite(); });
+
+/* ---------- Gătit pe tură (ceaunul) ---------- */
+// Mesele stau tot în data/dulap.json (câmpul „mese”) și folosesc aceeași coadă de mișcări ca dulapul, dar nu intră în jurnal.
+function gatAplica(d, op) {
+  const eu = { cheie: op.cheie, nume: op.cine };
+  if (op.tip === 'masa-noua') {
+    if (d.mese.some(m => m.id === op.masa.id)) return;
+    const limita = iso(azi() - 60); d.mese = d.mese.filter(m => m.data >= limita);
+    d.mese.push({ id: op.masa.id, data: op.masa.data, ce: op.masa.ce, sef: eu, ingrediente: [], participanti: [eu] });
+    return;
+  }
+  const m = d.mese.find(x => x.id === op.mid); if (!m) return;
+  if (op.tip === 'masa-mod') { m.data = op.data; m.ce = op.ce; }
+  else if (op.tip === 'masa-stearsa') d.mese = d.mese.filter(x => x.id !== m.id);
+  else if (op.tip === 'ingr-nou') { if (!m.ingrediente.some(i => i.id === op.ingr.id)) m.ingrediente.push({ id: op.ingr.id, nume: op.ingr.nume, cine: null }); }
+  else if (op.tip === 'ingr-sters') m.ingrediente = m.ingrediente.filter(i => i.id !== op.iid);
+  else if (op.tip === 'ingr-aduc') {
+    const i = m.ingrediente.find(x => x.id === op.iid); if (!i) return;
+    if (op.da) { if (!i.cine) i.cine = eu; } else if (i.cine && i.cine.cheie === op.cheie) i.cine = null;
+  } else if (op.tip === 'particip') {
+    const are = m.participanti.some(p => p.cheie === op.cheie);
+    if (op.da && !are) m.participanti.push(eu);
+    if (!op.da) m.participanti = m.participanti.filter(p => p.cheie !== op.cheie);
+  }
+}
+let gatDeschis = false;
+// Mesele la care am răspuns „Nu particip” se țin minte doar pe acest telefon, ca anunțul să nu mai apară.
+const CHEIE_GATNU = 'tura-mea-gatit-nu';
+let gatNu = [];
+try { const x = JSON.parse(localStorage.getItem(CHEIE_GATNU) || '[]'); if (Array.isArray(x)) gatNu = x; } catch (e) {}
+const gatFaraRaspuns = () => { const eu = dulCheie(), t = iso(azi()); return !dulAcces() ? [] : gatViitoare().filter(m => m.data >= t && m.sef.cheie !== eu && !m.participanti.some(p => p.cheie === eu) && !gatNu.includes(m.id)); };
+const GAT_SVG = '<svg viewBox="0 0 56 56" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9c-2 2 2 3 0 6M28 6c-2 2 2 4 0 7M36 9c-2 2 2 3 0 6" stroke="var(--muted)" stroke-width="2"/><path d="M11 22C11 10 45 10 45 22" stroke="var(--ink)" stroke-width="2.5"/><path d="M9 24h38v5a19 17 0 0 1-38 0z" fill="var(--ink)"/><rect x="6" y="20" width="44" height="5" rx="2.5" fill="var(--ink)"/><path d="M17 43l-3 7M39 43l3 7" stroke="var(--ink)" stroke-width="3"/><path d="M28 46c-3 3-4 5-2 8h4c2-3 1-5-2-8z" fill="var(--cc)"/></svg>';
+function randeazaAnunt() {
+  const noi = gatFaraRaspuns();
+  document.querySelector('.tabs button[data-tab="dul"]').classList.toggle('ceaun', noi.length > 0);
+  $('gatAnunt').hidden = !noi.length;
+  $('gatAnunt').innerHTML = noi.map(m => { const n = dinIso(m.data), lipsa = m.ingrediente.filter(i => !i.cine).length;
+    return `<div class="rd" data-mid="${esc(m.id)}"><div class="cap">${GAT_SVG}<div><b>Gătit: ${esc(m.ce || 'pe tură')}</b><small>${esc(cap(scrieScurt(n)))} · ${inCate(n)} · bucătar ${esc(m.sef.nume || '?')}</small>`
+      + `<small>Participă ${m.participanti.length}${lipsa ? ` · lipsesc ${lipsa} ingrediente` : ''}</small></div></div>`
+      + '<div class="rand"><button class="btn" data-da="1">Particip</button><button class="ghost" data-nu="1">Nu particip</button><button class="ghost" data-vezi="1">Vezi ingredientele</button></div></div>'; }).join('');
+}
+function gatDeschideFila() { gatDeschis = true; document.querySelector('.tabs button[data-tab="dul"]').click(); randeazaGatit(); setTimeout(() => $('gatCard').scrollIntoView({ block: 'start', behavior: 'smooth' }), 50); }
+$('gatAnunt').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; const mid = b.closest('.rd').dataset.mid;
+  if (b.dataset.da) { dulOp({ tip: 'particip', mid, da: true }); toast('Te-am trecut la masă'); }
+  else if (b.dataset.nu) { gatNu = [...gatNu, mid].slice(-100); try { localStorage.setItem(CHEIE_GATNU, JSON.stringify(gatNu)); } catch (er) {} randeazaAnunt(); }
+  else if (b.dataset.vezi) gatDeschideFila();
+});
+const gatViitoare = () => dulap.mese.filter(m => m.data >= iso(azi() - 1)).sort((a, b) => a.data.localeCompare(b.data));
+function randeazaGatit() {
+  const acces = dulAcces(), eu = dulCheie(), mese = gatViitoare();
+  randeazaAnunt();
+  $('gatBtn').setAttribute('aria-expanded', String(gatDeschis));
+  $('gatSub').textContent = mese.length
+    ? `${cap(scrieScurt(dinIso(mese[0].data)))}${mese[0].ce ? ' · ' + mese[0].ce : ''}${mese.length > 1 ? ` · încă ${mese.length - 1}` : ''}`
+    : 'Nimic programat. Apasă ca să pui o masă.';
+  $('gatCard').hidden = !gatDeschis; if (!gatDeschis) return;
+  $('gatNou').disabled = !acces;
+  $('gatLista').innerHTML = mese.length ? mese.map(m => {
+    const n = dinIso(m.data), sef = acces && (m.sef.cheie === eu || esteAdmin()), particip = m.participanti.some(p => p.cheie === eu);
+    const lipsa = m.ingrediente.filter(i => !i.cine).length;
+    let h = `<div class="masa${n === azi() ? ' azi' : ''}" data-mid="${esc(m.id)}"><div class="cap"><div><b>${esc(m.ce || 'Gătit pe tură')}</b>`
+      + `<small>${esc(cap(scrie(n)))} · ${inCate(n)}</small><small>Bucătar: ${esc(m.sef.nume || '?')}${m.sef.cheie === eu ? ' (tu)' : ''}</small></div>`
+      + (sef ? '<button class="ghost mic" data-mod="1">Modifică</button>' : '') + '</div>';
+    h += `<div class="part"><span><b>Participă ${m.participanti.length}</b>${m.participanti.length ? ': ' + m.participanti.map(p => esc(p.nume)).join(', ') : ''}</span>`
+      + `<button class="${particip ? 'ghost' : 'btn'} mic" data-part="${particip ? '' : '1'}"${acces ? '' : ' disabled'}>${particip ? 'Nu mai particip' : 'Particip'}</button></div>`;
+    h += `<div class="ingr-tit">Ingrediente${m.ingrediente.length ? (lipsa ? ` · lipsesc ${lipsa} din ${m.ingrediente.length}` : ' · toate sunt acoperite') : ''}</div>`;
+    h += '<ul class="ingr">' + (m.ingrediente.length ? m.ingrediente.map(i => {
+      const al = i.cine && i.cine.cheie === eu;
+      return `<li class="${i.cine ? 'luat' : ''}" data-iid="${esc(i.id)}"><span class="n">${esc(i.nume)}<small>${i.cine ? 'aduce ' + esc(i.cine.nume) + (al ? ' (tu)' : '') : 'nu îl aduce încă nimeni'}</small></span>`
+        + (!i.cine ? `<button class="btn mic" data-aduc="1"${acces ? '' : ' disabled'}>Aduc eu</button>` : al ? '<button class="ghost mic" data-aduc="">Renunț</button>' : '')
+        + (sef ? `<button class="ghost mic pericol" data-sterg-ingr="1" aria-label="Șterge ${esc(i.nume)}">×</button>` : '') + '</li>';
+    }).join('') : `<li><span class="n"><small>${sef ? 'Scrie mai jos ce îți trebuie.' : 'Bucătarul nu a pus încă ingredientele.'}</small></span></li>`) + '</ul>';
+    if (sef) h += '<div class="rand"><input type="text" data-ingr="1" maxlength="120" autocomplete="off" placeholder="ceapă, cartofi, 2 kg carne" aria-label="Ingrediente noi"><button class="ghost" data-adauga="1">Adaugă</button></div>';
+    return h + '</div>';
+  }).join('') : '<p class="hint">Nu e nicio masă programată. Apasă „Gătit nou”: cine o pune devine bucătar.</p>';
+}
+$('gatBtn').onclick = () => { gatDeschis = !gatDeschis; randeazaGatit(); if (gatDeschis) $('gatCard').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
+function gatSheet(m) {
+  dulSheet(m ? 'Modifică masa' : 'Gătit nou', [{ id: 'gatData', label: 'Data', tip: 'date', val: m ? m.data : iso(azi()) }, { id: 'gatCe', label: 'Ce gătim', ph: 'Tocăniță la ceaun', val: m ? m.ce : '', max: 40 }], () => {
+    const data = $('gatData').value, ce = $('gatCe').value.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return 'Alege data.';
+    if (!m && data < iso(azi())) return 'Data a trecut deja.';
+    if (m) dulOp({ tip: 'masa-mod', mid: m.id, data, ce });
+    else { dulOp({ tip: 'masa-noua', masa: { id: dulId(), data, ce } }); toast('Masa a fost pusă. Tu ești bucătarul.'); }
+  }, m ? () => { dulOp({ tip: 'masa-stearsa', mid: m.id }); toast('Masa a fost ștearsă'); } : null, 'Șterge masa');
+}
+$('gatNou').onclick = () => gatSheet(null);
+function gatAdauga(mid, inp) {
+  const lista = inp.value.split(/[,;\n]/).map(s => s.trim()).filter(Boolean); if (!lista.length) return;
+  lista.forEach(nume => dulOp({ tip: 'ingr-nou', mid, ingr: { id: dulId(), nume: nume.slice(0, 40) } }));
+  const nou = $('gatLista').querySelector(`.masa[data-mid="${mid}"] input[data-ingr]`); if (nou) nou.focus();
+}
+$('gatLista').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  const mid = b.closest('.masa').dataset.mid, m = dulap.mese.find(x => x.id === mid); if (!m) return;
+  const li = b.closest('li[data-iid]');
+  if (b.dataset.mod) gatSheet(m);
+  else if ('part' in b.dataset) dulOp({ tip: 'particip', mid, da: b.dataset.part === '1' });
+  else if ('aduc' in b.dataset && li) dulOp({ tip: 'ingr-aduc', mid, iid: li.dataset.iid, da: b.dataset.aduc === '1' });
+  else if (b.dataset.stergIngr && li) dulOp({ tip: 'ingr-sters', mid, iid: li.dataset.iid });
+  else if (b.dataset.adauga) gatAdauga(mid, b.parentElement.querySelector('input'));
+});
+$('gatLista').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('input[data-ingr]')) gatAdauga(e.target.closest('.masa').dataset.mid, e.target); });
+
+/* ---------- Pornire ---------- */
+(async function porneste() {
+  citesteGh();
+  if (!gh.fisSalvat && gh.nume && gh.owner && gh.repo) { gh.fisSalvat = cheieFis(); scrieGh(); }
+  try { const c = JSON.parse(localStorage.getItem(CHEIE_ECH) || 'null'); if (Array.isArray(c)) echipa = c.map(m => ({ cheie: m.cheie, path: m.path, sha: m.sha, date: normalizeaza(m.date) })); } catch (e) {}
+  $('echZi').value = iso(azi());
+  try { scosi = JSON.parse(localStorage.getItem(CHEIE_SC) || '[]') || []; } catch (e) {}
+  const local = citesteLocal();
+  if (local) st = local;
+  else {
+    try { const r = await fetch('data/ture.json', { cache: 'no-store' }); if (r.ok) { st = normalizeaza(await r.json()); scrieLocal(); } } catch (e) {}
+  }
+  $('verif').value = iso(azi() + 7);
+  randeazaTot();
+  if (ghGata()) {
+    ghStare(`Conectat la ${gh.owner}/${gh.repo}, fișierul ${ghCale()}.`, 'ok');
+    citesteScosi().then(() => { randeazaTot(); if (gh.inAsteptare && navigator.onLine) ghSalveaza(true); }).catch(() => {});
+    incarcaDulap(); // ca anunțul de gătit și punctul de stoc mic să apară imediat ce deschizi aplicația
+  }
+})();
+</script>
+<script type="module">
+/* ---------- Cont (Firebase Authentication) ---------- */
+// Etapa 1 din planul de trecere: aplicația cere un cont. Datele încă merg prin GitHub, ca în versiunea principală.
+const FB = 'https://www.gstatic.com/firebasejs/13.4.0/';
+const configurare = {
+  apiKey: 'AIzaSyDqBeY7UBR7WS4rFPoYX_NDOhFgIL4T-E8',
+  authDomain: 'tura-mea.firebaseapp.com',
+  projectId: 'tura-mea',
+  storageBucket: 'tura-mea.firebasestorage.app',
+  messagingSenderId: '966938750525',
+  appId: '1:966938750525:web:00f49dd90b853cf892c454'
+};
+const CHEIE_CONT = 'tura-mea-cont';
+const $ = id => document.getElementById(id);
+const stare = (m, cls) => { const e = $('poartaSt'); e.textContent = m; e.className = 'gh-st ' + (cls || ''); e.hidden = !m; };
+const eroare = m => { $('poartaErr').textContent = m || ''; };
+const contSalvat = () => { try { return JSON.parse(localStorage.getItem(CHEIE_CONT) || 'null'); } catch (e) { return null; } };
+function deschideAplicatia(email, offline) {
+  document.documentElement.classList.remove('fara-cont');
+  $('contInfo').textContent = offline ? `Intrat ca ${email}. Fără internet: contul se verifică din nou când revine semnalul.` : `Intrat ca ${email}.`;
+}
+function aratăPoarta() {
+  document.documentElement.classList.add('fara-cont');
+  stare(''); $('poartaForm').hidden = false; window.scrollTo(0, 0);
+}
+
+let fb;
+try {
+  const [app, auth] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-auth.js')]);
+  fb = { app, auth };
+} catch (e) {
+  // Fără internet la prima pornire sau Firebase nu se poate încărca.
+  const c = contSalvat();
+  if (c) deschideAplicatia(c.email, true);
+  else stare('Ai nevoie de internet ca să intri prima dată în cont. Reîncarcă pagina când ai semnal.', 'err');
+}
+
+if (fb) {
+  const A = fb.auth;
+  const auth = A.getAuth(fb.app.initializeApp(configurare));
+  auth.languageCode = 'ro';
+  const MESAJE = {
+    'auth/invalid-email': 'Adresa de e-mail nu e scrisă corect.',
+    'auth/missing-email': 'Scrie adresa de e-mail.',
+    'auth/missing-password': 'Scrie parola.',
+    'auth/invalid-credential': 'E-mailul sau parola nu sunt corecte.',
+    'auth/wrong-password': 'E-mailul sau parola nu sunt corecte.',
+    'auth/user-not-found': 'E-mailul sau parola nu sunt corecte.',
+    'auth/email-already-in-use': 'Există deja un cont cu acest e-mail. Apasă „Intră”.',
+    'auth/weak-password': 'Parola trebuie să aibă cel puțin 6 caractere.',
+    'auth/too-many-requests': 'Prea multe încercări. Așteaptă câteva minute și încearcă din nou.',
+    'auth/network-request-failed': 'Nu am internet. Încearcă din nou când ai semnal.',
+    'auth/user-disabled': 'Contul a fost oprit.',
+    'auth/unauthorized-domain': 'Adresa aplicației nu e aprobată în Firebase (Authentication → Settings → Authorized domains).',
+    'auth/operation-not-allowed': 'Metoda de intrare nu e pornită în Firebase (Authentication → Sign-in method).',
+    'auth/account-exists-with-different-credential': 'Există deja un cont cu acest e-mail, făcut cu parolă. Intră cu e-mail și parolă.'
+  };
+  const tacute = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request', 'auth/user-cancelled'];
+  const traduce = e => tacute.includes(e.code) ? '' : (MESAJE[e.code] || `Nu a mers (${e.code || e.message}).`);
+
+  let mod = 'intra';
+  function schimbaMod(m) {
+    mod = m; eroare('');
+    document.querySelectorAll('#poartaForm [data-mod]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.mod === m)));
+    $('pParola2Camp').hidden = m !== 'nou';
+    $('pParola').autocomplete = m === 'nou' ? 'new-password' : 'current-password';
+    $('pTrimite').textContent = m === 'nou' ? 'Fă-mi cont' : 'Intră';
+    $('pUitat').hidden = m === 'nou';
+  }
+  document.querySelectorAll('#poartaForm [data-mod]').forEach(b => b.addEventListener('click', () => schimbaMod(b.dataset.mod)));
+  const ocupat = da => ['pTrimite', 'pGoogle', 'pUitat'].forEach(id => ($(id).disabled = da));
+
+  $('poartaForm').addEventListener('submit', async ev => {
+    ev.preventDefault(); eroare('');
+    const email = $('pEmail').value.trim(), parola = $('pParola').value;
+    if (!email) return eroare('Scrie adresa de e-mail.');
+    if (parola.length < 6) return eroare('Parola trebuie să aibă cel puțin 6 caractere.');
+    if (mod === 'nou' && parola !== $('pParola2').value) return eroare('Cele două parole nu sunt la fel.');
+    ocupat(true);
+    try {
+      if (mod === 'nou') await A.createUserWithEmailAndPassword(auth, email, parola);
+      else await A.signInWithEmailAndPassword(auth, email, parola);
+    } catch (e) { eroare(traduce(e)); }
+    ocupat(false);
+  });
+  $('pUitat').onclick = async () => {
+    eroare('');
+    const email = $('pEmail').value.trim();
+    if (!email) return eroare('Scrie întâi adresa de e-mail, apoi apasă „Am uitat parola”.');
+    ocupat(true);
+    try {
+      await A.sendPasswordResetEmail(auth, email);
+      stare(`Dacă există un cont pentru ${email}, ai primit un e-mail cu un link pentru parolă nouă. Uită-te și în Spam.`, 'ok');
+    } catch (e) { eroare(traduce(e)); }
+    ocupat(false);
+  };
+  $('pGoogle').onclick = async () => {
+    eroare(''); ocupat(true);
+    const prov = new A.GoogleAuthProvider();
+    prov.setCustomParameters({ prompt: 'select_account' });
+    try { await A.signInWithPopup(auth, prov); }
+    catch (e) {
+      if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
+        try { await A.signInWithRedirect(auth, prov); return; } catch (e2) { eroare(traduce(e2)); }
+      } else eroare(traduce(e));
+    }
+    ocupat(false);
+  };
+  A.getRedirectResult(auth).catch(e => { aratăPoarta(); eroare(traduce(e)); });
+
+  $('contIes').onclick = async () => {
+    const b = $('contIes');
+    if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Apasă din nou'; setTimeout(() => { delete b.dataset.conf; b.textContent = 'Ieși din cont'; }, 4000); return; }
+    delete b.dataset.conf; b.textContent = 'Ieși din cont';
+    await A.signOut(auth);
+  };
+
+  A.onAuthStateChanged(auth, u => {
+    if (u) {
+      const email = u.email || u.displayName || 'cont fără e-mail';
+      try { localStorage.setItem(CHEIE_CONT, JSON.stringify({ uid: u.uid, email })); } catch (e) {}
+      deschideAplicatia(email, false);
+    } else {
+      try { localStorage.removeItem(CHEIE_CONT); } catch (e) {}
+      $('pParola').value = ''; $('pParola2').value = '';
+      aratăPoarta();
+    }
+  });
+}
+</script>
+</html>
