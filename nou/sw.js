@@ -1,8 +1,8 @@
 // Service worker pentru versiunea de probă (folderul nou/). Ține minte paginile și bibliotecile Firebase,
 // ca aplicația să pornească și fără internet după prima intrare în cont.
-const CACHE = 'tura-mea-nou-v7';
+const CACHE = 'tura-mea-nou-v9';
 const EXT = 'tura-mea-nou-ext';
-const FISIERE = ['./', './index.html'];
+const FISIERE = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FISIERE)));
