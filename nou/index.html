@@ -321,7 +321,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
         <button type="button" role="tab" data-mod="nou" aria-selected="false">Cont nou</button>
       </div>
       <div class="camp"><label for="pEmail">E-mail</label><input type="email" id="pEmail" autocomplete="email" inputmode="email" placeholder="nume@gmail.com"></div>
-      <div class="camp"><label for="pParola">Parolă</label><input type="password" id="pParola" autocomplete="current-password" placeholder="minim 6 caractere"></div>
+      <div class="camp"><label for="pParola">Parolă</label><input type="password" id="pParola" autocomplete="current-password" placeholder="minim 8 caractere"></div>
       <div class="camp" id="pParola2Camp" hidden><label for="pParola2">Scrie parola din nou</label><input type="password" id="pParola2" autocomplete="new-password"></div>
       <label class="chk"><input type="checkbox" id="pArata"> Arată parola</label>
       <p class="gh-st err" id="poartaErr" role="alert"></p>
@@ -1947,7 +1947,8 @@ if (fb) {
     'auth/wrong-password': 'E-mailul sau parola nu sunt corecte.',
     'auth/user-not-found': 'E-mailul sau parola nu sunt corecte.',
     'auth/email-already-in-use': 'Există deja un cont cu acest e-mail. Apasă „Intră”.',
-    'auth/weak-password': 'Parola trebuie să aibă cel puțin 6 caractere.',
+    'auth/weak-password': 'Parola trebuie să aibă cel puțin 8 caractere.',
+    'auth/password-does-not-meet-requirements': 'Parola trebuie să aibă cel puțin 8 caractere.',
     'auth/too-many-requests': 'Prea multe încercări. Așteaptă câteva minute și încearcă din nou.',
     'auth/network-request-failed': 'Nu am internet. Încearcă din nou când ai semnal.',
     'auth/user-disabled': 'Contul a fost oprit.',
@@ -1976,7 +1977,8 @@ if (fb) {
     ev.preventDefault(); eroare('');
     const email = $('pEmail').value.trim(), parola = $('pParola').value;
     if (!email) return eroare('Scrie adresa de e-mail.');
-    if (parola.length < 6) return eroare('Parola trebuie să aibă cel puțin 6 caractere.');
+    if (!parola) return eroare('Scrie parola.');
+    if (mod === 'nou' && parola.length < 8) return eroare('Parola trebuie să aibă cel puțin 8 caractere.');
     if (mod === 'nou' && parola !== $('pParola2').value) return eroare('Cele două parole nu sunt la fel.');
     ocupat(true);
     try {
@@ -2044,8 +2046,11 @@ if (fb) {
   const salveazaCont = () => { try { localStorage.setItem(CHEIE_CONT, JSON.stringify({ uid: user.uid, email: user.email || '', echipa: echipaId })); } catch (e) {} };
 
   async function citesteProprietar() {
-    try { const s = await F.getDoc(d('config', 'proprietar')); proprietar = s.exists() ? s.data().uid : ''; }
-    catch (e) { proprietar = null; }
+    try {
+      const s = await F.getDoc(d('config', 'proprietar')); proprietar = s.exists() ? s.data().uid : '';
+      // E-mailul proprietarului nu mai stă la vedere (versiunile vechi îl salvau)
+      if (s.exists() && 'email' in s.data() && proprietar === user.uid) F.updateDoc(d('config', 'proprietar'), { email: F.deleteField() }).catch(() => {});
+    } catch (e) { proprietar = null; }
   }
   const suntProprietar = () => !!user && proprietar === user.uid;
 
@@ -2094,6 +2099,8 @@ if (fb) {
       eu = membri.find(x => x.uid === user.uid) || null;
       if (eu && eu.stare !== 'activ') { opresteTot(); echipaId = null; salveazaCont(); window.contFB.activ = false; return aratăPoartaEchipa('Administratorul te-a scos din echipă.'); }
       window.contFB.membri = membri; window.contFB.uid = user.uid; window.contFB.activ = true;
+      // Colegii nu mai văd e-mailul: îl scoatem din fișa mea, dacă a fost salvat de o versiune veche
+      if (eu && 'email' in eu && !stergEmail) { stergEmail = true; F.updateDoc(d('echipe', eid, 'membri', user.uid), { email: F.deleteField() }).catch(() => { stergEmail = false; }); }
       sincronizeazaTure(q.metadata && q.metadata.fromCache);
       randeazaEchipaCont();
       window.randeazaEchipa(); window.randeazaDulap();
@@ -2112,7 +2119,7 @@ if (fb) {
 
   /* ---------- Turele în cont (etapa 3) ---------- */
   // Turele fiecăruia stau în fișa lui de membru. Câștigă varianta modificată cel mai recent (pe telefon sau în cont).
-  let primaSincronizare = true;
+  let primaSincronizare = true, stergEmail = false;
   function sincronizeazaTure(dinMemorie) {
     if (!eu) return;
     let loc = window.tureLocale();
@@ -2187,7 +2194,7 @@ if (fb) {
       const vechi = await F.getDoc(d('echipe', eid, 'membri', user.uid));
       if (vechi.exists() && vechi.data().stare !== 'activ') throw { mesaj: 'Ai fost scos din această echipă. Cere administratorului să te readauge.' };
       const b = F.writeBatch(db);
-      if (!vechi.exists()) b.set(d('echipe', eid, 'membri', user.uid), { nume, email: user.email || '', rol: 'membru', stare: 'activ', cod, intrat: F.serverTimestamp() });
+      if (!vechi.exists()) b.set(d('echipe', eid, 'membri', user.uid), { nume, rol: 'membru', stare: 'activ', cod, intrat: F.serverTimestamp() });
       b.set(d('utilizatori', user.uid), { echipa: eid });
       await b.commit();
       intraInEchipa(eid); toast('Ai intrat în echipă');
@@ -2214,7 +2221,7 @@ if (fb) {
       for (let i = 0; i < 3 && !gata; i++) {
         const inv = codNou(), b = F.writeBatch(db);
         b.set(d('echipe', eid), { nume: numeE, creatDe: user.uid, creatLa: F.serverTimestamp(), cod: inv, codCreare: prop ? null : cc });
-        b.set(d('echipe', eid, 'membri', user.uid), { nume, email: user.email || '', rol: 'admin', stare: 'activ', cod: inv, intrat: F.serverTimestamp() });
+        b.set(d('echipe', eid, 'membri', user.uid), { nume, rol: 'admin', stare: 'activ', cod: inv, intrat: F.serverTimestamp() });
         b.set(d('invitatii', inv), { echipa: eid });
         if (!prop) b.update(d('coduriCreare', cc), { folosit: eid });
         b.set(d('utilizatori', user.uid), { echipa: eid });
@@ -2230,7 +2237,7 @@ if (fb) {
     if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Doar proprietarul apasă. Apasă din nou'; return; }
     b.disabled = true;
     try {
-      await F.setDoc(d('config', 'proprietar'), { uid: user.uid, email: user.email || '', la: F.serverTimestamp() });
+      await F.setDoc(d('config', 'proprietar'), { uid: user.uid, la: F.serverTimestamp() });
       proprietar = user.uid; st('propSt', 'Ești proprietarul aplicației. Poți crea echipa fără cod.', 'ok'); aratăPoartaEchipa();
     } catch (e) { st('propSt', e.code === 'permission-denied' ? 'Aplicația are deja proprietar.' : trDb(e), 'err'); await citesteProprietar(); }
     b.disabled = false;

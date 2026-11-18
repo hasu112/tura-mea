@@ -14,6 +14,7 @@ service cloud.firestore {
     match /config/proprietar {
       allow get: if semnat();
       allow create: if semnat() && nou().uid == eu() && nou().keys().hasOnly(['uid', 'email', 'la']);
+      allow update: if proprietar() && nou().uid == resource.data.uid && nou().keys().hasOnly(['uid', 'la']);
     }
     match /coduriCreare/{cod} {
       allow get: if semnat();
@@ -40,7 +41,7 @@ service cloud.firestore {
       match /membri/{uid} {
         allow read: if membru(e) || (semnat() && uid == eu());
         allow create: if semnat() && uid == eu() && nou().stare == 'activ' && ((nou().rol == 'membru' && nou().cod is string && get(/databases/$(database)/documents/invitatii/$(nou().cod)).data.echipa == e) || (nou().rol == 'admin' && !exists(/databases/$(database)/documents/echipe/$(e)) && getAfter(/databases/$(database)/documents/echipe/$(e)).data.creatDe == eu()));
-        allow update: if (uid == eu() && membru(e) && !schimba().hasAny(['rol', 'stare', 'cod', 'intrat', 'email'])) || (admin(e) && uid != eu() && schimba().hasOnly(['rol', 'stare']) && nou().rol in ['admin', 'resp', 'membru'] && nou().stare in ['activ', 'scos']) || (admin(e) && uid == eu() && schimba().hasOnly(['rol']) && nou().rol in ['resp', 'membru']);
+        allow update: if (uid == eu() && membru(e) && !schimba().hasAny(['rol', 'stare', 'cod', 'intrat']) && !('email' in nou())) || (admin(e) && uid != eu() && schimba().hasOnly(['rol', 'stare']) && nou().rol in ['admin', 'resp', 'membru'] && nou().stare in ['activ', 'scos']) || (admin(e) && uid == eu() && schimba().hasOnly(['rol']) && nou().rol in ['resp', 'membru']);
         allow delete: if uid == eu() && membru(e);
       }
     }
