@@ -286,7 +286,8 @@ html.fara-cont .poarta { display:flex; min-height:100vh; min-height:100dvh; alig
 .poarta-in .brand { margin:0 }
 .poarta form { display:grid; gap:12px }
 .poarta .tabs { width:100% } .poarta .tabs button { flex:1 }
-.poarta input { width:100%; font-size:16px; padding:11px 12px }
+.poarta input:not([type=checkbox]) { width:100%; font-size:16px; padding:11px 12px }
+.poarta .chk input { width:20px; height:20px }
 .btn.mare, .ghost.mare { min-height:48px; font-size:16px }
 .sau { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:14px }
 .sau::before, .sau::after { content:""; flex:1; border-top:1px solid var(--line) }
@@ -322,6 +323,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       <div class="camp"><label for="pEmail">E-mail</label><input type="email" id="pEmail" autocomplete="email" inputmode="email" placeholder="nume@gmail.com"></div>
       <div class="camp"><label for="pParola">Parolă</label><input type="password" id="pParola" autocomplete="current-password" placeholder="minim 6 caractere"></div>
       <div class="camp" id="pParola2Camp" hidden><label for="pParola2">Scrie parola din nou</label><input type="password" id="pParola2" autocomplete="new-password"></div>
+      <label class="chk"><input type="checkbox" id="pArata"> Arată parola</label>
       <p class="gh-st err" id="poartaErr" role="alert"></p>
       <button type="submit" class="btn mare" id="pTrimite">Intră</button>
       <button type="button" class="ghost" id="pUitat">Am uitat parola</button>
@@ -1966,6 +1968,8 @@ if (fb) {
     $('pUitat').hidden = m === 'nou';
   }
   document.querySelectorAll('#poartaForm [data-mod]').forEach(b => b.addEventListener('click', () => schimbaMod(b.dataset.mod)));
+  const arataParola = da => ['pParola', 'pParola2'].forEach(id => { $(id).type = da ? 'text' : 'password'; });
+  $('pArata').addEventListener('change', () => arataParola($('pArata').checked));
   const ocupat = da => ['pTrimite', 'pGoogle', 'pUitat'].forEach(id => ($(id).disabled = da));
 
   $('poartaForm').addEventListener('submit', async ev => {
@@ -2300,7 +2304,7 @@ if (fb) {
       window.contFB.activ = false; window.contFB.membri = [];
       $('contEchCard').hidden = true; $('propPanou').hidden = true;
       try { localStorage.removeItem(CHEIE_CONT); } catch (e) {}
-      $('pParola').value = ''; $('pParola2').value = '';
+      $('pParola').value = ''; $('pParola2').value = ''; $('pArata').checked = false; arataParola(false);
       aratăPoarta();
     }
   });

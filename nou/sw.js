@@ -1,6 +1,6 @@
 // Service worker pentru versiunea de probă (folderul nou/). Ține minte paginile și bibliotecile Firebase,
 // ca aplicația să pornească și fără internet după prima intrare în cont.
-const CACHE = 'tura-mea-nou-v6';
+const CACHE = 'tura-mea-nou-v7';
 const EXT = 'tura-mea-nou-ext';
 const FISIERE = ['./', './index.html'];
 
