@@ -1,111 +1,42 @@
 rules_version = '2';
-
-// Regulile de acces ale bazei de date Tura Mea (etapa 2: conturi, echipe, roluri).
-// Se lipesc în consola Firebase: Firestore Database → Rules → Publish.
 service cloud.firestore {
   match /databases/{database}/documents {
-
     function semnat() { return request.auth != null; }
     function eu() { return request.auth.uid; }
-    function membruDoc(e) { return /databases/$(database)/documents/echipe/$(e)/membri/$(request.auth.uid); }
-
-    // Proprietarul aplicației (cel care face coduri pentru echipe noi)
-    function proprietar() {
-      return semnat()
-        && exists(/databases/$(database)/documents/config/proprietar)
-        && get(/databases/$(database)/documents/config/proprietar).data.uid == eu();
-    }
-    // Membru activ al echipei e (înainte de scriere)
-    function membru(e) {
-      return semnat() && exists(membruDoc(e)) && get(membruDoc(e)).data.stare == 'activ';
-    }
-    function admin(e) { return membru(e) && get(membruDoc(e)).data.rol == 'admin'; }
-    // Administrator al echipei e după scriere (pentru operații făcute în același pachet cu crearea echipei)
-    function adminDupa(e) {
-      return semnat() && existsAfter(membruDoc(e))
-        && getAfter(membruDoc(e)).data.rol == 'admin'
-        && getAfter(membruDoc(e)).data.stare == 'activ';
-    }
+    function md(e) { return /databases/$(database)/documents/echipe/$(e)/membri/$(request.auth.uid); }
+    function proprietar() { return semnat() && exists(/databases/$(database)/documents/config/proprietar) && get(/databases/$(database)/documents/config/proprietar).data.uid == eu(); }
+    function membru(e) { return semnat() && exists(md(e)) && get(md(e)).data.stare == 'activ'; }
+    function admin(e) { return membru(e) && get(md(e)).data.rol == 'admin'; }
+    function adminDupa(e) { return semnat() && existsAfter(md(e)) && getAfter(md(e)).data.rol == 'admin' && getAfter(md(e)).data.stare == 'activ'; }
     function schimba() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    function nou() { return request.resource.data; }
 
     match /config/proprietar {
       allow get: if semnat();
-      // Primul care apasă „Eu sunt proprietarul aplicației” devine proprietar; după aceea nu se mai poate schimba din aplicație.
-      allow create: if semnat()
-        && request.resource.data.uid == eu()
-        && request.resource.data.keys().hasOnly(['uid', 'email', 'la']);
+      allow create: if semnat() && nou().uid == eu() && nou().keys().hasOnly(['uid', 'email', 'la']);
     }
-
     match /coduriCreare/{cod} {
       allow get: if semnat();
       allow list, create, delete: if proprietar();
-      // Un cod nefolosit e marcat ca folosit doar de cel care creează echipa cu el, în același pachet.
-      allow update: if semnat()
-        && resource.data.folosit == null
-        && schimba().hasOnly(['folosit'])
-        && request.resource.data.folosit is string
-        && getAfter(/databases/$(database)/documents/echipe/$(request.resource.data.folosit)).data.creatDe == eu()
-        && getAfter(/databases/$(database)/documents/echipe/$(request.resource.data.folosit)).data.codCreare == cod;
+      allow update: if semnat() && resource.data.folosit == null && schimba().hasOnly(['folosit']) && nou().folosit is string && getAfter(/databases/$(database)/documents/echipe/$(nou().folosit)).data.creatDe == eu() && getAfter(/databases/$(database)/documents/echipe/$(nou().folosit)).data.codCreare == cod;
     }
-
     match /utilizatori/{uid} {
       allow read: if semnat() && uid == eu();
-      allow write: if semnat() && uid == eu() && request.resource.data.keys().hasOnly(['echipa']);
+      allow write: if semnat() && uid == eu() && nou().keys().hasOnly(['echipa']);
     }
-
     match /invitatii/{cod} {
-      // Cine știe codul îl poate citi; nimeni nu poate lista codurile.
       allow get: if semnat();
-      allow create: if semnat()
-        && request.resource.data.keys().hasOnly(['echipa'])
-        && adminDupa(request.resource.data.echipa)
-        && getAfter(/databases/$(database)/documents/echipe/$(request.resource.data.echipa)).data.cod == cod;
+      allow create: if semnat() && nou().keys().hasOnly(['echipa']) && adminDupa(nou().echipa) && getAfter(/databases/$(database)/documents/echipe/$(nou().echipa)).data.cod == cod;
       allow delete: if admin(resource.data.echipa);
     }
-
     match /echipe/{e} {
       allow read: if membru(e);
-      allow create: if semnat()
-        && request.resource.data.creatDe == eu()
-        && request.resource.data.keys().hasOnly(['nume', 'creatDe', 'creatLa', 'cod', 'codCreare'])
-        && adminDupa(e)
-        && (proprietar()
-            || (request.resource.data.codCreare is string
-                && get(/databases/$(database)/documents/coduriCreare/$(request.resource.data.codCreare)).data.folosit == null
-                && getAfter(/databases/$(database)/documents/coduriCreare/$(request.resource.data.codCreare)).data.folosit == e));
+      allow create: if semnat() && nou().creatDe == eu() && nou().keys().hasOnly(['nume', 'creatDe', 'creatLa', 'cod', 'codCreare']) && adminDupa(e) && (proprietar() || (nou().codCreare is string && get(/databases/$(database)/documents/coduriCreare/$(nou().codCreare)).data.folosit == null && getAfter(/databases/$(database)/documents/coduriCreare/$(nou().codCreare)).data.folosit == e));
       allow update: if admin(e) && schimba().hasOnly(['nume', 'cod']);
-
       match /membri/{uid} {
         allow read: if membru(e) || (semnat() && uid == eu());
-
-        allow create: if semnat() && uid == eu()
-          && request.resource.data.stare == 'activ'
-          && (
-            // intră cu codul de invitație, ca membru simplu
-            (request.resource.data.rol == 'membru'
-              && request.resource.data.cod is string
-              && get(/databases/$(database)/documents/invitatii/$(request.resource.data.cod)).data.echipa == e)
-            // sau creează echipa și devine administratorul ei
-            || (request.resource.data.rol == 'admin'
-              && !exists(/databases/$(database)/documents/echipe/$(e))
-              && getAfter(/databases/$(database)/documents/echipe/$(e)).data.creatDe == eu())
-          );
-
-        allow update: if
-          // fiecare își schimbă propriile date, dar nu rolul și nici starea
-          (uid == eu() && membru(e)
-            && !schimba().hasAny(['rol', 'stare', 'cod', 'intrat', 'email']))
-          // administratorul schimbă rolul și starea colegilor
-          || (admin(e) && uid != eu()
-            && schimba().hasOnly(['rol', 'stare'])
-            && request.resource.data.rol in ['admin', 'resp', 'membru']
-            && request.resource.data.stare in ['activ', 'scos'])
-          // administratorul își poate retrage singur rolul
-          || (admin(e) && uid == eu()
-            && schimba().hasOnly(['rol'])
-            && request.resource.data.rol in ['resp', 'membru']);
-
-        // fiecare poate ieși singur din echipă (cine a fost scos nu își poate șterge urma ca să revină cu codul)
+        allow create: if semnat() && uid == eu() && nou().stare == 'activ' && ((nou().rol == 'membru' && nou().cod is string && get(/databases/$(database)/documents/invitatii/$(nou().cod)).data.echipa == e) || (nou().rol == 'admin' && !exists(/databases/$(database)/documents/echipe/$(e)) && getAfter(/databases/$(database)/documents/echipe/$(e)).data.creatDe == eu()));
+        allow update: if (uid == eu() && membru(e) && !schimba().hasAny(['rol', 'stare', 'cod', 'intrat', 'email'])) || (admin(e) && uid != eu() && schimba().hasOnly(['rol', 'stare']) && nou().rol in ['admin', 'resp', 'membru'] && nou().stare in ['activ', 'scos']) || (admin(e) && uid == eu() && schimba().hasOnly(['rol']) && nou().rol in ['resp', 'membru']);
         allow delete: if uid == eu() && membru(e);
       }
     }
