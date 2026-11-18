@@ -527,6 +527,7 @@ ol.membri li.scos > span:first-child { color:var(--muted) }
       <ul class="stoc" id="dulLista"></ul>
       <div class="rand" id="dulRespRand" hidden><button class="btn" id="dulNou">Produs nou</button></div>
       <div class="rand" id="dulImpRand" hidden><button class="ghost" id="dulImp">Importă dulapul din GitHub</button></div>
+      <div class="rand" id="dulZeroRand" hidden><button class="ghost pericol" id="dulZero">Golește dulapul (pornește de la zero)</button></div>
       <p class="hint" id="dulHint"></p>
     </div>
     <div class="card" id="gatCard" hidden>
@@ -1619,6 +1620,7 @@ function randeazaDulap() {
   $('dulBaniScot').disabled = !acces || dulap.bani <= 0; $('dulBaniAdaug').disabled = !acces;
   $('dulRespRand').hidden = !resp;
   $('dulImpRand').hidden = !(contActiv() && dulAdmin() && ghGata() && !dulap.produse.length && !dulap.jurnal.length);
+  $('dulZeroRand').hidden = !(contActiv() && dulAdmin() && (dulap.produse.length || dulap.jurnal.length || dulap.mese.length || dulap.bani));
   $('dulLista').innerHTML = dulap.produse.length ? dulap.produse.map(p => {
     const putin = p.cant <= p.prag, sub = `${esc(p.um)}${p.cant === 0 ? ' · terminat' : putin ? ' · stoc mic' : ''}`;
     const nume = `<b>${esc(p.nume)}</b><small>${sub}</small>`;
@@ -1726,6 +1728,15 @@ $('dulRespLista').addEventListener('click', e => {
   dulOp({ tip: 'resp', cheieCol: b.dataset.resp, numeCol: b.dataset.nume, da: b.dataset.da === '1' });
 });
 $('dulRef').onclick = incarcaDulap;
+// Administratorul șterge tot din dulap (produse, bani, jurnal, mese), de exemplu după probe.
+$('dulZero').onclick = async () => {
+  const b = $('dulZero');
+  if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Se șterg produsele, banii, jurnalul și mesele'; setTimeout(() => { delete b.dataset.conf; b.textContent = 'Golește dulapul (pornește de la zero)'; }, 5000); return; }
+  delete b.dataset.conf; b.textContent = 'Golește dulapul (pornește de la zero)'; b.disabled = true;
+  try { dulCoada = []; dulScrieLocal(); await window.contFB.dulapTranzactie(() => JSON.parse(JSON.stringify(dulGol()))); dulStare('Dulapul a fost golit.', 'ok'); }
+  catch (e) { dulStare(e.code === 'permission-denied' ? 'Baza de date a refuzat golirea.' : (e.message || String(e)), 'err'); }
+  b.disabled = false;
+};
 $('dulImp').onclick = async () => {
   const b = $('dulImp');
   if (!b.dataset.conf) { b.dataset.conf = '1'; b.textContent = 'Sigur? Se copiază produsele, banii, jurnalul și mesele'; return; }
