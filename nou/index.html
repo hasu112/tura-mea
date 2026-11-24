@@ -3,6 +3,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tura Mea · probă</title>
+<script>try { var c0 = JSON.parse(localStorage.getItem('tura-mea-cont') || 'null'); if (c0 && c0.uid && c0.echipa) document.documentElement.classList.remove('fara-cont'); } catch (e) {}</script>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Calendarul turelor 24/48: zile de tură, libere, CO, CM și statistici.">
 <meta name="theme-color" content="#C42B1C">
@@ -2098,7 +2102,7 @@ if (fb) {
   const st = (id, m, cls) => { const x = $(id); x.textContent = m || ''; x.className = 'gh-st ' + (cls || ''); };
 
   let user = null, proprietar = null, echipaId = null, echipa = null, membri = [], eu = null, opriri = [];
-  const opresteTot = () => { opriri.forEach(f => { try { f(); } catch (e) {} }); opriri = []; };
+  const opresteTot = () => { opriri.forEach(f => { try { f(); } catch (e) {} }); opriri = []; panouPornit = false; };
   const salveazaCont = () => { try { localStorage.setItem(CHEIE_CONT, JSON.stringify({ uid: user.uid, email: user.email || '', echipa: echipaId })); } catch (e) {} };
 
   async function citesteProprietar() {
@@ -2122,11 +2126,20 @@ if (fb) {
     if (!$('iNume').value && user.displayName) $('iNume').value = $('cNume').value = user.displayName;
   }
 
+  let verificaFisa = false, panouPornit = false;
+  const laContComplet = u => { try { const c = contSalvat(); if (c) { c.echipa = null; localStorage.setItem(CHEIE_CONT, JSON.stringify(c)); } } catch (e) {} return laCont(u); };
   async function laCont(u) {
     user = u; opresteTot(); echipaId = null;
     const salvat = contSalvat();
     try { localStorage.setItem(CHEIE_CONT, JSON.stringify({ uid: u.uid, email: u.email || '', echipa: salvat && salvat.uid === u.uid ? salvat.echipa : null })); } catch (e) {}
     stare('Se încarcă echipa…'); $('poartaForm').hidden = true; $('echPoarta').hidden = true;
+    if (salvat && salvat.uid === u.uid && salvat.echipa) {
+      // Pornire rapidă: telefonul știe deja echipa. Fișa de membru, urmărită în timp real, ne spune dacă între timp
+      // am fost scoși sau am ieșit; proprietarul se verifică în fundal.
+      intraInEchipa(salvat.echipa);
+      citesteProprietar().then(() => { if (suntProprietar() && echipaId) pornestePanouProprietar(); });
+      return;
+    }
     await citesteProprietar();
     let ut;
     try { ut = await F.getDoc(d('utilizatori', u.uid)); }
@@ -2153,6 +2166,7 @@ if (fb) {
     opriri.push(F.onSnapshot(F.collection(db, 'echipe', eid, 'membri'), q => {
       membri = q.docs.map(x => Object.assign({ uid: x.id }, x.data())).sort((a, b) => (a.nume || '').localeCompare(b.nume || '', 'ro'));
       eu = membri.find(x => x.uid === user.uid) || null;
+      if (!eu && verificaFisa && !(q.metadata && q.metadata.fromCache)) { opresteTot(); echipaId = null; salveazaCont(); window.contFB.activ = false; return laContComplet(user); }
       if (eu && eu.stare !== 'activ') { opresteTot(); echipaId = null; salveazaCont(); window.contFB.activ = false; return aratăPoartaEchipa('Administratorul te-a scos din echipă.'); }
       window.contFB.membri = membri; window.contFB.uid = user.uid; window.contFB.activ = true;
       // Colegii nu mai văd e-mailul: îl scoatem din fișa mea, dacă a fost salvat de o versiune veche
@@ -2172,6 +2186,7 @@ if (fb) {
       e => { if (e.code !== 'permission-denied') $('dulSt').textContent = trDb(e); }));
     if (suntProprietar()) pornestePanouProprietar();
     ascundeSetariGitHub();
+    verificaFisa = true;
   }
 
 
@@ -2422,6 +2437,7 @@ if (fb) {
   // Panoul proprietarului: coduri pentru echipe noi
   let coduri = [];
   function pornestePanouProprietar() {
+    if (panouPornit) return; panouPornit = true;
     $('propPanou').hidden = false;
     opriri.push(F.onSnapshot(F.collection(db, 'coduriCreare'), q => {
       coduri = q.docs.map(x => Object.assign({ cod: x.id }, x.data())).sort((a, b) => (b.creat || '').localeCompare(a.creat || ''));

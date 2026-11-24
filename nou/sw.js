@@ -1,6 +1,6 @@
 // Service worker pentru versiunea de probă (folderul nou/). Ține minte paginile și bibliotecile Firebase,
 // ca aplicația să pornească și fără internet după prima intrare în cont.
-const CACHE = 'tura-mea-nou-v14';
+const CACHE = 'tura-mea-nou-v15';
 const EXT = 'tura-mea-nou-ext';
 const FISIERE = ['./', './index.html', './manifest.webmanifest'];
 
@@ -21,9 +21,14 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (url.origin !== location.origin) return;
+  // Pornire rapidă: dăm imediat varianta ținută pe telefon și o aducem pe cea nouă în fundal
+  // (o modificare a aplicației se vede de la următoarea deschidere). Fără copie, așteptăm internetul.
+  const proaspat = fetch(e.request.url, { cache: 'no-cache' })
+    .then(r => { if (r.ok) { const copie = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copie)); } return r; });
   e.respondWith(
-    fetch(e.request.url, { cache: 'no-cache' })
-      .then(r => { const copie = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copie)); return r; })
-      .catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
+    caches.match(e.request).then(r => {
+      if (r) { e.waitUntil(proaspat.catch(() => {})); return r; }
+      return proaspat.catch(() => caches.match('./index.html'));
+    })
   );
 });
