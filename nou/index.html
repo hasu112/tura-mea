@@ -332,6 +332,34 @@ ol.anunturi { list-style:none; margin:0; padding:0; display:grid; gap:8px }
 .an.gol { color:var(--muted) }
 .anunt-urgent { border-color:var(--an-rosu); box-shadow:inset 0 0 0 1px var(--an-rosu) }
 
+/* Sticlă discretă: aceeași structură, suprafețe semi-transparente peste un fundal cu pete de culoare pale */
+:root { --sticla:rgba(255,255,255,.62); --sticla-tare:rgba(255,255,255,.82); --sticla-margine:rgba(255,255,255,.9); --sticla-umbra:0 4px 24px rgba(28,36,48,.07);
+  --pata1:rgba(150,220,185,.55); --pata2:rgba(196,190,255,.5); --pata3:rgba(255,200,170,.5); --fond:#EEF1F5 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sticla:rgba(23,32,39,.62); --sticla-tare:rgba(23,32,39,.86); --sticla-margine:rgba(255,255,255,.08); --sticla-umbra:0 4px 24px rgba(0,0,0,.35);
+  --pata1:rgba(40,120,85,.35); --pata2:rgba(80,70,160,.35); --pata3:rgba(150,80,50,.28); --fond:#0E1317 } }
+:root[data-theme="dark"] { --sticla:rgba(23,32,39,.62); --sticla-tare:rgba(23,32,39,.86); --sticla-margine:rgba(255,255,255,.08); --sticla-umbra:0 4px 24px rgba(0,0,0,.35);
+  --pata1:rgba(40,120,85,.35); --pata2:rgba(80,70,160,.35); --pata3:rgba(150,80,50,.28); --fond:#0E1317 }
+html { background:var(--fond) }
+body { background:
+  radial-gradient(420px 420px at 100% 0%, var(--pata1), transparent 70%),
+  radial-gradient(460px 460px at 0% 45%, var(--pata2), transparent 70%),
+  radial-gradient(420px 420px at 100% 100%, var(--pata3), transparent 70%),
+  var(--fond); background-attachment:fixed; min-height:100vh }
+.card, .status, .poarta-in { background:var(--sticla); border:1px solid var(--sticla-margine); box-shadow:var(--sticla-umbra); border-radius:18px;
+  -webkit-backdrop-filter:blur(16px) saturate(140%); backdrop-filter:blur(16px) saturate(140%) }
+.top { background:var(--sticla-tare); border-bottom:1px solid var(--sticla-margine); -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%) }
+body::before { background:var(--sticla-tare) }
+.tabs { background:var(--sticla); border:1px solid var(--sticla-margine); border-radius:14px }
+.tabs button { border-radius:10px }
+.tabs button[aria-selected="true"] { background:var(--surface); box-shadow:0 2px 10px rgba(28,36,48,.10) }
+.echipa .nume { background:var(--sticla-tare) }
+.btn-ic, .ghost { background:var(--sticla-tare) }
+ol.urm li, .tile, .bani, .cod-inv, ol.jurnal li, ul.ingr li, .an { background:var(--sticla-tare) }
+/* Fără suport pentru încețoșare (telefoane vechi): suprafețele devin aproape opace, ca textul să rămână lizibil */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .card, .status, .poarta-in, .top { background:var(--surface) }
+}
+
 .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:30; background:var(--ink); color:var(--surface); padding:10px 16px; border-radius:9px; font-weight:500; max-width:calc(100% - 32px) }
 @media (max-width:520px) { .tabs { width:100% } .tabs button { flex:1; padding:6px 2px; font-size:13px } }
 @media (max-width:420px) { .zi .d { font-size:14px } .zi .t { font-size:11px } }
